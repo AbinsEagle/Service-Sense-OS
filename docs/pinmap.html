@@ -94,7 +94,9 @@ header { display: grid; gap: 4px; }
 h1 { margin: 0; font-size: 28px; font-weight: 600; text-wrap: balance; }
 .sub { margin: 0; color: var(--muted); max-width: 65ch; }
 
-.legend { display: flex; flex-wrap: wrap; gap: 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 14px; cursor: pointer; }
+.toggle input { width: 16px; height: 16px; accent-color: var(--now); }
 .tag {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 500;
@@ -114,7 +116,7 @@ h1 { margin: 0; font-size: 28px; font-weight: 600; text-wrap: balance; }
   background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
   padding: 12px; overflow-x: auto;
 }
-.boardbox svg { display: block; width: 100%; min-width: 560px; height: auto; }
+.boardbox svg { display: block; width: 100%; min-width: 720px; height: auto; }
 .pin { cursor: pointer; outline: none; }
 .pin .hit { fill: transparent; }
 .pin:hover .hit, .pin:focus-visible .hit { fill: var(--line); opacity: .55; }
@@ -156,10 +158,11 @@ footer { color: var(--muted); font-size: 13px; }
     <span class="tag t-power">Power</span>
     <span class="tag t-avoid">Avoid</span>
     <span class="tag t-free">Free</span>
+    <label class="toggle"><input type="checkbox" id="showWiring" checked> Show DS18B20 probe wiring</label>
   </div>
 
   <div class="main">
-    <div class="boardbox"><svg id="board" viewBox="0 0 760 750" role="img" aria-label="ESP32 DevKitC pin diagram"></svg></div>
+    <div class="boardbox"><svg id="board" viewBox="0 0 1000 830" role="img" aria-label="ESP32 DevKitC pin diagram"></svg></div>
     <aside>
       <section class="card detail" id="detail" aria-live="polite"></section>
       <section class="card">
@@ -241,7 +244,7 @@ const el = (tag, attrs, parent) => {
   return e;
 };
 
-const BX = 250, BW = 260, TOP = 20, PITCH = 30, PIN0 = 130;
+const BX = 250, BW = 260, TOP = 80, PITCH = 30, PIN0 = TOP + 110;
 const pins = [];
 
 function draw() {
@@ -267,6 +270,8 @@ function draw() {
     const t = el("text", { x, y: H - 76, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 10 }, svg);
     t.textContent = n;
   });
+
+  if (document.getElementById("showWiring").checked) drawWiring();
 
   pins.length = 0;
   const side = (list, isLeft) => list.forEach((p, i) => {
@@ -296,6 +301,55 @@ function draw() {
   });
   side(LEFT, true);
   side(RIGHT, false);
+}
+
+// DS18B20 probe wiring, drawn under the pin chips so each wire runs into its pin.
+function drawWiring() {
+  const W = { red: "#d23b2f", black: "#1b1f1e", yellow: "#e0ad00", casing: "#cfd6d4" };
+  const y3v3 = PIN0, yGnd = PIN0, yData = PIN0 + 12 * PITCH;
+  const padL = BX + 14, padR = BX + BW - 14;
+  const xY = 800, xR = 860, xB = 920, ySplit = 650, yCable = 690, yTop = 45;
+  const g = el("g", { "aria-hidden": "true" }, svg);
+  const wire = (d, color) => {
+    el("path", { d, fill: "none", stroke: W.casing, "stroke-width": 7, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+    el("path", { d, fill: "none", stroke: color, "stroke-width": 4, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+  };
+  const label = (x, y, text, anchor = "middle", size = 12, weight = 500) => {
+    const t = el("text", { x, y, "text-anchor": anchor, fill: css("--ink"), "font-family": "IBM Plex Mono, monospace", "font-size": size, "font-weight": weight }, g);
+    t.textContent = text;
+  };
+  // red: probe VDD -> over the top of the board -> 3V3 (left header, pin 1)
+  wire(`M${xR} ${yCable} V${yTop} H${padL} V${y3v3}`, W.red);
+  // yellow: probe DATA -> GPIO 4 (right header, pin 13)
+  wire(`M${xR} ${yCable} L${xY} ${ySplit} V${yData} H${padR}`, W.yellow);
+  // black: probe GND -> GND (right header, pin 1), hopping over the red wire
+  wire(`M${xR} ${yCable} L${xB} ${ySplit} V${yGnd} H${xR + 14} A14 14 0 0 0 ${xR - 14} ${yGnd} H${padR}`, W.black);
+
+  // 4.7k pull-up between DATA (yellow) and 3V3 (red), next to the probe
+  const yRes = 600, rx0 = xY, rx1 = xR;
+  el("line", { x1: rx0, y1: yRes, x2: rx1, y2: yRes, stroke: css("--ink"), "stroke-width": 2 }, g);
+  el("rect", { x: rx0 + 14, y: yRes - 8, width: rx1 - rx0 - 28, height: 16, rx: 3, fill: "#d9c39a", stroke: "#7a6433", "stroke-width": 1.5 }, g);
+  [["#e8c200", 0.3], ["#8b2c9a", 0.5], ["#d23b2f", 0.7]].forEach(([c, f]) => {
+    const x = rx0 + 14 + (rx1 - rx0 - 28) * f;
+    el("rect", { x: x - 2, y: yRes - 8, width: 4, height: 16, fill: c }, g);
+  });
+  [rx0, rx1].forEach(x => el("circle", { cx: x, cy: yRes, r: 4.5, fill: css("--ink") }, g));
+  label((rx0 + rx1) / 2 - 38, yRes + 4, "4.7kΩ", "end", 13, 600);
+  label((rx0 + rx1) / 2 - 38, yRes + 20, "DATA ↔ 3V3", "end", 11, 400);
+
+  // wire colour labels
+  label(xR + 8, yTop - 10, "red → 3V3", "start", 12, 600);
+  label(xB + 10, (yGnd + ySplit) / 2, "black", "start");
+  label(xB + 10, (yGnd + ySplit) / 2 + 15, "→ GND", "start");
+  label(xY - 10, yData - 12, "yellow → GPIO 4", "end", 12, 600);
+
+  // probe: cable + stainless tube
+  el("line", { x1: xR, y1: yCable, x2: xR, y2: 718, stroke: "#2a2e2d", "stroke-width": 9, "stroke-linecap": "round" }, g);
+  el("rect", { x: xR - 11, y: 718, width: 22, height: 86, rx: 11, fill: "#b9c2c0", stroke: "#6c7674", "stroke-width": 1.5 }, g);
+  el("rect", { x: xR - 13, y: 714, width: 26, height: 12, rx: 3, fill: "#2a2e2d" }, g);
+  label(xR + 24, 752, "DS18B20", "start", 13, 600);
+  label(xR + 24, 768, "waterproof", "start", 11, 400);
+  label(xR + 24, 782, "probe", "start", 11, 400);
 }
 
 let current = null;
@@ -337,6 +391,7 @@ function render() {
   select(keep >= 0 ? pins[keep] : pins.find(p => p.gpio === 4));
 }
 render();
+document.getElementById("showWiring").addEventListener("change", render);
 // Redraw when the theme changes so SVG colors follow the tokens.
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
 new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
