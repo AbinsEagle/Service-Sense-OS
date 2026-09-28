@@ -8,7 +8,7 @@ pins 34–39 for anything that needs an internal pull-up.
 
 | Function | GPIO | Notes | Status |
 |---|---|---|---|
-| DS18B20 data (1-Wire) | 4 | 4.7kΩ pull-up to 3.3V | wiring |
+| DS18B20 data (1-Wire) | 4 | 4.7kΩ pull-up to 3.3V | wired, reading |
 | I2C SDA (ADS1115) | 21 | ESP32 default SDA | planned |
 | I2C SCL (ADS1115) | 22 | ESP32 default SCL | planned |
 | WS2812B data (RGB1 → RGB2 chained) | 16 | | planned |
