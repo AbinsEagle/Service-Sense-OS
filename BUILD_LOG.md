@@ -15,9 +15,10 @@ the result, and any problems. Toolchain setup history (2026-09-27) is in
 **Tested:**
 - Compiled and uploaded with `PartitionScheme=min_spiffs` (14% flash).
 - Serial output after reset: 1 device found, address `28E6BD7800000092`, steady 32.31 °C readings.
+- Warm test (probe pinched): reading rose from 32.31 °C to 34.56 °C and held steady. Also confirmed flashing and monitoring from Arduino IDE 2.
 
 **Result:** Probe detected and reading on the bench.
 
-**Pending:** warm/cold response check and comparison against a reference thermometer (target ±0.5 °C).
+**Pending:** cold-water check and comparison against a reference thermometer (target ±0.5 °C).
 
 **Problems:** none.
