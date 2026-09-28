@@ -17,6 +17,7 @@ the result, and any problems. Toolchain setup history (2026-09-27) is in
 - Serial output after reset: 1 device found, address `28E6BD7800000092`, steady 32.31 °C readings.
 - Warm test (probe pinched): reading rose from 32.31 °C to 34.56 °C and held steady. Also confirmed flashing and monitoring from Arduino IDE 2.
 - Cold test (probe in cold water): reading dropped to 10.12 °C and settled.
+- Added an activity indicator: the onboard blue LED (GPIO 2) fades in and out during each 750 ms conversion (non-blocking read). Confirmed working on the board.
 
 **Result:** DS18B20 working on the bench. Responds correctly to warm and cold, readings stable.
 
