@@ -43,6 +43,12 @@ Work proceeds track by track, in this order.
 - [ ] Pin map + wiring diagram in `docs/`
 - [ ] Power budget review against the <10 µA sleep target
 - [ ] Bench build on perfboard, each sensor verified individually
+  - [x] DS18B20 temperature (reference thermometer check pending)
+  - [ ] ADS1115 ADC
+  - [ ] TDS
+  - [ ] ZMPT101B voltage
+  - [ ] Pressure transducer
+  - [ ] Battery divider
 
 **2. Embedded**
 - [ ] Firmware skeleton: `FW_VERSION`, state machine (sleep → wake → read → sleep)
