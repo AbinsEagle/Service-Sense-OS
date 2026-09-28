@@ -162,7 +162,7 @@ footer { color: var(--muted); font-size: 13px; }
   </div>
 
   <div class="main">
-    <div class="boardbox"><svg id="board" viewBox="0 0 1000 830" role="img" aria-label="ESP32 DevKitC pin diagram"></svg></div>
+    <div class="boardbox"><svg id="board" viewBox="0 0 1000 930" role="img" aria-label="ESP32 DevKitC pin diagram"></svg></div>
     <aside>
       <section class="card detail" id="detail" aria-live="polite"></section>
       <section class="card">
@@ -231,7 +231,7 @@ const RIGHT = [
 ];
 
 const WIRING = {
-  4: ["Red probe wire → 3V3 (top-left pin)", "Black probe wire → GND (top-right pin)", "Yellow/white probe wire → GPIO 4", "4.7kΩ resistor between GPIO 4 and 3V3"],
+  4: ["Red probe wire → 3V3 (top-left pin)", "Black probe wire → GND (top-right pin)", "Yellow/white probe wire → GPIO 4", "4.7kΩ resistor between GPIO 4 and 3V3. Bands: yellow, violet, red, gold (4-band) or yellow, violet, black, brown, brown (5-band)."],
 };
 
 const NS = "http://www.w3.org/2000/svg";
@@ -303,12 +303,15 @@ function draw() {
   side(RIGHT, false);
 }
 
+// IEC 60062 resistor band colours.
+const BAND = { black: "#1b1b1b", brown: "#7a4a1e", red: "#d23b2f", yellow: "#f2c200", violet: "#7b3fa0", gold: "#c9a24b" };
+
 // DS18B20 probe wiring, drawn under the pin chips so each wire runs into its pin.
 function drawWiring() {
   const W = { red: "#d23b2f", black: "#1b1f1e", yellow: "#e0ad00", casing: "#cfd6d4" };
   const y3v3 = PIN0, yGnd = PIN0, yData = PIN0 + 12 * PITCH;
   const padL = BX + 14, padR = BX + BW - 14;
-  const xY = 800, xR = 860, xB = 920, ySplit = 650, yCable = 690, yTop = 45;
+  const xY = 770, xR = 860, xB = 920, ySplit = 650, yCable = 690, yTop = 45;
   const g = el("g", { "aria-hidden": "true" }, svg);
   const wire = (d, color) => {
     el("path", { d, fill: "none", stroke: W.casing, "stroke-width": 7, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
@@ -329,13 +332,29 @@ function drawWiring() {
   const yRes = 600, rx0 = xY, rx1 = xR;
   el("line", { x1: rx0, y1: yRes, x2: rx1, y2: yRes, stroke: css("--ink"), "stroke-width": 2 }, g);
   el("rect", { x: rx0 + 14, y: yRes - 8, width: rx1 - rx0 - 28, height: 16, rx: 3, fill: "#d9c39a", stroke: "#7a6433", "stroke-width": 1.5 }, g);
-  [["#e8c200", 0.3], ["#8b2c9a", 0.5], ["#d23b2f", 0.7]].forEach(([c, f]) => {
+  // 4-band 4.7kΩ ±5%: yellow (4), violet (7), red (×100), gap, gold (±5%)
+  [[BAND.yellow, 0.18], [BAND.violet, 0.34], [BAND.red, 0.5], [BAND.gold, 0.82]].forEach(([c, f]) => {
     const x = rx0 + 14 + (rx1 - rx0 - 28) * f;
-    el("rect", { x: x - 2, y: yRes - 8, width: 4, height: 16, fill: c }, g);
+    el("rect", { x: x - 3, y: yRes - 8, width: 6, height: 16, fill: c }, g);
   });
   [rx0, rx1].forEach(x => el("circle", { cx: x, cy: yRes, r: 4.5, fill: css("--ink") }, g));
-  label((rx0 + rx1) / 2 - 38, yRes + 4, "4.7kΩ", "end", 13, 600);
-  label((rx0 + rx1) / 2 - 38, yRes + 20, "DATA ↔ 3V3", "end", 11, 400);
+  label(rx0 - 10, yRes + 4, "4.7kΩ", "end", 13, 600);
+  label(rx0 - 10, yRes + 20, "DATA ↔ 3V3", "end", 11, 400);
+
+  // colour-code key
+  const kx = 560, ky = 836;
+  el("rect", { x: kx, y: ky, width: 425, height: 84, rx: 6, fill: css("--panel"), stroke: css("--line") }, g);
+  label(kx + 14, ky + 22, "4.7kΩ colour code (start from the band nearest an end)", "start", 11, 600);
+  const row = (y, name, bands) => {
+    label(kx + 14, y + 4, name, "start", 11, 500);
+    bands.forEach(([c, n], i) => {
+      const x = kx + 88 + i * 66;
+      el("rect", { x, y: y - 7, width: 14, height: 14, rx: 2, fill: c, stroke: "#6c7674", "stroke-width": 1 }, g);
+      label(x + 18, y + 4, n, "start", 11, 400);
+    });
+  };
+  row(ky + 44, "4-band ±5%", [[BAND.yellow, "yellow"], [BAND.violet, "violet"], [BAND.red, "red"], [BAND.gold, "gold"]]);
+  row(ky + 68, "5-band ±1%", [[BAND.yellow, "yellow"], [BAND.violet, "violet"], [BAND.black, "black"], [BAND.brown, "brown"], [BAND.brown, "brown"]]);
 
   // wire colour labels
   label(xR + 8, yTop - 10, "red → 3V3", "start", 12, 600);
