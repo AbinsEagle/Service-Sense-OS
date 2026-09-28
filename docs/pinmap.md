@@ -1,5 +1,7 @@
 # Pin map — ESP32 DevKitC (ESP32-WROOM-32)
 
+
+Graphical version: open `docs/pinmap.html` in a browser (click any pin for details).
 Reserved up front so each sensor can be added without re-wiring earlier ones.
 Avoided: strapping pins (0, 2, 5, 12, 15), flash pins (6–11), and input-only
 pins 34–39 for anything that needs an internal pull-up.

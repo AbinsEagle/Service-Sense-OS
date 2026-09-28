@@ -1,0 +1,343 @@
+<title>Hommiez Pin Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #eef1f0;
+  --panel: #ffffff;
+  --ink: #17201e;
+  --muted: #5b6764;
+  --line: #d3dad8;
+  --board: #1f3d3a;
+  --board-edge: #152b29;
+  --silk: #e8efe9;
+  --pad: #c9a24b;
+  --pad-ring: #8a6d2a;
+  --chip-shield: #3a4a47;
+  --now: #0f8a5f;
+  --now-soft: #d6f0e4;
+  --planned: #2f62c9;
+  --planned-soft: #dde6f8;
+  --power: #b8362f;
+  --power-soft: #f6dcda;
+  --avoid: #b36b00;
+  --avoid-soft: #f7e7cc;
+  --free: #7a8683;
+  --free-soft: #e4e8e7;
+  --focus: #2f62c9;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111615;
+    --panel: #1a2120;
+    --ink: #e4ebe9;
+    --muted: #9aa7a4;
+    --line: #2d3836;
+    --board: #1c3633;
+    --board-edge: #0c1a19;
+    --silk: #dbe6df;
+    --now: #3fc58f;
+    --now-soft: #173a2c;
+    --planned: #7ea3f0;
+    --planned-soft: #1c2a47;
+    --power: #ec7a72;
+    --power-soft: #43201e;
+    --avoid: #e7a34a;
+    --avoid-soft: #3c2a10;
+    --free: #8b9794;
+    --free-soft: #262f2d;
+    --focus: #7ea3f0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111615;
+  --panel: #1a2120;
+  --ink: #e4ebe9;
+  --muted: #9aa7a4;
+  --line: #2d3836;
+  --board: #1c3633;
+  --board-edge: #0c1a19;
+  --silk: #dbe6df;
+  --now: #3fc58f;
+  --now-soft: #173a2c;
+  --planned: #7ea3f0;
+  --planned-soft: #1c2a47;
+  --power: #ec7a72;
+  --power-soft: #43201e;
+  --avoid: #e7a34a;
+  --avoid-soft: #3c2a10;
+  --free: #8b9794;
+  --free-soft: #262f2d;
+  --focus: #7ea3f0;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 24px 16px 48px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 20px; }
+header { display: grid; gap: 4px; }
+.eyebrow {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+}
+h1 { margin: 0; font-size: 28px; font-weight: 600; text-wrap: balance; }
+.sub { margin: 0; color: var(--muted); max-width: 65ch; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; font-weight: 500;
+  padding: 3px 9px; border-radius: 4px; border: 1px solid transparent;
+}
+.tag::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.t-now { color: var(--now); background: var(--now-soft); }
+.t-planned { color: var(--planned); background: var(--planned-soft); }
+.t-power { color: var(--power); background: var(--power-soft); }
+.t-avoid { color: var(--avoid); background: var(--avoid-soft); }
+.t-free { color: var(--free); background: var(--free-soft); }
+
+.main { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .main { grid-template-columns: 1fr; } }
+
+.boardbox {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  padding: 12px; overflow-x: auto;
+}
+.boardbox svg { display: block; width: 100%; min-width: 560px; height: auto; }
+.pin { cursor: pointer; outline: none; }
+.pin .hit { fill: transparent; }
+.pin:hover .hit, .pin:focus-visible .hit { fill: var(--line); opacity: .55; }
+.pin.sel .hit { fill: var(--line); opacity: .9; }
+.pin:focus-visible .hit { stroke: var(--focus); stroke-width: 2; }
+
+aside { display: grid; gap: 20px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+.card h2 { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
+.card h3 { margin: 0 0 10px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.detail-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.detail dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 14px 0 0; }
+.detail dt { color: var(--muted); font-size: 13px; }
+.detail dd { margin: 0; }
+.steps { margin: 14px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+td.gp { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--bg); }
+.tablebox { overflow-x: auto; }
+footer { color: var(--muted); font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) { .pin .hit { transition: fill .12s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Service Sense OS · ESP32 DevKitC V4 · 38-pin</div>
+    <h1>Hommiez Pin Map</h1>
+    <p class="sub">Top view, antenna up, USB down. Select any pin to see what it's used for and whether it's safe to use. Assignments match <span class="mono">docs/pinmap.md</span>.</p>
+  </header>
+
+  <div class="legend" aria-label="Legend">
+    <span class="tag t-now">Wire now</span>
+    <span class="tag t-planned">Reserved</span>
+    <span class="tag t-power">Power</span>
+    <span class="tag t-avoid">Avoid</span>
+    <span class="tag t-free">Free</span>
+  </div>
+
+  <div class="main">
+    <div class="boardbox"><svg id="board" viewBox="0 0 760 750" role="img" aria-label="ESP32 DevKitC pin diagram"></svg></div>
+    <aside>
+      <section class="card detail" id="detail" aria-live="polite"></section>
+      <section class="card">
+        <h3>Assigned pins</h3>
+        <div class="tablebox"><table>
+          <thead><tr><th>GPIO</th><th>Function</th><th>Status</th></tr></thead>
+          <tbody id="assigned"></tbody>
+        </table></div>
+      </section>
+    </aside>
+  </div>
+  <footer>ADS1115 channels: A0 AC voltage (ZMPT101B) · A1 TDS · A2 pressure · A3 battery divider.</footer>
+</div>
+
+<script>
+const STATUS = {
+  now:     { label: "Wire now", color: "--now",     soft: "--now-soft" },
+  planned: { label: "Reserved", color: "--planned", soft: "--planned-soft" },
+  power:   { label: "Power",    color: "--power",   soft: "--power-soft" },
+  avoid:   { label: "Avoid",    color: "--avoid",   soft: "--avoid-soft" },
+  free:    { label: "Free",     color: "--free",    soft: "--free-soft" },
+};
+
+// [silkscreen label, gpio or null, status, short tag, notes]
+const LEFT = [
+  ["3V3", null, "power", "3.3V out", "3.3V from the board's regulator. Powers the DS18B20 and the 4.7kΩ pull-up."],
+  ["EN", null, "avoid", "reset", "Chip enable. Pulling it low resets the ESP32. Wired to the EN button."],
+  ["VP", 36, "free", "input only", "SENSOR_VP. Input only, no internal pull-up or pull-down. ADC1_CH0."],
+  ["VN", 39, "free", "input only", "SENSOR_VN. Input only, no internal pull-up or pull-down. ADC1_CH3."],
+  ["34", 34, "free", "input only", "Input only, no internal pull-up or pull-down. ADC1_CH6."],
+  ["35", 35, "free", "input only", "Input only, no internal pull-up or pull-down. ADC1_CH7."],
+  ["32", 32, "planned", "TEMP button", "TEMP sensor button. RTC GPIO, so it can also wake the chip. ADC1_CH4."],
+  ["33", 33, "planned", "POWER button", "POWER button. RTC GPIO: wakes the ESP32 from deep sleep (ext0). ADC1_CH5."],
+  ["25", 25, "planned", "TDS button", "TDS sensor button. RTC GPIO. DAC1, ADC2_CH8."],
+  ["26", 26, "planned", "VOLT button", "VOLT sensor button. RTC GPIO. DAC2, ADC2_CH9."],
+  ["27", 27, "planned", "PRESS button", "PRESS sensor button. RTC GPIO. ADC2_CH7."],
+  ["14", 14, "free", "PWM at boot", "Free, but outputs a PWM signal during boot. ADC2_CH6, RTC GPIO."],
+  ["12", 12, "avoid", "strapping", "Strapping pin (MTDI). Pulled high at boot, it selects 1.8V flash and the board won't boot."],
+  ["GND", null, "power", "ground", "Ground."],
+  ["13", 13, "free", "free", "Free. ADC2_CH4, RTC GPIO."],
+  ["D2", 9, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+  ["D3", 10, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+  ["CMD", 11, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+  ["5V", null, "power", "5V (USB)", "5V from USB when plugged in. On battery, the MT3608 boost supplies 5V to the ZMPT101B and pressure sensor instead."],
+];
+const RIGHT = [
+  ["GND", null, "power", "ground", "Ground. Use this one for the DS18B20's black wire."],
+  ["23", 23, "free", "free", "Free. Default VSPI MOSI."],
+  ["22", 22, "planned", "I2C SCL", "I2C clock to the ADS1115 (SCL). ESP32 default."],
+  ["TX", 1, "avoid", "USB serial TX", "UART0 TX to the CP2102. Used for uploads and Serial output."],
+  ["RX", 3, "avoid", "USB serial RX", "UART0 RX from the CP2102. Used for uploads and Serial input."],
+  ["21", 21, "planned", "I2C SDA", "I2C data to the ADS1115 (SDA). ESP32 default."],
+  ["GND", null, "power", "ground", "Ground."],
+  ["19", 19, "free", "free", "Free. Default VSPI MISO."],
+  ["18", 18, "free", "free", "Free. Default VSPI SCK."],
+  ["5", 5, "avoid", "strapping", "Strapping pin. Must be high at boot. Outputs PWM during boot."],
+  ["17", 17, "free", "free", "Free on WROOM-32 modules."],
+  ["16", 16, "planned", "WS2812B data", "Data line to the two chained WS2812B LEDs (RGB1 battery, RGB2 result)."],
+  ["4", 4, "now", "DS18B20 data", "1-Wire data from the DS18B20 temperature probe. Needs a 4.7kΩ pull-up to 3V3."],
+  ["0", 0, "avoid", "BOOT button", "Strapping pin, wired to the BOOT button. Low at reset enters download mode."],
+  ["2", 2, "avoid", "strapping, LED", "Strapping pin and the onboard LED on many boards. Must be low or floating at boot to flash."],
+  ["15", 15, "avoid", "strapping", "Strapping pin. Low at boot silences the boot log. Outputs PWM during boot."],
+  ["D1", 8, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+  ["D0", 7, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+  ["CLK", 6, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+];
+
+const WIRING = {
+  4: ["Red probe wire → 3V3 (top-left pin)", "Black probe wire → GND (top-right pin)", "Yellow/white probe wire → GPIO 4", "4.7kΩ resistor between GPIO 4 and 3V3"],
+};
+
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("board");
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const el = (tag, attrs, parent) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+
+const BX = 250, BW = 260, TOP = 20, PITCH = 30, PIN0 = 130;
+const pins = [];
+
+function draw() {
+  svg.textContent = "";
+  const H = PIN0 + PITCH * 18 + 60;
+  // board
+  el("rect", { x: BX, y: TOP, width: BW, height: H - TOP, rx: 10, fill: css("--board"), stroke: css("--board-edge"), "stroke-width": 2 }, svg);
+  // WROOM module shield + antenna
+  el("rect", { x: BX + 55, y: TOP + 12, width: BW - 110, height: 58, rx: 3, fill: css("--board-edge") }, svg);
+  const ant = el("path", { d: `M${BX + 75} ${TOP + 55} h20 v-28 h16 v28 h16 v-28 h16 v28 h16 v-28 h16 v28 h20`, fill: "none", stroke: css("--pad"), "stroke-width": 2 }, svg);
+  el("rect", { x: BX + 65, y: TOP + 74, width: BW - 130, height: 150, rx: 3, fill: css("--chip-shield") }, svg);
+  const t1 = el("text", { x: BX + BW / 2, y: TOP + 145, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 14, "font-weight": 600 }, svg);
+  t1.textContent = "ESP32-WROOM-32";
+  const t2 = el("text", { x: BX + BW / 2, y: TOP + 165, "text-anchor": "middle", fill: css("--silk"), opacity: .7, "font-family": "IBM Plex Mono, monospace", "font-size": 11 }, svg);
+  t2.textContent = "antenna ↑ keep clear of metal";
+  // USB + buttons
+  el("rect", { x: BX + BW / 2 - 28, y: H - 22, width: 56, height: 30, rx: 3, fill: "#9aa3a1", stroke: css("--board-edge") }, svg);
+  const usb = el("text", { x: BX + BW / 2, y: H - 30, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 11 }, svg);
+  usb.textContent = "micro-USB · CP2102";
+  [["EN", BX + 45], ["BOOT", BX + BW - 45]].forEach(([n, x]) => {
+    el("rect", { x: x - 14, y: H - 70, width: 28, height: 22, rx: 3, fill: css("--board-edge") }, svg);
+    el("circle", { cx: x, cy: H - 59, r: 6, fill: "#9aa3a1" }, svg);
+    const t = el("text", { x, y: H - 76, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 10 }, svg);
+    t.textContent = n;
+  });
+
+  pins.length = 0;
+  const side = (list, isLeft) => list.forEach((p, i) => {
+    const [label, gpio, status, tag, notes] = p;
+    const y = PIN0 + i * PITCH;
+    const px = isLeft ? BX + 14 : BX + BW - 14;
+    const g = el("g", { class: "pin", tabindex: 0, role: "button", "aria-label": `${label}${gpio !== null ? " GPIO " + gpio : ""}: ${tag}` }, svg);
+    el("rect", { class: "hit", x: isLeft ? 0 : BX + BW - 30, y: y - 13, width: BX + 30, height: 26, rx: 4 }, g);
+    el("circle", { cx: px, cy: y, r: 8, fill: css("--pad"), stroke: css("--pad-ring"), "stroke-width": 1.5 }, g);
+    el("circle", { cx: px, cy: y, r: 3.2, fill: css("--board-edge") }, g);
+    const s = el("text", { x: isLeft ? px + 16 : px - 16, y: y + 4, "text-anchor": isLeft ? "start" : "end", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 12, "font-weight": 500 }, g);
+    s.textContent = label;
+    // chip outside the board
+    const st = STATUS[status];
+    const text = gpio !== null && label !== String(gpio) ? `${tag} · IO${gpio}` : tag;
+    const w = Math.max(64, text.length * 7.4 + 26);
+    const cx = isLeft ? BX - 16 - w : BX + BW + 16;
+    el("line", { x1: isLeft ? BX - 16 : BX + BW, x2: isLeft ? BX : BX + BW + 16, y1: y, y2: y, stroke: css(st.color), "stroke-width": 1.5 }, g);
+    el("rect", { x: cx, y: y - 11, width: w, height: 22, rx: 4, fill: css(st.soft), stroke: css(st.color), "stroke-width": status === "now" ? 2 : 1 }, g);
+    el("circle", { cx: cx + 11, cy: y, r: 3.5, fill: css(st.color) }, g);
+    const ct = el("text", { x: cx + 20, y: y + 4, fill: css(st.color), "font-family": "IBM Plex Mono, monospace", "font-size": 12, "font-weight": status === "now" || status === "planned" ? 600 : 400 }, g);
+    ct.textContent = text;
+    const rec = { label, gpio, status, tag, notes, side: isLeft ? "Left" : "Right", pos: i + 1, g };
+    g.addEventListener("click", () => select(rec));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(rec); } });
+    pins.push(rec);
+  });
+  side(LEFT, true);
+  side(RIGHT, false);
+}
+
+let current = null;
+function select(rec) {
+  current = rec;
+  pins.forEach(p => p.g.classList.toggle("sel", p === rec));
+  const st = STATUS[rec.status];
+  const d = document.getElementById("detail");
+  const title = rec.gpio !== null ? `GPIO ${rec.gpio}` : rec.label;
+  const wiring = WIRING[rec.gpio];
+  d.innerHTML = `
+    <div class="detail-head"><h2 class="mono">${title}</h2><span class="tag t-${rec.status}">${st.label}</span></div>
+    <div style="color:var(--muted)">${rec.tag}</div>
+    <dl>
+      <dt>Silkscreen</dt><dd class="mono">${rec.label}</dd>
+      <dt>Position</dt><dd>${rec.side} header, pin ${rec.pos} from the top</dd>
+      <dt>Notes</dt><dd>${rec.notes}</dd>
+    </dl>
+    ${wiring ? `<h3 style="margin-top:16px">How to wire</h3><ol class="steps">${wiring.map(w => `<li>${w}</li>`).join("")}</ol>` : ""}`;
+}
+
+function table() {
+  const rows = pins.filter(p => p.status === "now" || p.status === "planned")
+    .sort((a, b) => (a.status === "now" ? -1 : 0) - (b.status === "now" ? -1 : 0) || a.gpio - b.gpio);
+  const tb = document.getElementById("assigned");
+  tb.innerHTML = "";
+  rows.forEach(p => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="gp">${p.gpio}</td><td>${p.tag}</td><td><span class="tag t-${p.status}">${STATUS[p.status].label}</span></td>`;
+    tr.addEventListener("click", () => { select(p); p.g.focus({ preventScroll: true }); });
+    tb.appendChild(tr);
+  });
+}
+
+function render() {
+  const keep = current ? pins.indexOf(current) : -1;
+  draw();
+  table();
+  select(keep >= 0 ? pins[keep] : pins.find(p => p.gpio === 4));
+}
+render();
+// Redraw when the theme changes so SVG colors follow the tokens.
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
