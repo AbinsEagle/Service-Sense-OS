@@ -116,7 +116,7 @@ h1 { margin: 0; font-size: 28px; font-weight: 600; text-wrap: balance; }
   background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
   padding: 12px; overflow-x: auto;
 }
-.boardbox svg { display: block; width: 100%; min-width: 720px; height: auto; }
+.boardbox svg { display: block; width: 100%; min-width: 920px; height: auto; }
 .pin { cursor: pointer; outline: none; }
 .pin .hit { fill: transparent; }
 .pin:hover .hit, .pin:focus-visible .hit { fill: var(--line); opacity: .55; }
@@ -158,11 +158,11 @@ footer { color: var(--muted); font-size: 13px; }
     <span class="tag t-power">Power</span>
     <span class="tag t-avoid">Avoid</span>
     <span class="tag t-free">Free</span>
-    <label class="toggle"><input type="checkbox" id="showWiring" checked> Show DS18B20 probe wiring</label>
+    <label class="toggle"><input type="checkbox" id="showWiring" checked> Show sensor wiring</label>
   </div>
 
   <div class="main">
-    <div class="boardbox"><svg id="board" viewBox="0 0 1000 930" role="img" aria-label="ESP32 DevKitC pin diagram"></svg></div>
+    <div class="boardbox"><svg id="board" viewBox="-290 0 1290 930" role="img" aria-label="ESP32 DevKitC pin diagram"></svg></div>
     <aside>
       <section class="card detail" id="detail" aria-live="polite"></section>
       <section class="card">
@@ -192,7 +192,7 @@ const LEFT = [
   ["EN", null, "avoid", "reset", "Chip enable. Pulling it low resets the ESP32. Wired to the EN button."],
   ["VP", 36, "free", "input only", "SENSOR_VP. Input only, no internal pull-up or pull-down. ADC1_CH0."],
   ["VN", 39, "free", "input only", "SENSOR_VN. Input only, no internal pull-up or pull-down. ADC1_CH3."],
-  ["34", 34, "free", "input only", "Input only, no internal pull-up or pull-down. ADC1_CH6."],
+  ["34", 34, "now", "TDS signal", "Analog output of the TDS module (bench wiring). In the final device TDS moves to ADS1115 A1. ADC1_CH6, input only."],
   ["35", 35, "free", "input only", "Input only, no internal pull-up or pull-down. ADC1_CH7."],
   ["32", 32, "planned", "TEMP button", "TEMP sensor button. RTC GPIO, so it can also wake the chip. ADC1_CH4."],
   ["33", 33, "planned", "POWER button", "POWER button. RTC GPIO: wakes the ESP32 from deep sleep (ext0). ADC1_CH5."],
@@ -231,6 +231,7 @@ const RIGHT = [
 ];
 
 const WIRING = {
+  34: ["TDS module + (VCC) → 3V3 (top-left pin). Use 3V3, not 5V, so the signal stays within the ESP32's input range.", "TDS module A (signal) → GPIO 34 (left header, 5th pin)", "TDS module − (GND) → GND (left header, 14th pin)", "TDS probe → the module's 2-pin probe socket"],
   4: ["Red probe wire → 3V3 (top-left pin)", "Black probe wire → GND (top-right pin)", "Yellow/white probe wire → GPIO 4", "4.7kΩ resistor between GPIO 4 and 3V3. Bands: yellow, violet, red, gold (4-band) or yellow, violet, black, brown, brown (5-band)."],
 };
 
@@ -271,7 +272,7 @@ function draw() {
     t.textContent = n;
   });
 
-  if (document.getElementById("showWiring").checked) drawWiring();
+  if (document.getElementById("showWiring").checked) { drawWiring(); drawTdsWiring(); }
 
   pins.length = 0;
   const side = (list, isLeft) => list.forEach((p, i) => {
@@ -369,6 +370,48 @@ function drawWiring() {
   label(xR + 24, 752, "DS18B20", "start", 13, 600);
   label(xR + 24, 768, "waterproof", "start", 11, 400);
   label(xR + 24, 782, "probe", "start", 11, 400);
+}
+
+// TDS module + probe on the left, wired to 3V3, GPIO 34 and GND.
+function drawTdsWiring() {
+  const W = { red: "#d23b2f", black: "#1b1f1e", blue: "#1e7fd8", casing: "#cfd6d4" };
+  const padL = BX + 14;
+  const yV = PIN0, yA = PIN0 + 4 * PITCH, yG = PIN0 + 13 * PITCH;
+  const mx = -265, mw = 115, hx = mx + mw;             // module box and its header edge
+  const pV = yA - 30, pA = yA, pG = yA + 30;            // module header pins
+  const g = el("g", { "aria-hidden": "true" }, svg);
+  const wire = (d, color) => {
+    el("path", { d, fill: "none", stroke: W.casing, "stroke-width": 7, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+    el("path", { d, fill: "none", stroke: color, "stroke-width": 4, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+  };
+  const label = (x, y, text, anchor = "start", size = 12, weight = 500, fill = css("--ink")) => {
+    const t = el("text", { x, y, "text-anchor": anchor, fill, "font-family": "IBM Plex Mono, monospace", "font-size": size, "font-weight": weight }, g);
+    t.textContent = text;
+  };
+  wire(`M${hx} ${pV} H${hx + 40} V${yV} H${padL}`, W.red);
+  wire(`M${hx} ${pA} H${padL}`, W.blue);
+  wire(`M${hx} ${pG} H${hx + 30} V${yG} H${padL}`, W.black);
+
+  // module board
+  el("rect", { x: mx, y: pV - 45, width: mw, height: 150, rx: 6, fill: "#1f4fa3", stroke: "#123066", "stroke-width": 1.5 }, g);
+  label(mx + 12, pV - 24, "TDS", "start", 13, 600, "#ffffff");
+  label(mx + 12, pV - 9, "module", "start", 11, 400, "#dbe6ff");
+  [[pV, "+"], [pA, "A"], [pG, "−"]].forEach(([y, n]) => {
+    el("rect", { x: hx - 12, y: y - 6, width: 12, height: 12, rx: 2, fill: "#c9a24b" }, g);
+    label(hx - 18, y + 4, n, "end", 13, 600, "#ffffff");
+  });
+  // probe socket, cable, probe
+  el("rect", { x: mx + 12, y: pG + 38, width: 30, height: 16, rx: 2, fill: "#f2f2f2", stroke: "#8a9291" }, g);
+  el("path", { d: `M${mx + 27} ${pG + 54} V${pG + 110}`, fill: "none", stroke: "#2a2e2d", "stroke-width": 6, "stroke-linecap": "round" }, g);
+  el("rect", { x: mx + 18, y: pG + 110, width: 18, height: 120, rx: 4, fill: "#2a2e2d" }, g);
+  el("rect", { x: mx + 22, y: pG + 226, width: 3, height: 18, fill: "#b9c2c0" }, g);
+  el("rect", { x: mx + 29, y: pG + 226, width: 3, height: 18, fill: "#b9c2c0" }, g);
+  label(mx + 46, pG + 150, "TDS probe", "start", 13, 600);
+  label(mx + 46, pG + 166, "2 electrodes", "start", 11, 400);
+
+  label(hx + 48, yV - 8, "red + → 3V3", "start", 12, 600);
+  label(hx + 48, yA - 8, "blue A → GPIO 34", "start", 12, 600);
+  label(hx + 38, yG - 8, "black − → GND", "start", 12, 600);
 }
 
 let current = null;

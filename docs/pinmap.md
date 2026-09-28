@@ -9,6 +9,7 @@ pins 34–39 for anything that needs an internal pull-up.
 | Function | GPIO | Notes | Status |
 |---|---|---|---|
 | DS18B20 data (1-Wire) | 4 | 4.7kΩ pull-up to 3.3V | wired, reading |
+| TDS signal (bench only; moves to ADS1115 A1) | 34 | ADC1_CH6, input only | wired |
 | I2C SDA (ADS1115) | 21 | ESP32 default SDA | planned |
 | I2C SCL (ADS1115) | 22 | ESP32 default SCL | planned |
 | WS2812B data (RGB1 → RGB2 chained) | 16 | | planned |
@@ -31,3 +32,13 @@ Waterproof probe wire colours (most common; check your probe's listing):
 
 Power the probe from 3.3V, not 5V, so the data line never exceeds the
 ESP32's 3.3V logic level.
+
+## TDS module wiring (bench)
+
+| Module pin | Connect to |
+|---|---|
+| + (VCC) | 3V3 |
+| A (signal) | GPIO 34 |
+| − (GND) | GND |
+
+Power the module from 3V3 so its output stays inside the ESP32 ADC range.
