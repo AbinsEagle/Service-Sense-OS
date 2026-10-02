@@ -149,7 +149,7 @@ footer { color: var(--muted); font-size: 13px; }
   <header>
     <div class="eyebrow">Service Sense OS · ESP32 DevKitC V4 · 38-pin</div>
     <h1>Hommiez Pin Map</h1>
-    <p class="sub">Top view, antenna up, USB down. Select any pin to see what it's used for and whether it's safe to use. Assignments match <span class="mono">docs/pinmap.md</span>.</p>
+    <p class="sub"><span id="viewNote">Top view</span>, antenna up, USB down. Select any pin to see what it's used for and whether it's safe to use. Assignments match <span class="mono">docs/pinmap.md</span>.</p>
   </header>
 
   <div class="legend" aria-label="Legend">
@@ -158,7 +158,8 @@ footer { color: var(--muted); font-size: 13px; }
     <span class="tag t-power">Power</span>
     <span class="tag t-avoid">Avoid</span>
     <span class="tag t-free">Free</span>
-    <label class="toggle"><input type="checkbox" id="showWiring" checked> Show sensor wiring</label>
+    <label class="toggle"><input type="checkbox" id="rearView"> Rear view (mirrored)</label>
+    <label class="toggle" style="margin-left:12px"><input type="checkbox" id="showWiring" checked> Show sensor wiring</label>
   </div>
 
   <div class="main">
@@ -248,27 +249,50 @@ const el = (tag, attrs, parent) => {
 const BX = 250, BW = 260, TOP = 80, PITCH = 30, PIN0 = TOP + 110;
 const pins = [];
 
+let flipped = false;
+try { flipped = localStorage.getItem("pinmapRear") === "1"; } catch (e) {}
+
+// Rear view: mirror the whole drawing left-right (as if the board were turned over
+// about its vertical axis), then un-mirror each text so it stays readable.
+function mirror() {
+  const g = el("g", { transform: `translate(${2 * (BX + BW / 2)},0) scale(-1,1)` });
+  while (svg.firstChild) g.appendChild(svg.firstChild);
+  svg.appendChild(g);
+  const key = g.querySelector("#colorKey");
+  if (key) svg.appendChild(key);
+  g.querySelectorAll("text").forEach(t => {
+    const x = +t.getAttribute("x");
+    const a = t.getAttribute("text-anchor") || "start";
+    if (a !== "middle") t.setAttribute("text-anchor", a === "start" ? "end" : "start");
+    t.setAttribute("transform", `translate(${x},0) scale(-1,1) translate(${-x},0)`);
+  });
+  const b = el("text", { x: BX + BW / 2, y: 20, "text-anchor": "middle", fill: css("--ink"), "font-family": "IBM Plex Mono, monospace", "font-size": 13, "font-weight": 600 }, svg);
+  b.textContent = "REAR VIEW · mirrored";
+}
+
 function draw() {
   svg.textContent = "";
   const H = PIN0 + PITCH * 18 + 60;
   // board
   el("rect", { x: BX, y: TOP, width: BW, height: H - TOP, rx: 10, fill: css("--board"), stroke: css("--board-edge"), "stroke-width": 2 }, svg);
+  // Parts on the front (top) side of the PCB; dimmed in rear view.
+  const front = el("g", flipped ? { opacity: 0.3 } : {}, svg);
   // WROOM module shield + antenna
-  el("rect", { x: BX + 55, y: TOP + 12, width: BW - 110, height: 58, rx: 3, fill: css("--board-edge") }, svg);
-  const ant = el("path", { d: `M${BX + 75} ${TOP + 55} h20 v-28 h16 v28 h16 v-28 h16 v28 h16 v-28 h16 v28 h20`, fill: "none", stroke: css("--pad"), "stroke-width": 2 }, svg);
-  el("rect", { x: BX + 65, y: TOP + 74, width: BW - 130, height: 150, rx: 3, fill: css("--chip-shield") }, svg);
-  const t1 = el("text", { x: BX + BW / 2, y: TOP + 145, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 14, "font-weight": 600 }, svg);
+  el("rect", { x: BX + 55, y: TOP + 12, width: BW - 110, height: 58, rx: 3, fill: css("--board-edge") }, front);
+  const ant = el("path", { d: `M${BX + 75} ${TOP + 55} h20 v-28 h16 v28 h16 v-28 h16 v28 h16 v-28 h16 v28 h20`, fill: "none", stroke: css("--pad"), "stroke-width": 2 }, front);
+  el("rect", { x: BX + 65, y: TOP + 74, width: BW - 130, height: 150, rx: 3, fill: css("--chip-shield") }, front);
+  const t1 = el("text", { x: BX + BW / 2, y: TOP + 145, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 14, "font-weight": 600 }, front);
   t1.textContent = "ESP32-WROOM-32";
-  const t2 = el("text", { x: BX + BW / 2, y: TOP + 165, "text-anchor": "middle", fill: css("--silk"), opacity: .7, "font-family": "IBM Plex Mono, monospace", "font-size": 11 }, svg);
+  const t2 = el("text", { x: BX + BW / 2, y: TOP + 165, "text-anchor": "middle", fill: css("--silk"), opacity: .7, "font-family": "IBM Plex Mono, monospace", "font-size": 11 }, front);
   t2.textContent = "antenna ↑ keep clear of metal";
   // USB + buttons
-  el("rect", { x: BX + BW / 2 - 28, y: H - 22, width: 56, height: 30, rx: 3, fill: "#9aa3a1", stroke: css("--board-edge") }, svg);
-  const usb = el("text", { x: BX + BW / 2, y: H - 30, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 11 }, svg);
+  el("rect", { x: BX + BW / 2 - 28, y: H - 22, width: 56, height: 30, rx: 3, fill: "#9aa3a1", stroke: css("--board-edge") }, front);
+  const usb = el("text", { x: BX + BW / 2, y: H - 30, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 11 }, front);
   usb.textContent = "micro-USB · CP2102";
   [["EN", BX + 45], ["BOOT", BX + BW - 45]].forEach(([n, x]) => {
-    el("rect", { x: x - 14, y: H - 70, width: 28, height: 22, rx: 3, fill: css("--board-edge") }, svg);
-    el("circle", { cx: x, cy: H - 59, r: 6, fill: "#9aa3a1" }, svg);
-    const t = el("text", { x, y: H - 76, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 10 }, svg);
+    el("rect", { x: x - 14, y: H - 70, width: 28, height: 22, rx: 3, fill: css("--board-edge") }, front);
+    el("circle", { cx: x, cy: H - 59, r: 6, fill: "#9aa3a1" }, front);
+    const t = el("text", { x, y: H - 76, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 10 }, front);
     t.textContent = n;
   });
 
@@ -302,6 +326,9 @@ function draw() {
   });
   side(LEFT, true);
   side(RIGHT, false);
+  if (flipped) mirror();
+  svg.setAttribute("viewBox", flipped ? "-240 0 1290 930" : "-290 0 1290 930");
+  document.getElementById("viewNote").textContent = flipped ? "Rear view, mirrored left–right" : "Top view";
 }
 
 // IEC 60062 resistor band colours.
@@ -318,8 +345,8 @@ function drawWiring() {
     el("path", { d, fill: "none", stroke: W.casing, "stroke-width": 7, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
     el("path", { d, fill: "none", stroke: color, "stroke-width": 4, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
   };
-  const label = (x, y, text, anchor = "middle", size = 12, weight = 500) => {
-    const t = el("text", { x, y, "text-anchor": anchor, fill: css("--ink"), "font-family": "IBM Plex Mono, monospace", "font-size": size, "font-weight": weight }, g);
+  const label = (x, y, text, anchor = "middle", size = 12, weight = 500, parent = g) => {
+    const t = el("text", { x, y, "text-anchor": anchor, fill: css("--ink"), "font-family": "IBM Plex Mono, monospace", "font-size": size, "font-weight": weight }, parent);
     t.textContent = text;
   };
   // red: probe VDD -> over the top of the board -> 3V3 (left header, pin 1)
@@ -344,14 +371,15 @@ function drawWiring() {
 
   // colour-code key
   const kx = 560, ky = 836;
-  el("rect", { x: kx, y: ky, width: 425, height: 84, rx: 6, fill: css("--panel"), stroke: css("--line") }, g);
-  label(kx + 14, ky + 22, "4.7kΩ colour code (start from the band nearest an end)", "start", 11, 600);
+  const key = el("g", { id: "colorKey" }, g); // stays unmirrored in rear view so the band order reads correctly
+  el("rect", { x: kx, y: ky, width: 425, height: 84, rx: 6, fill: css("--panel"), stroke: css("--line") }, key);
+  label(kx + 14, ky + 22, "4.7kΩ colour code (start from the band nearest an end)", "start", 11, 600, key);
   const row = (y, name, bands) => {
-    label(kx + 14, y + 4, name, "start", 11, 500);
+    label(kx + 14, y + 4, name, "start", 11, 500, key);
     bands.forEach(([c, n], i) => {
       const x = kx + 88 + i * 66;
-      el("rect", { x, y: y - 7, width: 14, height: 14, rx: 2, fill: c, stroke: "#6c7674", "stroke-width": 1 }, g);
-      label(x + 18, y + 4, n, "start", 11, 400);
+      el("rect", { x, y: y - 7, width: 14, height: 14, rx: 2, fill: c, stroke: "#6c7674", "stroke-width": 1 }, key);
+      label(x + 18, y + 4, n, "start", 11, 400, key);
     });
   };
   row(ky + 44, "4-band ±5%", [[BAND.yellow, "yellow"], [BAND.violet, "violet"], [BAND.red, "red"], [BAND.gold, "gold"]]);
@@ -427,7 +455,7 @@ function select(rec) {
     <div style="color:var(--muted)">${rec.tag}</div>
     <dl>
       <dt>Silkscreen</dt><dd class="mono">${rec.label}</dd>
-      <dt>Position</dt><dd>${rec.side} header, pin ${rec.pos} from the top</dd>
+      <dt>Position</dt><dd>${rec.side} header, pin ${rec.pos} from the top${flipped ? ` (the ${rec.side.toLowerCase()} header as seen from the front; on your ${rec.side === "Left" ? "right" : "left"} in rear view)` : ""}</dd>
       <dt>Notes</dt><dd>${rec.notes}</dd>
     </dl>
     ${wiring ? `<h3 style="margin-top:16px">How to wire</h3><ol class="steps">${wiring.map(w => `<li>${w}</li>`).join("")}</ol>` : ""}`;
@@ -453,6 +481,12 @@ function render() {
   select(keep >= 0 ? pins[keep] : pins.find(p => p.gpio === 4));
 }
 render();
+document.getElementById("rearView").checked = flipped;
+document.getElementById("rearView").addEventListener("change", e => {
+  flipped = e.target.checked;
+  try { localStorage.setItem("pinmapRear", flipped ? "1" : "0"); } catch (err) {}
+  render();
+});
 document.getElementById("showWiring").addEventListener("change", render);
 // Redraw when the theme changes so SVG colors follow the tokens.
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
