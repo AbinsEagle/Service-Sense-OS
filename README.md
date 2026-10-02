@@ -45,7 +45,7 @@ Work proceeds track by track, in this order.
 - [ ] Bench build on perfboard, each sensor verified individually
   - [x] DS18B20 temperature (reference thermometer check pending)
   - [ ] ADS1115 ADC
-  - [ ] TDS
+  - [x] TDS (K_VALUE calibration pending)
   - [ ] ZMPT101B voltage
   - [ ] Pressure transducer
   - [ ] Battery divider

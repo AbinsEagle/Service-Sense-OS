@@ -24,3 +24,20 @@ the result, and any problems. Toolchain setup history (2026-09-27) is in
 **Pending:** comparison against a reference thermometer (target ±0.5 °C), when one is available.
 
 **Problems:** none.
+
+## 2026-10-02 — TDS bench bring-up + pin map rear view
+
+**Done:**
+- Flashed `firmware/tests/tds_test` (analog TDS module on GPIO 34, temperature-compensated with the DS18B20 on GPIO 4).
+- Added reasoning comments to `tds_test.ino` (no logic changes).
+- Added a "Rear view (mirrored)" toggle to `docs/pinmap.html` (and the published artifact) for soldering on the back of the board.
+
+**Tested:**
+- First flash: TDS signal steady at 142 mV (58 ppm), but the DS18B20 was reported "NOT found" (25 °C assumed). The probe wiring had been disturbed while soldering.
+- After the wiring was fixed, you confirmed both the temperature probe and the TDS module read correctly.
+
+**Result:** TDS and DS18B20 both working together on the bench.
+
+**Pending:** TDS calibration. `K_VALUE` is still 1.0; it needs a known-TDS solution or a TDS pen. Reference thermometer check for the DS18B20 is also still pending.
+
+**Problems:** the Arduino IDE's Serial Monitor holds `/dev/ttyUSB0`, which blocks `arduino-cli upload`. Close it before flashing from the terminal.

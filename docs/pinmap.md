@@ -42,3 +42,15 @@ ESP32's 3.3V logic level.
 | − (GND) | GND |
 
 Power the module from 3V3 so its output stays inside the ESP32 ADC range.
+
+## ADS1115 wiring (bench)
+
+| ADS1115 pin | Connect to |
+|---|---|
+| VDD | 3V3 |
+| GND | GND |
+| SCL | GPIO 22 |
+| SDA | GPIO 21 |
+| ADDR | GND (I2C address 0x48) |
+| ALERT/RDY | not connected |
+| A0–A3 | unused for now. For the bench check, tie one to 3V3 and one to GND. |
