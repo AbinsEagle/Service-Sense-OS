@@ -10,6 +10,7 @@ pins 34–39 for anything that needs an internal pull-up.
 |---|---|---|---|
 | DS18B20 data (1-Wire) | 4 | 4.7kΩ pull-up to 3.3V | wired, reading |
 | TDS signal (bench only; moves to ADS1115 A1) | 34 | ADC1_CH6, input only | wired |
+| Pressure signal (bench only; moves to ADS1115 A2) | 35 | ADC1_CH7, input only, via 10k/15k divider | planned |
 | I2C SDA (ADS1115) | 21 | ESP32 default SDA | planned |
 | I2C SCL (ADS1115) | 22 | ESP32 default SCL | planned |
 | WS2812B data (RGB1 → RGB2 chained) | 16 | | planned |
@@ -54,3 +55,17 @@ Power the module from 3V3 so its output stays inside the ESP32 ADC range.
 | ADDR | GND (I2C address 0x48) |
 | ALERT/RDY | not connected |
 | A0–A3 | unused for now. For the bench check, tie one to 3V3 and one to GND. |
+
+## Pressure transducer wiring (bench)
+
+0.5–4.5 V, 0–1.2 MPa, 5 V part. Colours below are typical; check the sensor's label.
+
+| Transducer wire | Connect to |
+|---|---|
+| +5V (red) | 5V pin |
+| GND (black) | GND |
+| Signal (yellow) | 10kΩ → GPIO 35, with 15kΩ from GPIO 35 to GND |
+
+The divider (ratio 0.6) turns 0.5–4.5 V into 0.30–2.70 V so the ESP32 pin never sees more
+than 3.3 V. Never connect the signal wire straight to a GPIO. Test sketch:
+`firmware/tests/pressure_test`.
