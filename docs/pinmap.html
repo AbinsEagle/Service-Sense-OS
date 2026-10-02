@@ -163,7 +163,7 @@ footer { color: var(--muted); font-size: 13px; }
   </div>
 
   <div class="main">
-    <div class="boardbox"><svg id="board" viewBox="-290 0 1290 930" role="img" aria-label="NodeMCU ESP-32S pin diagram"></svg></div>
+    <div class="boardbox"><svg id="board" viewBox="-290 0 1290 1020" role="img" aria-label="NodeMCU ESP-32S pin diagram"></svg></div>
     <aside>
       <section class="card detail" id="detail" aria-live="polite"></section>
       <section class="card">
@@ -233,7 +233,7 @@ const RIGHT = [
 
 const WIRING = {
   34: ["TDS module + (VCC) → 3V3 (top-left pin). Use 3V3, not 5V, so the signal stays within the ESP32's input range.", "TDS module A (signal) → GPIO 34 (left header, 5th pin, printed P34)", "TDS module − (GND) → GND (left header, 14th pin)", "TDS probe → the module's 2-pin probe socket"],
-  35: ["Transducer +5V (red) → 5V pin (left header, last pin). It is a 5V part: do not use 3V3.", "Transducer GND (black) → GND (shares the TDS ground, left header, 14th pin)", "Transducer signal (yellow) → 10kΩ resistor → GPIO 35 (printed P35)", "15kΩ resistor between GPIO 35 and GND. This divider turns 0.5–4.5V into 0.3–2.7V so the ESP32 pin is never above 3.3V.", "Never connect the signal wire straight to a GPIO."],
+  35: ["Transducer +5V (red) → 5V pin (left header, last pin). It is a 5V part: do not use 3V3.", "Transducer GND (black) → GND (shares the TDS ground, left header, 14th pin)", "Transducer signal (yellow) → 10kΩ resistor → GPIO 35 (printed P35). 10kΩ bands: brown, black, orange, gold (4-band) or brown, black, black, red, brown (5-band).", "15kΩ resistor between GPIO 35 and GND. 15kΩ bands: brown, green, orange, gold (4-band) or brown, green, black, red, brown (5-band). This divider turns 0.5–4.5V into 0.3–2.7V so the ESP32 pin is never above 3.3V.", "Never connect the signal wire straight to a GPIO."],
   4: ["Red probe wire → 3V3 (top-left pin)", "Black probe wire → GND (top-right pin)", "Yellow/white probe wire → GPIO 4", "4.7kΩ resistor between GPIO 4 and 3V3. Bands: yellow, violet, red, gold (4-band) or yellow, violet, black, brown, brown (5-band)."],
 };
 
@@ -328,12 +328,12 @@ function draw() {
   side(LEFT, true);
   side(RIGHT, false);
   if (flipped) mirror();
-  svg.setAttribute("viewBox", flipped ? "-240 0 1290 930" : "-290 0 1290 930");
+  svg.setAttribute("viewBox", flipped ? "-240 0 1290 1020" : "-290 0 1290 1020");
   document.getElementById("viewNote").textContent = flipped ? "Rear view, mirrored left–right" : "Top view";
 }
 
 // IEC 60062 resistor band colours.
-const BAND = { black: "#1b1b1b", brown: "#7a4a1e", red: "#d23b2f", yellow: "#f2c200", violet: "#7b3fa0", gold: "#c9a24b" };
+const BAND = { black: "#1b1b1b", brown: "#7a4a1e", red: "#d23b2f", yellow: "#f2c200", violet: "#7b3fa0", gold: "#c9a24b", orange: "#f08a24", green: "#2e9e4f" };
 
 // DS18B20 probe wiring, drawn under the pin chips so each wire runs into its pin.
 function drawWiring() {
@@ -373,18 +373,30 @@ function drawWiring() {
   // colour-code key
   const kx = 560, ky = 836;
   const key = el("g", { id: "colorKey" }, g); // stays unmirrored in rear view so the band order reads correctly
-  el("rect", { x: kx, y: ky, width: 425, height: 84, rx: 6, fill: css("--panel"), stroke: css("--line") }, key);
-  label(kx + 14, ky + 22, "4.7kΩ colour code (start from the band nearest an end)", "start", 11, 600, key);
+  el("rect", { x: kx, y: ky, width: 425, height: 170, rx: 6, fill: css("--panel"), stroke: css("--line") }, key);
+  label(kx + 14, ky + 22, "Resistor colour codes (read from the banded end)", "start", 11, 600, key);
   const row = (y, name, bands) => {
     label(kx + 14, y + 4, name, "start", 11, 500, key);
     bands.forEach(([c, n], i) => {
-      const x = kx + 88 + i * 66;
+      const x = kx + 100 + i * 64;
       el("rect", { x, y: y - 7, width: 14, height: 14, rx: 2, fill: c, stroke: "#6c7674", "stroke-width": 1 }, key);
       label(x + 18, y + 4, n, "start", 11, 400, key);
     });
   };
-  row(ky + 44, "4-band ±5%", [[BAND.yellow, "yellow"], [BAND.violet, "violet"], [BAND.red, "red"], [BAND.gold, "gold"]]);
-  row(ky + 68, "5-band ±1%", [[BAND.yellow, "yellow"], [BAND.violet, "violet"], [BAND.black, "black"], [BAND.brown, "brown"], [BAND.brown, "brown"]]);
+  const R = {
+    "4.7kΩ": [[BAND.yellow, "yellow"], [BAND.violet, "violet"], [BAND.red, "red"], [BAND.gold, "gold"]],
+    "10kΩ":  [[BAND.brown, "brown"], [BAND.black, "black"], [BAND.orange, "orange"], [BAND.gold, "gold"]],
+    "15kΩ":  [[BAND.brown, "brown"], [BAND.green, "green"], [BAND.orange, "orange"], [BAND.gold, "gold"]],
+  };
+  const R5 = {
+    "4.7kΩ": [[BAND.yellow, "yellow"], [BAND.violet, "violet"], [BAND.black, "black"], [BAND.brown, "brown"], [BAND.brown, "brown"]],
+    "10kΩ":  [[BAND.brown, "brown"], [BAND.black, "black"], [BAND.black, "black"], [BAND.red, "red"], [BAND.brown, "brown"]],
+    "15kΩ":  [[BAND.brown, "brown"], [BAND.green, "green"], [BAND.black, "black"], [BAND.red, "red"], [BAND.brown, "brown"]],
+  };
+  Object.keys(R).forEach((v, i) => {
+    row(ky + 44 + i * 44, v + " 4-band", R[v]);
+    row(ky + 66 + i * 44, v + " 5-band", R5[v]);
+  });
 
   // wire colour labels
   label(xR + 8, yTop - 10, "red → 3V3", "start", 12, 600);
@@ -463,8 +475,10 @@ function drawPressureWiring() {
   };
   const dot = (x, y) => el("circle", { cx: x, cy: y, r: 4.5, fill: css("--ink") }, g);
   // resistor body between two y values on a vertical wire at x (bands omitted; values labelled)
-  const resistor = (x, ya, yb) => {
+  const resistor = (x, ya, yb, bands) => {
     el("rect", { x: x - 8, y: ya, width: 16, height: yb - ya, rx: 3, fill: "#d9c39a", stroke: "#7a6433", "stroke-width": 1.5 }, g);
+    [0.16, 0.30, 0.44, 0.80].forEach((f, i) =>
+      el("rect", { x: x - 8, y: ya + (yb - ya) * f - 3, width: 16, height: 6, fill: bands[i] }, g));
   };
 
   // +5V: red -> 5V pin (left header, last pin)
@@ -475,11 +489,11 @@ function drawPressureWiring() {
   // signal: yellow -> up (hopping over the ground wire) -> 10k -> node -> GPIO 35
   wire(`M${tx} ${tS} H${xN} V${yGnd + 16} A14 14 0 0 0 ${xN} ${yGnd - 16} V${r1b}`, W.yellow);
   wire(`M${xN} ${r1a} V${yNode} V${y35} H${padL}`, W.yellow);
-  resistor(xN, r1a, r1b);
+  resistor(xN, r1a, r1b, [BAND.brown, BAND.black, BAND.orange, BAND.gold]);   // 10kΩ
   // 15k from the node down to ground
   wire(`M${xN} ${yNode} H${xR2} V${r2a}`, W.yellow);
   wire(`M${xR2} ${r2b} V${yGnd}`, W.black);
-  resistor(xR2, r2a, r2b);
+  resistor(xR2, r2a, r2b, [BAND.brown, BAND.green, BAND.orange, BAND.gold]);  // 15kΩ
   dot(xR2, yGnd);
   dot(xN, yNode);   // drawn last so the wire doesn't cover it
 
@@ -495,8 +509,10 @@ function drawPressureWiring() {
   // fitting + thread
   el("rect", { x: bx + 40, y: 720, width: 32, height: 26, fill: "#9aa6aa", stroke: "#3d4a4e" }, g);
 
-  label(xR2 + 14, r2a + 42, "15kΩ", "start", 12, 600);
-  label(xN - 14, r1a + 44, "10kΩ", "end", 12, 600);
+  label(xR2 + 14, r2a + 36, "15kΩ", "start", 12, 600);
+  label(xR2 + 14, r2a + 50, "brn grn org gold", "start", 9, 400);
+  label(xN - 14, r1a + 36, "10kΩ", "end", 12, 600);
+  label(xN - 14, r1a + 50, "brn blk org gold", "end", 9, 400);
   label(xR2 + 12, yNode + 4, "→ GPIO 35", "start", 10, 600);
   label(xRed + 10, y5v + 20, "red +5V → 5V pin", "start", 12, 600);
   label(xGnd + 8, tG - 2, "black → GND", "start", 11, 600);

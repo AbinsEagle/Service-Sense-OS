@@ -66,6 +66,13 @@ Power the module from 3V3 so its output stays inside the ESP32 ADC range.
 | GND (black) | GND |
 | Signal (yellow) | 10kΩ → GPIO 35, with 15kΩ from GPIO 35 to GND |
 
+Resistor colour bands (first band is the one closest to an end):
+
+| Value | 4-band ±5% | 5-band ±1% |
+|---|---|---|
+| 10kΩ (R1, signal side) | brown, black, orange, gold | brown, black, black, red, brown |
+| 15kΩ (R2, to GND) | brown, green, orange, gold | brown, green, black, red, brown |
+
 The divider (ratio 0.6) turns 0.5–4.5 V into 0.30–2.70 V so the ESP32 pin never sees more
 than 3.3 V. Never connect the signal wire straight to a GPIO. Test sketch:
 `firmware/tests/pressure_test`.
