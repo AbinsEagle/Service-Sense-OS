@@ -22,6 +22,7 @@ pins 34–39 for anything that needs an internal pull-up.
 |---|---|---|---|---|
 | DS18B20 data (1-Wire) | 4 | P4 | 4.7kΩ pull-up to 3.3V | wired, reading |
 | TDS signal (bench only; moves to ADS1115 A1) | 34 | P34 | ADC1_CH6, input only | wired |
+| Pressure signal (bench only, via 10k/15k divider; moves to ADS1115 A2) | 35 | P35 | ADC1_CH7, input only | planned |
 | I2C SDA (ADS1115) | 21 | P21 | ESP32 default SDA | planned |
 | I2C SCL (ADS1115) | 22 | P22 | ESP32 default SCL | planned |
 | WS2812B data (RGB1 → RGB2 chained) | 16 | P16 | | planned |
@@ -54,3 +55,14 @@ ESP32's 3.3V logic level.
 | − (GND) | GND |
 
 Power the module from 3V3 so its output stays inside the ESP32 ADC range.
+
+## Pressure transducer wiring (bench)
+
+| Transducer wire | Connect to |
+|---|---|
+| Red (+5V) | 5V pin (left header, last pin) |
+| Black (GND) | GND |
+| Yellow (signal) | 10kΩ → GPIO 35; 15kΩ from GPIO 35 to GND |
+
+The divider scales 0.5–4.5V to 0.3–2.7V. Never connect the signal straight
+to a GPIO.
