@@ -147,9 +147,9 @@ footer { color: var(--muted); font-size: 13px; }
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Service Sense OS · ESP32 DevKitC V4 · 38-pin</div>
+    <div class="eyebrow">Service Sense OS · NodeMCU ESP-32S V1.1 · 38-pin</div>
     <h1>Hommiez Pin Map</h1>
-    <p class="sub"><span id="viewNote">Top view</span>, antenna up, USB down. Select any pin to see what it's used for and whether it's safe to use. Assignments match <span class="mono">docs/pinmap.md</span>.</p>
+    <p class="sub"><span id="viewNote">Top view</span>, antenna up, USB down. This board prints its pin labels <b>on the back only</b>, so turn on Rear view to match what you read on the board. Select any pin to see what it's used for and whether it's safe to use. Assignments match <span class="mono">docs/pinmap.md</span>.</p>
   </header>
 
   <div class="legend" aria-label="Legend">
@@ -163,7 +163,7 @@ footer { color: var(--muted); font-size: 13px; }
   </div>
 
   <div class="main">
-    <div class="boardbox"><svg id="board" viewBox="-290 0 1290 930" role="img" aria-label="ESP32 DevKitC pin diagram"></svg></div>
+    <div class="boardbox"><svg id="board" viewBox="-290 0 1290 930" role="img" aria-label="NodeMCU ESP-32S pin diagram"></svg></div>
     <aside>
       <section class="card detail" id="detail" aria-live="polite"></section>
       <section class="card">
@@ -191,48 +191,48 @@ const STATUS = {
 const LEFT = [
   ["3V3", null, "power", "3.3V out", "3.3V from the board's regulator. Powers the DS18B20 and the 4.7kΩ pull-up."],
   ["EN", null, "avoid", "reset", "Chip enable. Pulling it low resets the ESP32. Wired to the EN button."],
-  ["VP", 36, "free", "input only", "SENSOR_VP. Input only, no internal pull-up or pull-down. ADC1_CH0."],
-  ["VN", 39, "free", "input only", "SENSOR_VN. Input only, no internal pull-up or pull-down. ADC1_CH3."],
-  ["34", 34, "now", "TDS signal", "Analog output of the TDS module (bench wiring). In the final device TDS moves to ADS1115 A1. ADC1_CH6, input only."],
-  ["35", 35, "free", "input only", "Input only, no internal pull-up or pull-down. ADC1_CH7."],
-  ["32", 32, "planned", "TEMP button", "TEMP sensor button. RTC GPIO, so it can also wake the chip. ADC1_CH4."],
-  ["33", 33, "planned", "POWER button", "POWER button. RTC GPIO: wakes the ESP32 from deep sleep (ext0). ADC1_CH5."],
-  ["25", 25, "planned", "TDS button", "TDS sensor button. RTC GPIO. DAC1, ADC2_CH8."],
-  ["26", 26, "planned", "VOLT button", "VOLT sensor button. RTC GPIO. DAC2, ADC2_CH9."],
-  ["27", 27, "planned", "PRESS button", "PRESS sensor button. RTC GPIO. ADC2_CH7."],
-  ["14", 14, "free", "PWM at boot", "Free, but outputs a PWM signal during boot. ADC2_CH6, RTC GPIO."],
-  ["12", 12, "avoid", "strapping", "Strapping pin (MTDI). Pulled high at boot, it selects 1.8V flash and the board won't boot."],
+  ["SVP", 36, "free", "input only", "SENSOR_VP. Input only, no internal pull-up or pull-down. ADC1_CH0."],
+  ["SVN", 39, "free", "input only", "SENSOR_VN. Input only, no internal pull-up or pull-down. ADC1_CH3."],
+  ["P34", 34, "now", "TDS signal", "Analog output of the TDS module (bench wiring). In the final device TDS moves to ADS1115 A1. ADC1_CH6, input only."],
+  ["P35", 35, "free", "input only", "Input only, no internal pull-up or pull-down. ADC1_CH7."],
+  ["P32", 32, "planned", "TEMP button", "TEMP sensor button. RTC GPIO, so it can also wake the chip. ADC1_CH4."],
+  ["P33", 33, "planned", "POWER button", "POWER button. RTC GPIO: wakes the ESP32 from deep sleep (ext0). ADC1_CH5."],
+  ["P25", 25, "planned", "TDS button", "TDS sensor button. RTC GPIO. DAC1, ADC2_CH8."],
+  ["P26", 26, "planned", "VOLT button", "VOLT sensor button. RTC GPIO. DAC2, ADC2_CH9."],
+  ["P27", 27, "planned", "PRESS button", "PRESS sensor button. RTC GPIO. ADC2_CH7."],
+  ["P14", 14, "free", "PWM at boot", "Free, but outputs a PWM signal during boot. ADC2_CH6, RTC GPIO."],
+  ["P12", 12, "avoid", "strapping", "Strapping pin (MTDI). Pulled high at boot, it selects 1.8V flash and the board won't boot."],
   ["GND", null, "power", "ground", "Ground."],
-  ["13", 13, "free", "free", "Free. ADC2_CH4, RTC GPIO."],
-  ["D2", 9, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
-  ["D3", 10, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+  ["P13", 13, "free", "free", "Free. ADC2_CH4, RTC GPIO."],
+  ["SD2", 9, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+  ["SD3", 10, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
   ["CMD", 11, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
   ["5V", null, "power", "5V (USB)", "5V from USB when plugged in. On battery, the MT3608 boost supplies 5V to the ZMPT101B and pressure sensor instead."],
 ];
 const RIGHT = [
   ["GND", null, "power", "ground", "Ground. Use this one for the DS18B20's black wire."],
-  ["23", 23, "free", "free", "Free. Default VSPI MOSI."],
-  ["22", 22, "planned", "I2C SCL", "I2C clock to the ADS1115 (SCL). ESP32 default."],
+  ["P23", 23, "free", "free", "Free. Default VSPI MOSI."],
+  ["P22", 22, "planned", "I2C SCL", "I2C clock to the ADS1115 (SCL). ESP32 default."],
   ["TX", 1, "avoid", "USB serial TX", "UART0 TX to the CP2102. Used for uploads and Serial output."],
   ["RX", 3, "avoid", "USB serial RX", "UART0 RX from the CP2102. Used for uploads and Serial input."],
-  ["21", 21, "planned", "I2C SDA", "I2C data to the ADS1115 (SDA). ESP32 default."],
+  ["P21", 21, "planned", "I2C SDA", "I2C data to the ADS1115 (SDA). ESP32 default."],
   ["GND", null, "power", "ground", "Ground."],
-  ["19", 19, "free", "free", "Free. Default VSPI MISO."],
-  ["18", 18, "free", "free", "Free. Default VSPI SCK."],
-  ["5", 5, "avoid", "strapping", "Strapping pin. Must be high at boot. Outputs PWM during boot."],
-  ["17", 17, "free", "free", "Free on WROOM-32 modules."],
-  ["16", 16, "planned", "WS2812B data", "Data line to the two chained WS2812B LEDs (RGB1 battery, RGB2 result)."],
-  ["4", 4, "now", "DS18B20 data", "1-Wire data from the DS18B20 temperature probe. Needs a 4.7kΩ pull-up to 3V3."],
-  ["0", 0, "avoid", "BOOT button", "Strapping pin, wired to the BOOT button. Low at reset enters download mode."],
-  ["2", 2, "avoid", "strapping, LED", "Strapping pin and the onboard LED on many boards. Must be low or floating at boot to flash."],
-  ["15", 15, "avoid", "strapping", "Strapping pin. Low at boot silences the boot log. Outputs PWM during boot."],
-  ["D1", 8, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
-  ["D0", 7, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+  ["P19", 19, "free", "free", "Free. Default VSPI MISO."],
+  ["P18", 18, "free", "free", "Free. Default VSPI SCK."],
+  ["P5", 5, "avoid", "strapping", "Strapping pin. Must be high at boot. Outputs PWM during boot."],
+  ["P17", 17, "free", "free", "Free (the ESP-32S module has no PSRAM)."],
+  ["P16", 16, "planned", "WS2812B data", "Data line to the two chained WS2812B LEDs (RGB1 battery, RGB2 result)."],
+  ["P4", 4, "now", "DS18B20 data", "1-Wire data from the DS18B20 temperature probe. Needs a 4.7kΩ pull-up to 3V3."],
+  ["P0", 0, "avoid", "IO0 button", "Strapping pin, wired to the IO0 (BOOT) button. Low at reset enters download mode."],
+  ["P2", 2, "avoid", "strapping, LED", "Strapping pin and the onboard blue LED (the DS18B20 test sketch pulses it during each reading). Must be low or floating at boot to flash."],
+  ["P15", 15, "avoid", "strapping", "Strapping pin. Low at boot silences the boot log. Outputs PWM during boot."],
+  ["SD1", 8, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
+  ["SD0", 7, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
   ["CLK", 6, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
 ];
 
 const WIRING = {
-  34: ["TDS module + (VCC) → 3V3 (top-left pin). Use 3V3, not 5V, so the signal stays within the ESP32's input range.", "TDS module A (signal) → GPIO 34 (left header, 5th pin)", "TDS module − (GND) → GND (left header, 14th pin)", "TDS probe → the module's 2-pin probe socket"],
+  34: ["TDS module + (VCC) → 3V3 (top-left pin). Use 3V3, not 5V, so the signal stays within the ESP32's input range.", "TDS module A (signal) → GPIO 34 (left header, 5th pin, printed P34)", "TDS module − (GND) → GND (left header, 14th pin)", "TDS probe → the module's 2-pin probe socket"],
   4: ["Red probe wire → 3V3 (top-left pin)", "Black probe wire → GND (top-right pin)", "Yellow/white probe wire → GPIO 4", "4.7kΩ resistor between GPIO 4 and 3V3. Bands: yellow, violet, red, gold (4-band) or yellow, violet, black, brown, brown (5-band)."],
 };
 
@@ -282,14 +282,14 @@ function draw() {
   const ant = el("path", { d: `M${BX + 75} ${TOP + 55} h20 v-28 h16 v28 h16 v-28 h16 v28 h16 v-28 h16 v28 h20`, fill: "none", stroke: css("--pad"), "stroke-width": 2 }, front);
   el("rect", { x: BX + 65, y: TOP + 74, width: BW - 130, height: 150, rx: 3, fill: css("--chip-shield") }, front);
   const t1 = el("text", { x: BX + BW / 2, y: TOP + 145, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 14, "font-weight": 600 }, front);
-  t1.textContent = "ESP32-WROOM-32";
+  t1.textContent = "ESP-32S module";
   const t2 = el("text", { x: BX + BW / 2, y: TOP + 165, "text-anchor": "middle", fill: css("--silk"), opacity: .7, "font-family": "IBM Plex Mono, monospace", "font-size": 11 }, front);
   t2.textContent = "antenna ↑ keep clear of metal";
   // USB + buttons
   el("rect", { x: BX + BW / 2 - 28, y: H - 22, width: 56, height: 30, rx: 3, fill: "#9aa3a1", stroke: css("--board-edge") }, front);
   const usb = el("text", { x: BX + BW / 2, y: H - 30, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 11 }, front);
   usb.textContent = "micro-USB · CP2102";
-  [["EN", BX + 45], ["BOOT", BX + BW - 45]].forEach(([n, x]) => {
+  [["EN", BX + 45], ["IO0", BX + BW - 45]].forEach(([n, x]) => {
     el("rect", { x: x - 14, y: H - 70, width: 28, height: 22, rx: 3, fill: css("--board-edge") }, front);
     el("circle", { cx: x, cy: H - 59, r: 6, fill: "#9aa3a1" }, front);
     const t = el("text", { x, y: H - 76, "text-anchor": "middle", fill: css("--silk"), "font-family": "IBM Plex Mono, monospace", "font-size": 10 }, front);
@@ -311,7 +311,7 @@ function draw() {
     s.textContent = label;
     // chip outside the board
     const st = STATUS[status];
-    const text = gpio !== null && label !== String(gpio) ? `${tag} · IO${gpio}` : tag;
+    const text = gpio !== null && label !== "P" + gpio ? `${tag} · IO${gpio}` : tag;
     const w = Math.max(64, text.length * 7.4 + 26);
     const cx = isLeft ? BX - 16 - w : BX + BW + 16;
     el("line", { x1: isLeft ? BX - 16 : BX + BW, x2: isLeft ? BX : BX + BW + 16, y1: y, y2: y, stroke: css(st.color), "stroke-width": 1.5 }, g);

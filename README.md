@@ -18,7 +18,7 @@ so a single tagged release describes the whole system.
 ```
 
 ## Hardware (MVP, locked in the PRD)
-- MCU: ESP32-WROOM-32 (dev board: ESP32 DevKitC, 38-pin, CP2102 USB-UART, 4MB flash)
+- MCU: ESP32-WROOM-32 class (dev board: NodeMCU ESP-32S V1.1, 38-pin, DevKitC-compatible pinout, 4MB flash)
 - ADC: ADS1115 16-bit I2C. A0 voltage, A1 TDS, A2 pressure, A3 battery
 - Sensors: DS18B20 (1-Wire), analog TDS, ZMPT101B, 0.5–4.5V pressure transducer (0–1.2 MPa)
 - Power: 4× AA → 3.3V LDO (logic) + MT3608 boost to 5V (ZMPT101B, pressure)
@@ -39,8 +39,8 @@ app/                 Next.js technician web app (Vercel)          (planned)
 Work proceeds track by track, in this order.
 
 **1. Hardware**
-- [x] Toolchain set up; blink test flashed and verified on the DevKitC
-- [ ] Pin map + wiring diagram in `docs/`
+- [x] Toolchain set up; blink test flashed and verified on the dev board
+- [x] Pin map + wiring diagram in `docs/` (`pinmap.md`, `pinmap.html`, `wiring.html`)
 - [ ] Power budget review against the <10 µA sleep target
 - [ ] Bench build on perfboard, each sensor verified individually
   - [x] DS18B20 temperature (reference thermometer check pending)
