@@ -1,4 +1,4 @@
-// TDS bench test: analog TDS module on GPIO 34, temperature-compensated with the DS18B20 on GPIO 4.
+// Temp + TDS bench test: analog TDS module on GPIO 34, temperature-compensated with the DS18B20 on GPIO 4.
 // Bench wiring only. In the final device the TDS signal goes to ADS1115 A1 (see docs/PRD.md).
 // The onboard LED pulses while each reading is being taken.
 //

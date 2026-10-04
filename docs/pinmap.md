@@ -14,6 +14,9 @@ pins 34–39 for anything that needs an internal pull-up.
 | I2C SDA (ADS1115) | 21 | ESP32 default SDA | planned |
 | I2C SCL (ADS1115) | 22 | ESP32 default SCL | planned |
 | WS2812B data (RGB1 → RGB2 chained) | 16 | | planned |
+| Traffic light RED | 23 | LED module R pin, active high | planned |
+| Traffic light GREEN | 19 | LED module G pin, pulses while measuring | planned |
+| Traffic light YELLOW | 18 | LED module Y pin (reserved for alerts) | planned |
 | POWER button | 33 | RTC GPIO, wakes from deep sleep (ext0) | planned |
 | TEMP button | 32 | RTC GPIO | planned |
 | TDS button | 25 | RTC GPIO | planned |
@@ -76,3 +79,26 @@ Resistor colour bands (first band is the one closest to an end):
 The divider (ratio 0.6) turns 0.5–4.5 V into 0.30–2.70 V so the ESP32 pin never sees more
 than 3.3 V. Never connect the signal wire straight to a GPIO. Test sketch:
 `firmware/tests/pressure_test`.
+
+## Traffic light LED module
+4-pin module (GND, R, Y, G, signal output, has its own resistors). Test sketch: `firmware/tests/temp_tds_buttons`.
+
+| Module pin | Connect to |
+|---|---|
+| GND | GND |
+| R | GPIO 23 |
+| Y | GPIO 18 |
+| G | GPIO 19 |
+
+Green pulses while a 5 s reading is taken, then stays on for 3 s. Red means the sensor is not working. Yellow is kept off for now (alerts later).
+
+## 4-button tactile module (pins V, G, 1, 2, 3, 4)
+Four tactile buttons on one board. Power it from 3V3 so the outputs are 3.3 V. The sketch detects at boot whether a press reads HIGH or LOW, so don't press anything while it starts.
+
+| Module pin | Connect to |
+|---|---|
+| V | 3V3 (not 5V) |
+| G | GND |
+| 1 (TEMP) | GPIO 32 |
+| 2 (TDS) | GPIO 25 |
+| 3 / 4 | GPIO 26 / 27 later (VOLT / PRESS) |
