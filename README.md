@@ -30,7 +30,8 @@ so a single tagged release describes the whole system.
 docs/                PRD, wiring diagrams, pinouts, design notes
 datasheets/          PDFs for sensors/modules
 firmware/            ESP32 source (arduino-cli)
-backend/             FastAPI service (Supabase storage)           (planned)
+backend/             FastAPI service on Vercel (Supabase storage)
+supabase/migrations/ Database schema
 app/                 Next.js technician web app (Vercel)          (planned)
 .github/workflows/   CI: build firmware, test backend/app         (planned)
 ```
@@ -59,8 +60,9 @@ Work proceeds track by track, in this order.
 - [ ] 20× wake → read → transmit → sleep reliability run
 
 **3. Backend (FastAPI + Supabase)**
-- [ ] Schema for visits and readings
-- [ ] Visit submission endpoint
+- [x] Schema for visits and readings (`supabase/migrations/`)
+- [x] Visit submission endpoint (`backend/`, tested; not yet deployed)
+- [ ] Create the Supabase project and deploy the backend to Vercel
 
 **4. Frontend (Next.js on Vercel)**
 - [ ] BLE connect + live readings with pass/warn/fail badges
