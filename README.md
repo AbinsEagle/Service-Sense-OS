@@ -6,7 +6,7 @@ TDS, AC supply voltage or inlet pressure. It shows pass/warn/fail on an LED
 and sends the reading over Bluetooth to the technician's phone. The phone
 submits the site visit to the backend.
 
-**Requirements:** see [docs/PRD.md](docs/PRD.md) (MVP v1.0).
+**Requirements:** see [docs/PRD.md](docs/PRD.md) (MVP v1.0). Also: [connectivity plan](docs/connectivity-plan.md), [design decisions](docs/design-decisions.md), [shopping list](docs/shopping-list.md), [pin map](docs/pinmap.md).
 
 All parts of the system (embedded, backend, frontend) live in this one repo,
 so a single tagged release describes the whole system.
@@ -22,7 +22,7 @@ so a single tagged release describes the whole system.
 - ADC: ADS1115 16-bit I2C. A0 voltage, A1 TDS, A2 pressure, A3 battery
 - Sensors: DS18B20 (1-Wire), analog TDS, ZMPT101B, 0.5–4.5V pressure transducer (0–1.2 MPa)
 - Power: 4× AA → 3.3V LDO (logic) + MT3608 boost to 5V (ZMPT101B, pressure)
-- UI: POWER button (wakes from deep sleep), 4 sensor buttons, 2× WS2812B LEDs
+- UI (bench prototype): 4-button tactile module and a traffic-light LED module (see docs/design-decisions.md). Final design: POWER button + 4 sensor buttons, 2× WS2812B LEDs
 - Connectivity: BLE only in MVP
 
 ## Repository layout
@@ -45,7 +45,7 @@ Work proceeds track by track, in this order.
 - [ ] Bench build on perfboard, each sensor verified individually
   - [x] DS18B20 temperature (reference thermometer check pending)
   - [ ] ADS1115 ADC
-  - [ ] TDS
+  - [x] TDS (K_VALUE calibration pending)
   - [ ] ZMPT101B voltage
   - [ ] Pressure transducer
   - [ ] Battery divider

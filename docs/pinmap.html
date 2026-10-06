@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Hommiez Pin Map</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -116,7 +117,26 @@ h1 { margin: 0; font-size: 28px; font-weight: 600; text-wrap: balance; }
   background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
   padding: 12px; overflow-x: auto;
 }
-.boardbox svg { display: block; width: 100%; min-width: 920px; height: auto; }
+.boardbox svg { display: block; width: calc(var(--zoom, 1) * 100%); min-width: calc(var(--zoom, 1) * 920px); height: auto; }
+.boardbox { max-height: 88vh; overflow: auto; }
+.zoombar { display: flex; align-items: center; gap: 6px; position: sticky; left: 0; top: 0; margin-bottom: 8px; font-size: 14px; }
+.zoombar button { font: inherit; min-width: 40px; height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); cursor: pointer; }
+.zoombar button:hover { background: var(--bg); }
+.zoombar button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.zoombar output { min-width: 48px; text-align: center; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.filterbar { display: grid; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+.kinds { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.kinds .fl { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.kinds button { font: inherit; font-size: 13px; height: 30px; padding: 0 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); cursor: pointer; }
+.kinds button:hover { background: var(--bg); }
+.kinds button:focus-visible, .mod:focus-within { outline: 2px solid var(--focus); outline-offset: 1px; }
+.mods { display: flex; flex-wrap: wrap; gap: 8px; }
+.mod { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); cursor: pointer; font-size: 14px; }
+.mod input { width: 16px; height: 16px; accent-color: var(--now); }
+.mod.on { border-color: var(--now); background: var(--now-soft); }
+.mod .kind { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; }
+.pin.dim { opacity: .3; }
+.main.wide { grid-template-columns: 1fr; }
 .pin { cursor: pointer; outline: none; }
 .pin .hit { fill: transparent; }
 .pin:hover .hit, .pin:focus-visible .hit { fill: var(--line); opacity: .55; }
@@ -159,11 +179,31 @@ footer { color: var(--muted); font-size: 13px; }
     <span class="tag t-avoid">Avoid</span>
     <span class="tag t-free">Free</span>
     <label class="toggle"><input type="checkbox" id="rearView"> Rear view (mirrored)</label>
-    <label class="toggle" style="margin-left:12px"><input type="checkbox" id="showWiring" checked> Show sensor wiring</label>
+    
+    
+    
   </div>
 
+  <section class="filterbar" aria-label="Module filter">
+    <div class="kinds" role="group" aria-label="Show">
+      <span class="fl">Show</span>
+      <button type="button" data-kind="all">All</button>
+      <button type="button" data-kind="input">Inputs</button>
+      <button type="button" data-kind="output">Outputs</button>
+      <button type="button" data-kind="power">Power</button>
+      <button type="button" data-kind="none">None</button>
+    </div>
+    <div class="mods" id="mods" role="group" aria-label="Modules"></div>
+  </section>
+
   <div class="main">
-    <div class="boardbox"><svg id="board" viewBox="-290 0 1290 1020" role="img" aria-label="NodeMCU ESP-32S pin diagram"></svg></div>
+    <div class="boardbox"><div class="zoombar" role="group" aria-label="Zoom diagram">
+      <button type="button" id="zoomOut" aria-label="Zoom out">&minus;</button>
+      <output id="zoomVal" aria-live="polite">100%</output>
+      <button type="button" id="zoomIn" aria-label="Zoom in">+</button>
+      <button type="button" id="zoomFit">Reset</button>
+      <button type="button" id="zoomWide" aria-pressed="false">Full width</button>
+    </div><svg id="board" viewBox="-290 0 1290 1020" role="img" aria-label="NodeMCU ESP-32S pin diagram"></svg></div>
     <aside>
       <section class="card detail" id="detail" aria-live="polite"></section>
       <section class="card">
@@ -175,7 +215,7 @@ footer { color: var(--muted); font-size: 13px; }
       </section>
     </aside>
   </div>
-  <footer>ADS1115 channels: A0 AC voltage (ZMPT101B) · A1 TDS · A2 pressure · A3 battery divider.</footer>
+  <footer>ADS1115 channels: A0 AC voltage (ZMPT101B) · A1 TDS · A2 pressure · A3 battery (4×AA through a 47kΩ / 47kΩ divider, so the reading is half the pack voltage).</footer>
 </div>
 
 <script>
@@ -195,9 +235,9 @@ const LEFT = [
   ["SVN", 39, "free", "input only", "SENSOR_VN. Input only, no internal pull-up or pull-down. ADC1_CH3."],
   ["P34", 34, "now", "TDS signal", "Analog output of the TDS module (bench wiring). In the final device TDS moves to ADS1115 A1. ADC1_CH6, input only."],
   ["P35", 35, "planned", "Pressure signal", "Pressure transducer signal (bench wiring), through a 10kΩ / 15kΩ divider. In the final device pressure moves to ADS1115 A2. ADC1_CH7, input only."],
-  ["P32", 32, "planned", "TEMP button", "TEMP sensor button. RTC GPIO, so it can also wake the chip. ADC1_CH4."],
+  ["P32", 32, "planned", "TEMP button", "TEMP sensor button. RTC GPIO, so it can also wake the chip. ADC1_CH4. Tactile module buttons 1 (TEMP) / 2 (TDS). Firmware: firmware/tests/temp_tds_buttons."],
   ["P33", 33, "planned", "POWER button", "POWER button. RTC GPIO: wakes the ESP32 from deep sleep (ext0). ADC1_CH5."],
-  ["P25", 25, "planned", "TDS button", "TDS sensor button. RTC GPIO. DAC1, ADC2_CH8."],
+  ["P25", 25, "planned", "TDS button", "TDS sensor button. RTC GPIO. DAC1, ADC2_CH8. Tactile module buttons 1 (TEMP) / 2 (TDS). Firmware: firmware/tests/temp_tds_buttons."],
   ["P26", 26, "planned", "VOLT button", "VOLT sensor button. RTC GPIO. DAC2, ADC2_CH9."],
   ["P27", 27, "planned", "PRESS button", "PRESS sensor button. RTC GPIO. ADC2_CH7."],
   ["P14", 14, "free", "PWM at boot", "Free, but outputs a PWM signal during boot. ADC2_CH6, RTC GPIO."],
@@ -207,18 +247,18 @@ const LEFT = [
   ["SD2", 9, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
   ["SD3", 10, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
   ["CMD", 11, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
-  ["5V", null, "power", "5V (USB)", "5V from USB when plugged in. On battery, the MT3608 boost supplies 5V to the ZMPT101B and pressure sensor instead. On the bench this powers the pressure transducer."],
+  ["5V", null, "power", "5V (USB)", "5V from USB when plugged in. On battery, the MT3608 boost supplies 5V to the ZMPT101B and pressure sensor instead. On the bench this powers the pressure transducer. With the 4×AA pack fitted, the MT3608 output (set to 5.0V) also joins this pin."],
 ];
 const RIGHT = [
   ["GND", null, "power", "ground", "Ground. Use this one for the DS18B20's black wire."],
-  ["P23", 23, "free", "free", "Free. Default VSPI MOSI."],
+  ["P23", 23, "planned", "Traffic light RED", "Traffic light module R pin (active high). Red = sensor not working. Module GND goes to any GND pin."],
   ["P22", 22, "planned", "I2C SCL", "I2C clock to the ADS1115 (SCL). ESP32 default."],
   ["TX", 1, "avoid", "USB serial TX", "UART0 TX to the CP2102. Used for uploads and Serial output."],
   ["RX", 3, "avoid", "USB serial RX", "UART0 RX from the CP2102. Used for uploads and Serial input."],
   ["P21", 21, "planned", "I2C SDA", "I2C data to the ADS1115 (SDA). ESP32 default."],
   ["GND", null, "power", "ground", "Ground."],
-  ["P19", 19, "free", "free", "Free. Default VSPI MISO."],
-  ["P18", 18, "free", "free", "Free. Default VSPI SCK."],
+  ["P19", 19, "planned", "Traffic light GREEN", "Traffic light module G pin. Pulses while a 5 s reading is taken, then stays on for 3 s."],
+  ["P18", 18, "planned", "Traffic light YELLOW", "Traffic light module Y pin. Reserved for alerts, kept off for now."],
   ["P5", 5, "avoid", "strapping", "Strapping pin. Must be high at boot. Outputs PWM during boot."],
   ["P17", 17, "free", "free", "Free (the ESP-32S module has no PSRAM)."],
   ["P16", 16, "planned", "WS2812B data", "Data line to the two chained WS2812B LEDs (RGB1 battery, RGB2 result)."],
@@ -232,10 +272,31 @@ const RIGHT = [
 ];
 
 const WIRING = {
+  32: ["Tactile module pin 1 → GPIO 32 (left header, 7th pin, printed P32)", "Module V → 3V3 (not 5V, so the output stays at 3.3V)", "Module G → any GND pin", "The sketch checks at boot whether a press reads HIGH or LOW, so keep your fingers off the buttons while it starts."],
+  25: ["Tactile module pin 2 → GPIO 25 (left header, 9th pin, printed P25)", "Module V → 3V3 and G → GND (shared with button 1)", "Buttons 3 and 4 are for VOLT (GPIO 26) and PRESS (GPIO 27) later."],
   34: ["TDS module + (VCC) → 3V3 (top-left pin). Use 3V3, not 5V, so the signal stays within the ESP32's input range.", "TDS module A (signal) → GPIO 34 (left header, 5th pin, printed P34)", "TDS module − (GND) → GND (left header, 14th pin)", "TDS probe → the module's 2-pin probe socket"],
   35: ["Transducer +5V (red) → 5V pin (left header, last pin). It is a 5V part: do not use 3V3.", "Transducer GND (black) → GND (shares the TDS ground, left header, 14th pin)", "Transducer signal (yellow) → 10kΩ resistor → GPIO 35 (printed P35). 10kΩ bands: brown, black, orange, gold (4-band) or brown, black, black, red, brown (5-band).", "15kΩ resistor between GPIO 35 and GND. 15kΩ bands: brown, green, orange, gold (4-band) or brown, green, black, red, brown (5-band). This divider turns 0.5–4.5V into 0.3–2.7V so the ESP32 pin is never above 3.3V.", "Never connect the signal wire straight to a GPIO."],
   4: ["Red probe wire → 3V3 (top-left pin)", "Black probe wire → GND (top-right pin)", "Yellow/white probe wire → GPIO 4", "4.7kΩ resistor between GPIO 4 and 3V3. Bands: yellow, violet, red, gold (4-band) or yellow, violet, black, brown, brown (5-band)."],
 };
+
+// Every input / output system is one module: its pins, its wiring drawing, and whether it is shown.
+// Add a new sensor or output here and it appears in the filter, the diagram and the pin table.
+const MODULES = [
+  { id: "temp",     name: "DS18B20 temperature", kind: "input",  pins: [4],              draw: () => drawWiring(),         on: true },
+  { id: "tds",      name: "TDS module",          kind: "input",  pins: [34],             draw: () => drawTdsWiring(),      on: true },
+  { id: "touch",    name: "Tactile buttons",       kind: "input",  pins: [32, 25, 26, 27, 33], draw: () => drawTouchWiring(), on: true },
+  { id: "pressure", name: "Pressure sensor",     kind: "input",  pins: [35],             draw: () => drawPressureWiring(), on: false },
+  { id: "adc",      name: "ADS1115 ADC",         kind: "input",  pins: [21, 22],         draw: null,                       on: false },
+  { id: "traffic",  name: "Traffic light",       kind: "output", pins: [23, 19, 18],     draw: () => drawTrafficWiring(),  on: true },
+  { id: "rgb",      name: "RGB LEDs (WS2812B)",  kind: "output", pins: [16],             draw: null,                       on: false },
+  { id: "battery",  name: "Battery + boost",     kind: "power",  pins: [],               draw: () => drawBatteryWiring(),  on: false },
+];
+try {
+  const saved = JSON.parse(localStorage.getItem("pinmapModules") || "null");
+  if (saved) MODULES.forEach(m => { if (m.id in saved) m.on = !!saved[m.id]; });
+} catch (e) {}
+const moduleOfPin = gpio => MODULES.find(m => m.pins.includes(gpio));
+const pinHidden = gpio => { const m = moduleOfPin(gpio); return !!m && !m.on; };
 
 const NS = "http://www.w3.org/2000/svg";
 const svg = document.getElementById("board");
@@ -297,14 +358,14 @@ function draw() {
     t.textContent = n;
   });
 
-  if (document.getElementById("showWiring").checked) { drawWiring(); drawTdsWiring(); drawPressureWiring(); }
+  MODULES.forEach(m => { if (m.on && m.draw) m.draw(); });
 
   pins.length = 0;
   const side = (list, isLeft) => list.forEach((p, i) => {
     const [label, gpio, status, tag, notes] = p;
     const y = PIN0 + i * PITCH;
     const px = isLeft ? BX + 14 : BX + BW - 14;
-    const g = el("g", { class: "pin", tabindex: 0, role: "button", "aria-label": `${label}${gpio !== null ? " GPIO " + gpio : ""}: ${tag}` }, svg);
+    const g = el("g", { class: "pin" + (gpio !== null && pinHidden(gpio) ? " dim" : ""), tabindex: 0, role: "button", "aria-label": `${label}${gpio !== null ? " GPIO " + gpio : ""}: ${tag}` }, svg);
     el("rect", { class: "hit", x: isLeft ? 0 : BX + BW - 30, y: y - 13, width: BX + 30, height: 26, rx: 4 }, g);
     el("circle", { cx: px, cy: y, r: 8, fill: css("--pad"), stroke: css("--pad-ring"), "stroke-width": 1.5 }, g);
     el("circle", { cx: px, cy: y, r: 3.2, fill: css("--board-edge") }, g);
@@ -455,6 +516,92 @@ function drawTdsWiring() {
   label(hx + 38, yG - 8, "black − → GND", "start", 12, 600);
 }
 
+// TEMP (GPIO 32) and TDS (GPIO 25) push buttons: one leg to the pin, the other to the
+// ground wire that already runs down x = -120 to the GND pin. Internal pull-ups, no resistor.
+function drawButtonWiring() {
+  const W = { yellow: "#e0ad00", black: "#1b1f1e", casing: "#cfd6d4" };
+  const padL = BX + 14, xGnd = -120, bx = -80, bw = 60;
+  const g = el("g", { "aria-hidden": "true" }, svg);
+  const wire = (d, color) => {
+    el("path", { d, fill: "none", stroke: W.casing, "stroke-width": 7, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+    el("path", { d, fill: "none", stroke: color, "stroke-width": 4, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+  };
+  const label = (x, y, text, anchor, size, weight, fill = css("--ink")) => {
+    const t = el("text", { x, y, "text-anchor": anchor, fill, "font-family": "IBM Plex Mono, monospace", "font-size": size, "font-weight": weight }, g);
+    t.textContent = text;
+  };
+  [[32, PIN0 + 6 * PITCH, "TEMP"], [25, PIN0 + 8 * PITCH, "TDS"]].forEach(([gpio, y, name]) => {
+    wire(`M${bx} ${y} H${xGnd}`, W.black);
+    wire(`M${bx + bw} ${y} H${padL}`, W.yellow);
+    el("circle", { cx: xGnd, cy: y, r: 4.5, fill: css("--ink") }, g);
+    el("rect", { x: bx, y: y - 13, width: bw, height: 26, rx: 5, fill: "#3a4a47", stroke: css("--ink"), "stroke-width": 1.5 }, g);
+    el("circle", { cx: bx + bw / 2, cy: y, r: 8, fill: "#c9a24b", stroke: "#8a6d2a", "stroke-width": 1.5 }, g);
+    label(bx + bw / 2, y - 19, name + " button", "middle", 11, 600);
+    label(bx + bw + 8, y + 24, "→ GPIO " + gpio, "start", 10, 600);
+  });
+}
+
+// Shared drawing helpers for the two newer modules.
+function wireKit() {
+  const g = el("g", { "aria-hidden": "true" }, svg);
+  const wire = (d, color) => {
+    el("path", { d, fill: "none", stroke: "#cfd6d4", "stroke-width": 7, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+    el("path", { d, fill: "none", stroke: color, "stroke-width": 4, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+  };
+  const label = (x, y, text, anchor = "start", size = 12, weight = 500, fill = css("--ink")) => {
+    const t = el("text", { x, y, "text-anchor": anchor, fill, "font-family": "IBM Plex Mono, monospace", "font-size": size, "font-weight": weight }, g);
+    t.textContent = text;
+  };
+  const dot = (x, y) => el("circle", { cx: x, cy: y, r: 4.5, fill: css("--ink") }, g);
+  const pad = (x, y) => el("rect", { x: x - 6, y: y - 6, width: 12, height: 12, rx: 2, fill: "#c9a24b" }, g);
+  return { g, wire, label, dot, pad };
+}
+
+// 4-button tactile module (pins V, G, 1-4). Left: VCC joins the TDS module's 3V3 wire, GND joins the ground
+// wire at x = -120. Right: pin 1 -> GPIO 32 (TEMP), pin 2 -> GPIO 25 (TDS). Pins 3/4 unused.
+function drawTouchWiring() {
+  const { g, wire, label, dot, pad } = wireKit();
+  const padL = BX + 14, bx = -90, bw = 80, top = 322, h = 150;
+  const yVcc = 345, yGnd = 445, yO1 = PIN0 + 6 * PITCH, yO2 = PIN0 + 8 * PITCH;
+  wire(`M${bx} ${yVcc} H-110 V280`, "#d23b2f");
+  dot(-110, 280);
+  wire(`M${bx} ${yGnd} H-120`, "#1b1f1e");
+  dot(-120, yGnd);
+  wire(`M${bx + bw} ${yO1} H${padL}`, "#e0ad00");
+  wire(`M${bx + bw} ${yO2} H${padL}`, "#e0ad00");
+  el("rect", { x: bx, y: top, width: bw, height: h, rx: 6, fill: "#1f4fa3", stroke: "#123066", "stroke-width": 1.5 }, g);
+  label(bx + bw / 2, top + 16, "Tactile", "middle", 12, 600, "#ffffff");
+  label(bx + bw / 2, top + 30, "module", "middle", 10, 400, "#dbe6ff");
+  [[yVcc, bx, "V"], [yGnd, bx, "G"], [yO1, bx + bw, "1"], [yO2, bx + bw, "2"]].forEach(([y, x, n]) => {
+    pad(x, y);
+    label(x === bx ? x + 10 : x - 10, y + 4, n, x === bx ? "start" : "end", 10, 600, "#ffffff");
+  });
+  label(bx + bw / 2, top + h + 14, "4 tactile buttons", "middle", 10, 400);
+  label(bx + bw + 6, yO1 - 8, "1 TEMP → GPIO 32", "start", 10, 600);
+  label(bx + bw + 6, yO2 + 16, "2 TDS → GPIO 25", "start", 10, 600);
+}
+
+// Traffic light module on the right: R -> GPIO 23, Y -> GPIO 18, G -> GPIO 19, GND -> GND (right header).
+function drawTrafficWiring() {
+  const { g, wire, label, pad } = wireKit();
+  const padR = BX + BW - 14, mx = 740, mw = 100, top = 196, h = 250;
+  const yR = PIN0 + 1 * PITCH, yGnd = PIN0 + 6 * PITCH, yG = PIN0 + 7 * PITCH, yY = PIN0 + 8 * PITCH;
+  wire(`M${mx} ${yR} H${padR}`, "#d23b2f");
+  wire(`M${mx} ${yGnd} H${padR}`, "#1b1f1e");
+  wire(`M${mx} ${yY} H${padR}`, "#e0ad00");
+  wire(`M${mx} ${yG} H${padR}`, "#2e9e4f");
+  el("rect", { x: mx, y: top, width: mw, height: h, rx: 6, fill: "#2a2e2d", stroke: "#0e1110", "stroke-width": 1.5 }, g);
+  label(mx + mw / 2, top + 16, "Traffic light", "middle", 11, 600, "#ffffff");
+  [[yR, "#d23b2f", "R", "red = sensor fault"], [yY, "#e0ad00", "Y", "alert (later)"], [yG, "#2e9e4f", "G", "green pulses = reading"]].forEach(([y, c, n, note]) => {
+    el("circle", { cx: mx + mw - 30, cy: y, r: 13, fill: c, stroke: "#0e1110", "stroke-width": 1.5 }, g);
+    label(mx + 20, y + 4, n, "start", 11, 600, "#ffffff");
+  });
+  pad(mx, yR); pad(mx, yGnd); pad(mx, yY); pad(mx, yG);
+  label(mx + 14, yGnd + 4, "GND", "start", 11, 600, "#ffffff");
+  label(mx + mw / 2, top + h + 16, "LED traffic module", "middle", 10, 400);
+  label(mx + mw / 2, top + h + 30, "R=23  G=19  Y=18", "middle", 10, 600);
+}
+
 // Pressure transducer (bench): +5V pin, GND, and the signal through a 10k/15k divider to GPIO 35.
 function drawPressureWiring() {
   const W = { red: "#d23b2f", black: "#1b1f1e", yellow: "#e0ad00", casing: "#cfd6d4" };
@@ -519,6 +666,100 @@ function drawPressureWiring() {
   label(xN + 10, tS + 4, "yellow signal", "start", 11, 600);
 }
 
+// 4xAA battery pack -> MT3608 boost (set to 5.0V) -> 5V pin, plus a 47k/47k divider to ADS1115 A3.
+function drawBatteryWiring() {
+  const W = { red: "#d23b2f", black: "#1b1f1e", green: "#2e9e4f", casing: "#cfd6d4" };
+  const padL = BX + 14;
+  const y5v = PIN0 + 18 * PITCH, yGnd = PIN0 + 13 * PITCH;   // 5V pin row, GND pin row
+  const bx = -265, tx = -150;                                  // battery box, terminal edge
+  const mx = -20, mxr = 100;                                   // MT3608 box edges
+  const yP = 825, yN = 860;                                    // + and - terminal rows
+  const xTap = -85, xGndJoin = -120, xOut5 = 150, xOutG = 200;
+  const yR1a = 890, yR1b = 925, yNode = 940, yR2a = 955, yR2b = 990;
+  const g = el("g", { "aria-hidden": "true" }, svg);
+  const wire = (d, color) => {
+    el("path", { d, fill: "none", stroke: W.casing, "stroke-width": 7, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+    el("path", { d, fill: "none", stroke: color, "stroke-width": 4, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+  };
+  const label = (x, y, text, anchor = "start", size = 12, weight = 500, fill = css("--ink")) => {
+    const t = el("text", { x, y, "text-anchor": anchor, fill, "font-family": "IBM Plex Mono, monospace", "font-size": size, "font-weight": weight }, g);
+    t.textContent = text;
+  };
+  const dot = (x, y) => el("circle", { cx: x, cy: y, r: 4.5, fill: css("--ink") }, g);
+  const resistor = (x, ya, yb) => {
+    el("rect", { x: x - 8, y: ya, width: 16, height: yb - ya, rx: 3, fill: "#d9c39a", stroke: "#7a6433", "stroke-width": 1.5 }, g);
+    [BAND.yellow, BAND.violet, BAND.orange, BAND.gold].forEach((c, i) =>
+      el("rect", { x: x - 8, y: ya + (yb - ya) * [0.16, 0.30, 0.44, 0.80][i] - 3, width: 16, height: 6, fill: c }, g));
+  };
+
+  // pack + -> MT3608 IN+, pack - -> MT3608 IN-
+  wire(`M${tx} ${yP} H${mx}`, W.red);
+  wire(`M${tx} ${yN} H${mx}`, W.black);
+  // MT3608 OUT+ -> joins the 5V wire that runs to the 5V pin
+  wire(`M${mxr} ${yP} H${xOut5} V${y5v}`, W.red);
+  dot(xOut5, y5v);
+  // MT3608 OUT- -> joins the GND wire to the GND pin, hopping over the 5V wire
+  wire(`M${mxr} ${yN} H${xOutG} V${y5v + 14} A14 14 0 0 0 ${xOutG} ${y5v - 14} V${yGnd}`, W.black);
+  dot(xOutG, yGnd);
+
+  // divider: pack + -> 47k -> node -> 47k -> GND; node goes to ADS1115 A3
+  wire(`M${xTap} ${yP} V${yN - 14} A14 14 0 0 1 ${xTap} ${yN + 14} V${yR1a}`, W.red);
+  dot(xTap, yP);
+  wire(`M${xTap} ${yR1b} V${yR2a}`, W.green);
+  wire(`M${xTap} ${yR2b} V${yR2b + 15} H${xGndJoin} V${yN}`, W.black);
+  dot(xGndJoin, yN);
+  wire(`M${xTap} ${yNode} H${mx + 20}`, W.green);
+  dot(xTap, yNode);
+  resistor(xTap, yR1a, yR1b);
+  resistor(xTap, yR2a, yR2b);
+  label(xTap + 16, (yR1a + yR1b) / 2 + 4, "47kΩ", "start", 12, 600);
+  label(xTap + 16, (yR2a + yR2b) / 2 + 4, "47kΩ", "start", 12, 600);
+  label(mx + 26, yNode + 4, "→ ADS1115 A3", "start", 12, 600);
+  label(mx + 26, yNode + 20, "reads half the pack voltage", "start", 10, 400);
+
+  // battery pack: four AA cells
+  el("rect", { x: bx, y: 800, width: 115, height: 80, rx: 6, fill: "#2a2e2d", stroke: "#0e1110", "stroke-width": 1.5 }, g);
+  for (let i = 0; i < 4; i++) {
+    el("rect", { x: bx + 10 + i * 23, y: 812, width: 18, height: 40, rx: 3, fill: "#c9a24b", stroke: "#8a6d2a" }, g);
+    el("rect", { x: bx + 16 + i * 23, y: 808, width: 6, height: 4, fill: "#8a6d2a" }, g);
+  }
+  label(bx + 10, 870, "4×AA holder", "start", 11, 600, "#ffffff");
+  [[yP, "+"], [yN, "−"]].forEach(([y, n]) => {
+    el("rect", { x: tx - 12, y: y - 6, width: 12, height: 12, rx: 2, fill: "#c9a24b" }, g);
+    label(tx - 18, y + 4, n, "end", 12, 600, "#ffffff");
+  });
+  label(bx, 898, "4.0–6.4V alkaline", "start", 11, 400);
+  label(bx, 913, "4.8–5.6V NiMH", "start", 11, 400);
+
+  // MT3608 boost module
+  el("rect", { x: mx, y: 800, width: mxr - mx, height: 80, rx: 6, fill: "#1f4fa3", stroke: "#123066", "stroke-width": 1.5 }, g);
+  label(mx + 60, 820, "MT3608", "middle", 13, 600, "#ffffff");
+  label(mx + 60, 836, "boost → 5.0V", "middle", 11, 400, "#dbe6ff");
+  label(mx + 60, 852, "set before wiring", "middle", 10, 400, "#dbe6ff");
+  [[yP, mx, "IN+"], [yN, mx, "IN−"], [yP, mxr, "OUT+"], [yN, mxr, "OUT−"]].forEach(([y, x, n]) => {
+    el("rect", { x: x - 6, y: y - 6, width: 12, height: 12, rx: 2, fill: "#c9a24b" }, g);
+    label(x === mx ? x + 10 : x - 10, y + 4, n, x === mx ? "start" : "end", 10, 600, "#ffffff");
+  });
+
+  label(xOut5 - 8, 790, "red → 5V pin", "end", 12, 600);
+  label(mxr + 10, 885, "black → GND", "start", 12, 600);
+}
+
+// Small push-button wiring picture for the TEMP / TDS button pins.
+function buttonSvg(gpio) {
+  const ink = css("--ink"), red = "#d23b2f", blk = ink;
+  return `<svg viewBox="0 0 300 120" role="img" aria-label="Push button between GPIO ${gpio} and GND" style="width:100%;max-width:340px;margin-top:14px">
+    <rect x="1" y="1" width="298" height="118" rx="8" fill="none" stroke="${css("--line")}"/>
+    <text x="14" y="30" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="600" fill="${ink}">GPIO ${gpio}</text>
+    <text x="286" y="30" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="600" fill="${ink}">GND</text>
+    <path d="M14 60 H105" stroke="#e0ad00" stroke-width="4" stroke-linecap="round"/>
+    <path d="M195 60 H286" stroke="${blk}" stroke-width="4" stroke-linecap="round"/>
+    <rect x="105" y="42" width="90" height="36" rx="6" fill="#3a4a47" stroke="${ink}" stroke-width="1.5"/>
+    <circle cx="150" cy="60" r="12" fill="#c9a24b" stroke="#8a6d2a" stroke-width="1.5"/>
+    <text x="150" y="100" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="${ink}">push button</text>
+  </svg>`;
+}
+
 let current = null;
 function select(rec) {
   current = rec;
@@ -535,11 +776,11 @@ function select(rec) {
       <dt>Position</dt><dd>${rec.side} header, pin ${rec.pos} from the top${flipped ? ` (the ${rec.side.toLowerCase()} header as seen from the front; on your ${rec.side === "Left" ? "right" : "left"} in rear view)` : ""}</dd>
       <dt>Notes</dt><dd>${rec.notes}</dd>
     </dl>
-    ${wiring ? `<h3 style="margin-top:16px">How to wire</h3><ol class="steps">${wiring.map(w => `<li>${w}</li>`).join("")}</ol>` : ""}`;
+        ${wiring ? `<h3 style="margin-top:16px">How to wire</h3><ol class="steps">${wiring.map(w => `<li>${w}</li>`).join("")}</ol>` : ""}`;
 }
 
 function table() {
-  const rows = pins.filter(p => p.status === "now" || p.status === "planned")
+  const rows = pins.filter(p => (p.status === "now" || p.status === "planned") && !pinHidden(p.gpio))
     .sort((a, b) => (a.status === "now" ? -1 : 0) - (b.status === "now" ? -1 : 0) || a.gpio - b.gpio);
   const tb = document.getElementById("assigned");
   tb.innerHTML = "";
@@ -564,9 +805,47 @@ document.getElementById("rearView").addEventListener("change", e => {
   try { localStorage.setItem("pinmapRear", flipped ? "1" : "0"); } catch (err) {}
   render();
 });
-document.getElementById("showWiring").addEventListener("change", render);
+function saveModules() {
+  try { localStorage.setItem("pinmapModules", JSON.stringify(Object.fromEntries(MODULES.map(m => [m.id, m.on])))); } catch (e) {}
+}
+function buildFilter() {
+  const box = document.getElementById("mods");
+  box.innerHTML = "";
+  MODULES.forEach(m => {
+    const lab = document.createElement("label");
+    lab.className = "mod" + (m.on ? " on" : "");
+    lab.innerHTML = `<input type="checkbox" ${m.on ? "checked" : ""}> <span>${m.name}</span> <span class="kind">${m.kind}</span>`;
+    lab.querySelector("input").addEventListener("change", e => { m.on = e.target.checked; saveModules(); buildFilter(); render(); });
+    box.appendChild(lab);
+  });
+}
+document.querySelectorAll(".kinds button").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.kind;
+  MODULES.forEach(m => { m.on = k === "all" ? true : k === "none" ? false : m.kind === k; });
+  saveModules(); buildFilter(); render();
+}));
+buildFilter();
+
+// Zoom: scales the diagram inside its scrolling box. "Full width" moves the side panel below.
+let zoom = 1;
+try { zoom = parseFloat(localStorage.getItem("pinmapZoom")) || 1; } catch (e) {}
+function applyZoom() {
+  zoom = Math.min(4, Math.max(0.6, zoom));
+  document.querySelector(".boardbox").style.setProperty("--zoom", zoom);
+  document.getElementById("zoomVal").textContent = Math.round(zoom * 100) + "%";
+  try { localStorage.setItem("pinmapZoom", zoom); } catch (e) {}
+}
+document.getElementById("zoomIn").addEventListener("click", () => { zoom *= 1.25; applyZoom(); });
+document.getElementById("zoomOut").addEventListener("click", () => { zoom /= 1.25; applyZoom(); });
+document.getElementById("zoomFit").addEventListener("click", () => { zoom = 1; applyZoom(); });
+document.getElementById("zoomWide").addEventListener("click", e => {
+  const on = document.querySelector(".main").classList.toggle("wide");
+  e.target.setAttribute("aria-pressed", on);
+});
+applyZoom();
 // Redraw when the theme changes so SVG colors follow the tokens.
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
 new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 </script>
 
+</body></html>
