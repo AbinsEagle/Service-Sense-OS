@@ -1,6 +1,6 @@
 # Service Sense OS
 
-Firmware, backend and app for the Hommiez handheld field diagnostic tool.
+Firmware, backend and app for the Service Sense OS handheld field diagnostic tool.
 A technician presses a button and the device measures water temperature,
 TDS, AC supply voltage or inlet pressure. It shows pass/warn/fail on an LED
 and sends the reading over Bluetooth to the technician's phone. The phone
@@ -14,7 +14,7 @@ so a single tagged release describes the whole system.
 ## Quick start for the hardware team
 
 1. **Get the code:** https://github.com/AbinsEagle/Service-Sense-OS (`main` branch). Clone it, or use *Code > Download ZIP*.
-2. **Flash the firmware** (`firmware/hommiez_main/hommiez_main.ino`) from Arduino IDE 2:
+2. **Flash the firmware** (`firmware/ssos_main/ssos_main.ino`) from Arduino IDE 2:
    - Install the **esp32 by Espressif Systems** board package, **version 3.x** (the sketch needs the 3.x API).
    - Install the libraries **OneWire** and **DallasTemperature** (Library Manager). Bluetooth comes with the board package.
    - Board: **ESP32 Dev Module**. Partition scheme: **Minimal SPIFFS (1.9MB APP with OTA)**. Pick the port and click Upload.
@@ -48,7 +48,7 @@ The viewer is a single static page in `app/ble-viewer/`. In Vercel: import this 
 ```
 docs/                PRD, wiring diagrams, pinouts, design notes
 datasheets/          PDFs for sensors/modules
-firmware/            ESP32 source (hommiez_main = current firmware; tests/ = bench sketches)
+firmware/            ESP32 source (ssos_main = current firmware; tests/ = bench sketches)
 backend/             FastAPI service (Supabase storage)           (planned)
 app/ble-viewer/      Static Web Bluetooth viewer (Vercel); Next.js app planned
 .github/workflows/   CI: build firmware, test backend/app         (planned)

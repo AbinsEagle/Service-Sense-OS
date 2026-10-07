@@ -2,7 +2,7 @@
 
 `firmware/hardware_bringup/hardware_bringup.ino` is their sketch, unchanged. It reads every sensor
 once and prints raw numbers; it has no settle logic, no unit conversion and no BLE.
-`firmware/hommiez_main/hommiez_main.ino` uses their pin map exactly and adds the measuring logic
+`firmware/ssos_main/ssos_main.ino` uses their pin map exactly and adds the measuring logic
 and Bluetooth reporting. The viewer in `app/ble-viewer/` shows all four sensors.
 
 ## Pin map used (unchanged)

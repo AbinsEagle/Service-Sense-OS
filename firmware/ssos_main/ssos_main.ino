@@ -1,4 +1,4 @@
-// Hommiez main firmware: the electronics board's pin map, with the Service Sense OS measuring
+// Service Sense OS main firmware: the electronics board's pin map, with the Service Sense OS measuring
 // logic and Bluetooth (BLE) reporting on top. Pin map is taken unchanged from
 // firmware/hardware_bringup (the hardware team's bring-up sketch).
 //

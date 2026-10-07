@@ -1,4 +1,4 @@
-# PRD — Hommiez Field Diagnostic Tool
+# PRD — Service Sense OS Field Diagnostic Tool
 **Version:** 1.0 (MVP) · **Status:** Hardware in build · **Owner:** Abins
 
 ---
@@ -7,7 +7,7 @@
 
 Field service technicians currently inspect site conditions (water quality,
 supply voltage, pressure) manually and transcribe results by hand or not
-at all. The Hommiez diagnostic tool is a handheld device that takes these
+at all. The Service Sense OS diagnostic tool is a handheld device that takes these
 readings at the push of a button and pushes them straight to a backend,
 removing manual transcription and giving a timestamped, technician-attributed
 record per site visit.

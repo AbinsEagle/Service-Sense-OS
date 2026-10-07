@@ -1,7 +1,7 @@
 // Temp + TDS with a 4-button tactile module, a traffic-light LED module and Bluetooth (BLE).
 // Same measuring behaviour as temp_tds_buttons; additionally every FINAL result is sent over BLE
 // as one line of JSON (never raw samples):
-//   {"dev":"Hommiez-4AC8","fw":"0.3.0","sensor":"TDS","value":58,"unit":"ppm","status":"settled","temp":25.3}
+//   {"dev":"SSOS_B1.0","fw":"0.3.0","sensor":"TDS","value":58,"unit":"ppm","status":"settled","temp":25.3}
 // status is settled / unstable / fault (value is null on a fault). Open
 // app/ble-viewer/index.html in Chrome and press Connect to see them.
 // All the "best value" logic runs here on the ESP32; only the final decided value is output.
@@ -334,9 +334,9 @@ void setup() {
   setLights(0, 0, 255); delay(300);
   setLights(0, 0, 0);
 
-  // Bluetooth: name is Hommiez- plus the last two bytes of the chip's MAC address.
+  // Bluetooth name is fixed: SSOS_B1.0.
   uint64_t mac = ESP.getEfuseMac();
-  snprintf(deviceName, sizeof deviceName, "Hommiez-%02X%02X", (uint8_t)(mac >> 32), (uint8_t)(mac >> 40));
+  snprintf(deviceName, sizeof deviceName, "SSOS_B1.0");
   BLEDevice::init(deviceName);
   BLEServer *server = BLEDevice::createServer();
   server->setCallbacks(new ServerCallbacks());
