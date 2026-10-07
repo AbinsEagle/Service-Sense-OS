@@ -23,6 +23,15 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 - 🟡 **Stage 1: Install check only.** Is the site suitable for the product? What add-on does it need?
 - ⏭ Service visit: record the complaint (category chips, note, photos), readings point to a likely cause (site problem vs product fault)
 
+## 1d. Install check outcome (Q9)
+- 🟡 **Site status:** *Ready* / *Ready with add-on* / *Not ready*, with the reason in one line (e.g. "Low voltage: 198 V")
+- 🟡 **Add-ons that fix the site:** stabilizer, pre-filter/softener, booster pump, pressure-reducing valve
+- 🟡 **Model suggestion** from the brand catalogue, driven by readings. Example rules (to confirm with the brand):
+  - Purifier: TDS ≤ 200 → UV/UF fine; 200–2000 → RO; plus booster pump if inlet pressure is low
+  - Stabilizer: pick the model whose working range covers the measured min/max voltage with margin
+  - Heater / pump / chimney: capacity and voltage-range rules from the brand's catalogue
+- The suggestion rules live in app data next to the limits, so the brand can tune them without a code change
+
 ## 1c. Product categories, first rollout (from Q5)
 Which readings each category asks for (the app shows only these, in this order):
 
@@ -85,4 +94,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q6 | Where pass/warn/fail limits come from | Indian standards now, brand specs later; show a low/high range bar | 2026-10-08 |
 | Q7 | What the customer gets at the end of a visit | WhatsApp summary | 2026-10-08 |
 | Q8 | How the complaint is recorded on a service visit | Later upgrade. Stage 1 focuses on the pre-installation check | 2026-10-08 |
-| Q9 | What an install check concludes | _open_ | |
+| Q9 | What an install check concludes | Site status (with add-ons) plus a model suggestion | 2026-10-08 |
+| Q10 | Is the product already on site during the check | _open_ | |
