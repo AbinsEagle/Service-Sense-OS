@@ -39,12 +39,14 @@
   <div class="cards">
     <div class="card"><h2>Temperature</h2><div class="val" id="v-TEMP">&ndash;</div><span class="badge" id="s-TEMP"></span></div>
     <div class="card"><h2>TDS</h2><div class="val" id="v-TDS">&ndash;</div><span class="badge" id="s-TDS"></span> <span id="t-TDS" class="note"></span></div>
+    <div class="card"><h2>Voltage</h2><div class="val" id="v-VOLT">&ndash;</div><span class="badge" id="s-VOLT"></span> <span id="t-VOLT" class="note"></span></div>
+    <div class="card"><h2>Pressure</h2><div class="val" id="v-PRESS">&ndash;</div><span class="badge" id="s-PRESS"></span></div>
   </div>
   <table>
     <thead><tr><th>Time</th><th>Device</th><th>Sensor</th><th>Value</th><th>Status</th></tr></thead>
     <tbody id="log"></tbody>
   </table>
-  <p class="note">Press the TEMP or TDS button on the device. Needs Chrome or Edge (Android, Windows, macOS, Linux) &mdash; not iPhone Safari. Serve this folder with <code>python3 -m http.server</code> and open <code>http://localhost:8000</code>.</p>
+  <p class="note">Press button 1 (TEMP), 2 (TDS), 3 (VOLT) or 4 (PRESS) on the device. Needs Chrome or Edge (Android, Windows, macOS, Linux) &mdash; not iPhone Safari. Serve this folder with <code>python3 -m http.server</code> and open <code>http://localhost:8000</code>.</p>
 </div>
 <script>
 const SERVICE = "6f1b0001-8c3a-4d7e-9a52-0b1d5c7e4a10";
@@ -60,6 +62,7 @@ function show(r) {
     b.textContent = r.status === "unstable" ? "unstable – re-take" : r.status;
     b.className = "badge " + r.status;
     if (r.sensor === "TDS") $("t-TDS").textContent = r.temp !== undefined ? "water " + r.temp + " °C" : "";
+    if (r.sensor === "VOLT") $("t-VOLT").textContent = r.min !== undefined ? "min " + r.min + " / max " + r.max + (r.cal === false ? " – uncalibrated" : "") : "";
   }
   const tr = document.createElement("tr");
   [new Date().toLocaleTimeString(), r.dev, r.sensor, val, r.status].forEach(t => {

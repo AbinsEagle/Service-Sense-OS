@@ -138,3 +138,15 @@ the result, and any problems. Toolchain setup history (2026-09-27) is in
 - BLE devices do not appear in the OS Bluetooth settings; connection is made from inside the page/app. Android uses Chrome; iPhone needs a Web Bluetooth browser such as Bluefy (or a native app later). Wi-Fi AP mode was considered and left for later.
 
 **Pending:** fix the temperature fault; tune settle thresholds on real probes.
+
+## 2026-10-07 — Integration onto the hardware team's pin map (branch ble-integration)
+
+**Done:**
+- Kept their bring-up sketch as `firmware/hardware_bringup/` (unchanged).
+- Added `firmware/hommiez_main/hommiez_main.ino` (v0.4.0): their pin map, our settle logic for TEMP and TDS, new VOLT (4 s of whole-cycle RMS windows; median, min, max) and PRESS (settle detection, bar), traffic light, buzzer, BLE JSON messages.
+- Viewer now shows voltage and pressure cards.
+- `docs/hardware-review.md` lists what to confirm with the hardware team.
+
+**Tested:** compiles (85% flash). Not flashed; nothing tested on their board yet.
+
+**Assumptions:** 10k/15k divider on pressure, direct ESP32 ADC for TDS and pressure, ZMPT uncalibrated, active buzzer.
