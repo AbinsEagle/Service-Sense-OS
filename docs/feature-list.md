@@ -34,6 +34,7 @@ The customer has already bought the product; the technician arrives to install i
 ## 1d. Install check outcome (Q9, Q10)
 - 🟡 **Site status:** *Ready* / *Ready with add-on* / *Not ready*, with the reason in one line (e.g. "Low voltage: 198 V")
 - 🟡 **Add-ons that fix the site:** stabilizer, pre-filter/softener, booster pump, pressure-reducing valve
+- ⏭ Customer declines the add-on: acknowledgement / blocking rules decided later (Q11)
 - ⏭ Model suggestion from readings (later upgrade, Q10). Stage 1 checks the product the customer has already bought
 
 ## 1c. Product categories, first rollout (from Q5)
@@ -100,4 +101,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q8 | How the complaint is recorded on a service visit | Later upgrade. Stage 1 focuses on the pre-installation check | 2026-10-08 |
 | Q9 | What an install check concludes | Site status (with add-ons) plus a model suggestion | 2026-10-08 |
 | Q10 | Is the product already on site during the check | Yes, already bought. Model suggestion parked for later | 2026-10-08 |
-| Q11 | What happens when the site isn't ready and the customer declines the fix | _open_ | |
+| Q11 | What happens when the site isn't ready and the customer declines the fix | Decide later | 2026-10-08 |
+| Q12 | Language of the app and the WhatsApp summary | _open_ | |
