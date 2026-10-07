@@ -1,5 +1,7 @@
 # Service Sense OS backend (FastAPI on Vercel → Supabase)
 
+> **Parked until stage 2.** The app (`app/web`) doesn't call this backend yet: in stage 1 visits stay on the phone. Everything below is built and tested, ready for when sign-in and saving are switched on.
+
 ```
 Technician app (phone browser) --HTTPS + sign-in token--> FastAPI on Vercel --service role--> Supabase
 ```

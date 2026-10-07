@@ -1,58 +1,37 @@
 import { useEffect, useRef, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
-import { CheckCircle2, ChevronDown, FlaskConical, LogOut, Mic } from "lucide-react";
+import { CheckCircle2, ChevronDown, FlaskConical, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DevicePanel } from "@/components/DevicePanel";
 import { ReadingTile, StatusChip } from "@/components/ReadingTile";
 import { formatValue } from "@/lib/format";
-import { SignIn, Wordmark } from "@/components/SignIn";
+import { Wordmark } from "@/components/Wordmark";
 import { VisitForm } from "@/components/VisitForm";
-import { SaveError, buildPayload, submitVisit } from "@/lib/api";
 import { bluetoothAvailable, connectDevice, type Connection } from "@/lib/ble";
-import { SERVER_CONFIGURED } from "@/lib/config";
-import { SIMULATED_DEV, simulate } from "@/lib/simulator";
+import { simulate } from "@/lib/simulator";
 import { measureSound } from "@/lib/sound";
-import { supabase } from "@/lib/supabase";
 import { SENSORS, type DeviceSensor } from "@/lib/types";
 import { toReading, useVisit } from "@/lib/visit";
 import { cn } from "@/lib/utils";
 
+// Stage 1: everything stays on this phone. Sign-in and saving to a server
+// (backend/, Supabase) come in the next stage.
 export default function App() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [authReady, setAuthReady] = useState(!supabase);
-  const [viewOnly, setViewOnly] = useState(false);
-
-  useEffect(() => {
-    if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setAuthReady(true);
-    });
-    const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
-    return () => data.subscription.unsubscribe();
-  }, []);
-
-  if (!authReady) return null;
-  if (SERVER_CONFIGURED && !session && !viewOnly) return <SignIn onSkip={() => setViewOnly(true)} />;
-  return <VisitScreen session={session} onSignIn={() => setViewOnly(false)} />;
+  return <VisitScreen />;
 }
 
-function VisitScreen({ session, onSignIn }: { session: Session | null; onSignIn(): void }) {
+function VisitScreen() {
   const { visit, setVisit, addReading, reset } = useVisit();
   const conn = useRef<Connection | null>(null);
   const leaving = useRef(false); // true while we disconnect on purpose
   const [device, setDevice] = useState<{ name: string; unit?: string } | null>(null);
   const [connecting, setConnecting] = useState(false);
-  const [simulating, setSimulating] = useState(!bluetoothAvailable() && !SERVER_CONFIGURED);
+  const [simulating, setSimulating] = useState(!bluetoothAvailable());
   const [bleError, setBleError] = useState<string | null>(null);
   const [measuring, setMeasuring] = useState(false);
   const [soundError, setSoundError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<SaveError | null>(null);
   const [logOpen, setLogOpen] = useState(false);
 
-  const saved = Boolean(visit.savedAt);
-  const canSave = SERVER_CONFIGURED && Boolean(session);
+  const saved = Boolean(visit.savedAt); // "finished": locked, kept on this phone
 
   useEffect(() => () => conn.current?.disconnect(), []);
 
@@ -96,55 +75,16 @@ function VisitScreen({ session, onSignIn }: { session: Session | null; onSignIn(
 
   const readings = SENSORS.map((s) => visit.latest[s.key]).filter((r) => r !== undefined);
   const missingName = !visit.customer.name.trim();
-  // Made-up values must never be filed as a real site visit.
-  const hasSimulated = readings.some((r) => r.dev === SIMULATED_DEV);
-
-  const save = async () => {
-    if (!supabase || !canSave) return;
-    setSaving(true);
-    setSaveError(null);
-    try {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) throw new SaveError("Your sign-in has expired. Sign in again, then save.", false);
-      await submitVisit(
-        buildPayload({ id: visit.id, customer: visit.customer, location: visit.location, notes: visit.notes, startedAt: visit.startedAt, readings }),
-        data.session.access_token,
-      );
-      setVisit((v) => ({ ...v, savedAt: new Date().toISOString() }));
-    } catch (e) {
-      setSaveError(e instanceof SaveError ? e : new SaveError(String(e), true));
-    } finally {
-      setSaving(false);
-    }
-  };
+  const finish = () => setVisit((v) => ({ ...v, savedAt: new Date().toISOString() }));
 
   return (
     <div className="min-h-svh pb-32 lg:pb-10">
       <header className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
           <Wordmark />
-          <span className="ml-auto truncate text-sm text-muted-foreground">
-            {session?.user.email ?? (SERVER_CONFIGURED ? "Not signed in" : "Demo")}
-          </span>
-          {session ? (
-            <Button variant="ghost" size="icon" aria-label="Sign out" onClick={() => supabase?.auth.signOut()}>
-              <LogOut className="h-4 w-4" />
-            </Button>
-          ) : (
-            SERVER_CONFIGURED && (
-              <Button variant="outline" size="sm" onClick={onSignIn}>
-                Sign in
-              </Button>
-            )
-          )}
+          <span className="ml-auto text-sm text-muted-foreground">Kept on this phone</span>
         </div>
       </header>
-
-      {!SERVER_CONFIGURED && (
-        <p className="border-b border-unstable/30 bg-unstable/10 px-4 py-2 text-center text-sm">
-          Demo build: saving is off until the server addresses are set.
-        </p>
-      )}
 
       <main className="mx-auto grid max-w-6xl gap-6 px-4 pt-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-start">
         <div className="grid gap-5">
@@ -162,7 +102,7 @@ function VisitScreen({ session, onSignIn }: { session: Session | null; onSignIn(
             <div className="flex flex-wrap items-center gap-3 rounded-md border border-settled/40 bg-settled/10 px-4 py-3">
               <CheckCircle2 className="h-5 w-5 text-settled" aria-hidden />
               <p className="mr-auto">
-                Saved at {new Date(visit.savedAt!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                Finished at {new Date(visit.savedAt!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 <span className="ml-2 font-mono text-xs text-muted-foreground">ref {visit.id.slice(0, 8)}</span>
               </p>
               <Button onClick={reset}>Start next visit</Button>
@@ -255,17 +195,7 @@ function VisitScreen({ session, onSignIn }: { session: Session | null; onSignIn(
         <aside className="grid gap-4 lg:sticky lg:top-20">
           <VisitForm visit={visit} disabled={saved} onChange={(patch) => setVisit((v) => ({ ...v, ...patch }))} />
           {!saved && (
-            <SaveBar
-              canSave={canSave}
-              signedIn={Boolean(session)}
-              saving={saving}
-              missingName={missingName}
-              hasSimulated={hasSimulated}
-              count={readings.length}
-              error={saveError}
-              onSave={save}
-              onSignIn={onSignIn}
-            />
+            <FinishBar missingName={missingName} count={readings.length} onFinish={finish} />
           )}
         </aside>
       </main>
@@ -273,49 +203,20 @@ function VisitScreen({ session, onSignIn }: { session: Session | null; onSignIn(
   );
 }
 
-function SaveBar(props: {
-  canSave: boolean;
-  signedIn: boolean;
-  saving: boolean;
-  missingName: boolean;
-  hasSimulated: boolean;
-  count: number;
-  error: SaveError | null;
-  onSave(): void;
-  onSignIn(): void;
-}) {
-  const { canSave, signedIn, saving, missingName, hasSimulated, count, error, onSave, onSignIn } = props;
-  const blocker = !SERVER_CONFIGURED
-    ? "Saving is off in the demo build."
-    : !signedIn
-      ? "Sign in to save this visit."
-      : missingName
-        ? "Add the customer name to save."
-        : count === 0
-          ? "Take at least one reading to save."
-          : hasSimulated
-            ? "Simulated readings can't be saved. Re-take them with the device."
-            : null;
+function FinishBar({ missingName, count, onFinish }: { missingName: boolean; count: number; onFinish(): void }) {
+  const blocker = missingName ? "Add the customer name to finish." : count === 0 ? "Take at least one reading to finish." : null;
   return (
     <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-background/95 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:static lg:rounded-md lg:border lg:bg-card lg:p-4">
-      <div className="mx-auto grid max-w-6xl gap-2">
-        {error && (
-          <p className="text-sm text-fault" role="alert">
-            {error.message}
-          </p>
-        )}
-        <div className="flex items-center gap-3">
-          <p className="mr-auto text-sm text-muted-foreground">{blocker ?? `${count} reading${count === 1 ? "" : "s"} ready`}</p>
-          {SERVER_CONFIGURED && !signedIn ? (
-            <Button size="lg" className="h-12 px-6 text-base" onClick={onSignIn}>
-              Sign in
-            </Button>
-          ) : (
-            <Button size="lg" className="h-12 px-6 text-base disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100" onClick={onSave} disabled={!canSave || saving || missingName || count === 0 || hasSimulated}>
-              {saving ? "Saving…" : error?.retryable ? "Try again" : "Save visit"}
-            </Button>
-          )}
-        </div>
+      <div className="mx-auto flex max-w-6xl items-center gap-3">
+        <p className="mr-auto text-sm text-muted-foreground">{blocker ?? `${count} reading${count === 1 ? "" : "s"} ready`}</p>
+        <Button
+          size="lg"
+          className="h-12 px-6 text-base disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100"
+          onClick={onFinish}
+          disabled={Boolean(blocker)}
+        >
+          Finish visit
+        </Button>
       </div>
     </div>
   );

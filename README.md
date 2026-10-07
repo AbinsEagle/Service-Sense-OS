@@ -30,8 +30,7 @@ Pin map, assumptions and open questions for the hardware: [docs/hardware-review.
 ### Deploying the app on Vercel
 The technician app is `app/web/` (React). In Vercel, the project at the repo root builds it with `vercel.json` and serves it at the site root over HTTPS (Web Bluetooth needs HTTPS on phones). The original single-page viewer is kept at `/viewer.html`.
 
-To turn on sign-in and saving, set these in that Vercel project's Environment Variables, then redeploy:
-`VITE_API_URL` (the backend's address), `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (the public anon key). Without them the app still reads the device but runs as a demo. Backend setup: [backend/README.md](backend/README.md).
+**Stage 1 (now):** the app works fully on the phone: no sign-in, no server, visits are kept on the phone. Sign-in and saving to the backend/Supabase are the next stage; `backend/` and `supabase/` are parked until then.
 
 ## System overview
 ```
@@ -82,15 +81,15 @@ Work proceeds track by track, in this order.
 - [ ] BLE service + reading payload
 - [ ] 20× wake → read → transmit → sleep reliability run
 
-**3. Backend (FastAPI + Supabase)**
+**3. Backend (FastAPI + Supabase): parked until stage 2**
 - [x] Schema for visits and readings (`supabase/migrations/`)
 - [x] Visit submission endpoint (`backend/`, tested; not yet deployed)
 - [ ] Create the Supabase project and deploy the backend to Vercel
 
-**4. Frontend (React app on Vercel, `app/web`)**
+**4. Frontend (React app on Vercel, `app/web`)**: feature list in [docs/feature-list.md](docs/feature-list.md)
 - [x] BLE connect + live readings with settled/unstable/fault status (pass/warn/fail waits on thresholds)
 - [x] Site/customer details form, location, sound level via phone microphone (uncalibrated)
-- [x] Technician sign-in (Supabase Auth) and submit visit to backend
+- [ ] Technician sign-in and submit visit to backend (next stage; backend is built and parked)
 - [ ] End-to-end technician test on a real phone and device
 
 ## Building firmware locally

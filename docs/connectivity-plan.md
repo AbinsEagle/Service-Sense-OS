@@ -14,7 +14,7 @@ The ESP32 never talks to GitHub or Supabase directly.
 - **iPhone Safari does not support Web Bluetooth.** If technicians use iPhones, we need a small native app or a Bluefy-type browser. **Open question: Android or iPhone?**
 - Firmware sends one small message per reading: device ID, firmware version, sensor name, final value, unit, status (settled / unstable / fault), battery voltage. The device decides the final value itself (see design-decisions.md); raw samples are never sent.
 
-## 2. Web app to Supabase
+## 2. Web app to Supabase (stage 2: parked)
 - The React web app (`app/web`) on Vercel receives each reading and sends the visit to the FastAPI backend, adding technician, customer and site details typed in the app.
 - Tables (simple start): `visits` (technician, customer, location, time) and `readings` (visit, sensor, value, unit, status, device ID, firmware version, time).
 - Technicians sign in with Supabase Auth; the backend checks the sign-in token and files each visit under that technician.
