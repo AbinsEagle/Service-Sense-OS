@@ -157,3 +157,9 @@ the result, and any problems. Toolchain setup: arduino-cli 1.5.1 with the esp32:
 **Tested (host-side dry run, no hardware):** firmware compiles (85% flash). Messages for TEMP, TDS, VOLT, PRESS and a fault (85-125 bytes, under the 256 buffer), split into 20-byte chunks, rejoin and parse correctly in the viewer's logic. RMS maths on simulated 50 Hz and 60 Hz mains with a 100 ms window gives the exact expected value (707.1 mV for 1 V peak), confirming whole-cycle sampling.
 
 **Not tested:** anything on real hardware (settle thresholds, ADC pins, buzzer, buttons on GPIO 12).
+
+## 2026-10-08 — Bench firmware saved as v00
+
+**Done:** Copied the verified bench firmware (TEMP + TDS, bench pins, BLE) to `firmware/v00/ssos_v00/` with version string 0.0.0 and a README. Current firmware stays in `firmware/ssos_main`.
+
+**Tested:** compiles (85% flash). Not re-flashed; code is identical to `temp_tds_ble` apart from the version string.
