@@ -20,7 +20,7 @@ so a single tagged release describes the whole system.
    - Board: **ESP32 Dev Module**. Partition scheme: **Minimal SPIFFS (1.9MB APP with OTA)**. Pick the port and click Upload.
    - Close the Serial Monitor before uploading, and do not have the battery and USB connected at the same time.
    - Serial Monitor at 115200 should print `Bluetooth name: SSOS_B1.0`.
-3. **Open the app:** https://YOUR-PROJECT.vercel.app *(replace with the real Vercel URL once deployed)*
+3. **Open the app:** https://service-sense-os.vercel.app/
    - Use **Chrome on Android or desktop** (Chrome, Edge or Chromium; Brave has Web Bluetooth switched off). On iPhone use the free **Bluefy** browser, because Safari has no Web Bluetooth.
    - Tap **Connect** and choose **SSOS_B1.0** (it will not appear in the phone's Bluetooth settings; BLE devices only show in this picker).
 4. **Press the device buttons:** 1 = TEMP, 2 = TDS, 3 = VOLT, 4 = PRESS. Each final reading appears in the app.
@@ -28,7 +28,7 @@ so a single tagged release describes the whole system.
 Pin map, assumptions and open questions for the hardware: [docs/hardware-review.md](docs/hardware-review.md). The hardware team's original bring-up sketch is kept in `firmware/hardware_bringup/`.
 
 ### Deploying the viewer on Vercel
-The viewer is a single static page in `app/ble-viewer/`. In Vercel: import this repo, set **Root Directory** to `app/ble-viewer`, **Framework Preset** to *Other*, leave the build command empty. Vercel serves it over HTTPS, which Web Bluetooth needs on phones.
+The viewer is a single static page in `app/ble-viewer/`. In Vercel: import this repo, leave the Root Directory as the repo root and the build command empty. `vercel.json` serves the viewer at the site root. Vercel serves it over HTTPS, which Web Bluetooth needs on phones.
 
 ## System overview
 ```
