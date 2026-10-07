@@ -23,14 +23,18 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 - 🟡 **Stage 1: Install check only.** Is the site suitable for the product? What add-on does it need?
 - ⏭ Service visit: record the complaint (category chips, note, photos), readings point to a likely cause (site problem vs product fault)
 
-## 1d. Install check outcome (Q9)
+## 1e. Stage 1 install-check flow (Q10)
+The customer has already bought the product; the technician arrives to install it.
+1. Scan the product QR (serial), pick category and model
+2. Customer name, phone, address, location
+3. Take only the readings that category needs (see 1c)
+4. Site status for that product + add-ons, with the low/high bars
+5. WhatsApp summary to the customer, finish
+
+## 1d. Install check outcome (Q9, Q10)
 - 🟡 **Site status:** *Ready* / *Ready with add-on* / *Not ready*, with the reason in one line (e.g. "Low voltage: 198 V")
 - 🟡 **Add-ons that fix the site:** stabilizer, pre-filter/softener, booster pump, pressure-reducing valve
-- 🟡 **Model suggestion** from the brand catalogue, driven by readings. Example rules (to confirm with the brand):
-  - Purifier: TDS ≤ 200 → UV/UF fine; 200–2000 → RO; plus booster pump if inlet pressure is low
-  - Stabilizer: pick the model whose working range covers the measured min/max voltage with margin
-  - Heater / pump / chimney: capacity and voltage-range rules from the brand's catalogue
-- The suggestion rules live in app data next to the limits, so the brand can tune them without a code change
+- ⏭ Model suggestion from readings (later upgrade, Q10). Stage 1 checks the product the customer has already bought
 
 ## 1c. Product categories, first rollout (from Q5)
 Which readings each category asks for (the app shows only these, in this order):
@@ -95,4 +99,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q7 | What the customer gets at the end of a visit | WhatsApp summary | 2026-10-08 |
 | Q8 | How the complaint is recorded on a service visit | Later upgrade. Stage 1 focuses on the pre-installation check | 2026-10-08 |
 | Q9 | What an install check concludes | Site status (with add-ons) plus a model suggestion | 2026-10-08 |
-| Q10 | Is the product already on site during the check | _open_ | |
+| Q10 | Is the product already on site during the check | Yes, already bought. Model suggestion parked for later | 2026-10-08 |
+| Q11 | What happens when the site isn't ready and the customer declines the fix | _open_ | |
