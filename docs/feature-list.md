@@ -50,6 +50,9 @@ Which readings each category asks for (the app shows only these, in this order):
 
 - ❓ **Gap: chimney suction.** "Weak suction" is the top chimney complaint, and the device has no airflow sensor. Options for later: a small anemometer add-on, or a guided visual check in the app.
 
+## 1f. Language (Q12)
+- ✅ English only in stage 1 (app and WhatsApp summary). Text kept in one place so languages can be added later
+
 ## 2. Device link
 - ✅ Connect to `SSOS_B1.0` over Bluetooth from the browser (Chrome on Android; Bluefy on iPhone)
 - ✅ Live reading per sensor with settled / unstable / fault status
@@ -102,4 +105,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q9 | What an install check concludes | Site status (with add-ons) plus a model suggestion | 2026-10-08 |
 | Q10 | Is the product already on site during the check | Yes, already bought. Model suggestion parked for later | 2026-10-08 |
 | Q11 | What happens when the site isn't ready and the customer declines the fix | Decide later | 2026-10-08 |
-| Q12 | Language of the app and the WhatsApp summary | _open_ | |
+| Q12 | Language of the app and the WhatsApp summary | English only | 2026-10-08 |
+| Q13 | Visit history and reporting without a server | _open_ | |
