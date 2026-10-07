@@ -21,7 +21,7 @@ MIGRATIONS = sorted((Path(__file__).parents[2] / "supabase" / "migrations").glob
 
 @pytest.fixture
 def db():
-    name = f"hommiez_test_{uuid.uuid4().hex[:8]}"
+    name = f"ssos_test_{uuid.uuid4().hex[:8]}"
     with psycopg.connect(ADMIN_URL, autocommit=True) as admin:
         admin.execute(f"create database {name}")
         for role in ("anon", "authenticated", "service_role"):  # Supabase's built-in roles
@@ -48,12 +48,12 @@ def payload(**overrides):
         "notes": None,
         "started_at": "2026-10-06T10:00:00+05:30",
         "readings": [
-            {"sensor": "temperature", "value": 32.31, "unit": "C", "result": "pass", "status": "settled",
-             "battery_v": 5.9, "device_id": "hommiez-001", "firmware_version": "dev",
-             "taken_at": "2026-10-06T10:01:00+05:30"},
-            {"sensor": "sound", "value": 62, "unit": "dB", "result": "pass", "status": None,
+            {"sensor": "TEMP", "value": 32.31, "unit": "C", "result": "pass", "status": "settled",
+             "battery_v": 5.9, "device_id": "F294", "firmware_version": "0.4.0",
+             "taken_at": "2026-10-08T10:01:00+05:30", "extra": None},
+            {"sensor": "SOUND", "value": 62, "unit": "dB", "result": None, "status": None,
              "battery_v": None, "device_id": None, "firmware_version": None,
-             "taken_at": "2026-10-06T10:02:00+05:30"},
+             "taken_at": "2026-10-08T10:02:00+05:30", "extra": None},
         ],
     }
     p.update(overrides)
@@ -74,7 +74,7 @@ def test_saves_visit_and_readings(db):
     row = db.execute("select customer_name, location_label from visits").fetchone()
     assert row == ("Test Customer", "Kochi")
     assert db.execute("select sensor, value from readings order by taken_at").fetchall() == [
-        ("temperature", 32.31), ("sound", 62.0)
+        ("TEMP", 32.31), ("SOUND", 62.0)
     ]
 
 
@@ -87,10 +87,58 @@ def test_retry_is_idempotent(db):
 
 def test_bad_reading_rolls_back_the_whole_visit(db):
     p = payload()
-    p["readings"][1]["result"] = "ok"
+    p["readings"][1]["status"] = "ok"
     with pytest.raises(psycopg.errors.CheckViolation):
         submit(db, p)
     assert (count(db, "visits"), count(db, "readings")) == (0, 0)
+
+
+def test_fault_reading_with_extra_fields(db):
+    p = payload()
+    p["readings"] = [
+        {"sensor": "TDS", "value": 58, "unit": "ppm", "result": None, "status": "settled",
+         "battery_v": None, "device_id": "F294", "firmware_version": "0.4.0",
+         "taken_at": "2026-10-08T10:01:00+05:30", "extra": {"temp": 25.3}},
+        {"sensor": "PRESS", "value": None, "unit": "bar", "result": None, "status": "fault",
+         "battery_v": None, "device_id": "F294", "firmware_version": "0.4.0",
+         "taken_at": "2026-10-08T10:02:00+05:30", "extra": None},
+    ]
+    submit(db, p)
+    assert db.execute("select sensor, value, extra from readings order by taken_at").fetchall() == [
+        ("TDS", 58.0, {"temp": 25.3}), ("PRESS", None, None)
+    ]
+
+
+def test_null_value_needs_fault_status(db):
+    p = payload()
+    p["readings"][0]["value"] = None
+    with pytest.raises(psycopg.errors.CheckViolation):
+        submit(db, p)
+
+
+def test_rows_saved_before_the_format_change_are_converted():
+    # Covered by applying both migrations in order on every test database; this
+    # checks the conversion on a row written with the first migration only.
+    name = f"ssos_test_{uuid.uuid4().hex[:8]}"
+    with psycopg.connect(ADMIN_URL, autocommit=True) as admin:
+        admin.execute(f"create database {name}")
+    url = psycopg.conninfo.make_conninfo(ADMIN_URL, dbname=name)
+    try:
+        with psycopg.connect(url, autocommit=True) as conn:
+            conn.execute(MIGRATIONS[0].read_text())
+            old = payload()
+            old["readings"] = [
+                {"sensor": "pressure", "value": 0.25, "unit": "MPa", "result": "pass", "status": "settled",
+                 "battery_v": None, "device_id": "F294", "firmware_version": "dev",
+                 "taken_at": "2026-10-06T10:01:00+05:30"},
+            ]
+            submit(conn, old)
+            for m in MIGRATIONS[1:]:
+                conn.execute(m.read_text())
+            assert conn.execute("select sensor, value, unit from readings").fetchone() == ("PRESS", 2.5, "bar")
+    finally:
+        with psycopg.connect(ADMIN_URL, autocommit=True) as admin:
+            admin.execute(f"drop database {name} with (force)")
 
 
 def test_public_roles_cannot_call_submit(db):

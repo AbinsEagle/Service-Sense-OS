@@ -1,4 +1,4 @@
--- Visits and readings for the Hommiez field diagnostic tool.
+-- Visits and readings for the Service Sense OS field diagnostic tool.
 -- Only the FastAPI backend (service_role key) reads and writes these tables:
 -- RLS is on with no policies, so the public anon key gets nothing.
 

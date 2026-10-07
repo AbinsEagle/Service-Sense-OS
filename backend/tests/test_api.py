@@ -1,10 +1,9 @@
-from copy import deepcopy
 from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
 
-from hommiez_api.main import app, get_repository
+from ssos_api.main import app, get_repository
 
 KEY = "test-key"
 
@@ -39,16 +38,15 @@ def client(repo):
 
 
 def reading(**overrides):
+    # A real device message (firmware/ssos_main) plus the phone's receive time.
     r = {
-        "sensor": "temperature",
+        "dev": "F294",
+        "fw": "0.4.0",
+        "sensor": "TEMP",
         "value": 32.31,
         "unit": "C",
-        "result": "pass",
         "status": "settled",
-        "battery_v": 5.9,
-        "device_id": "hommiez-001",
-        "firmware_version": "dev",
-        "taken_at": "2026-10-06T10:01:00+05:30",
+        "taken_at": "2026-10-08T10:01:00+05:30",
     }
     r.update(overrides)
     return r
@@ -63,12 +61,12 @@ def visit(**overrides):
         "started_at": "2026-10-06T10:00:00+05:30",
         "readings": [
             reading(),
-            reading(sensor="tds", value=180, unit="ppm"),
-            reading(sensor="voltage", value=231.4, unit="V"),
-            reading(sensor="pressure", value=0.25, unit="MPa", result="warn"),
+            reading(sensor="TDS", value=58, unit="ppm", temp=25.3),
+            reading(sensor="VOLT", value=231.4, unit="V", min=229.8, max=232.0, cal=False),
+            reading(sensor="PRESS", value=2.45, unit="bar", result="warn"),
+            reading(sensor="TEMP", value=None, status="fault"),
             # sound comes from the phone microphone, so no device fields
-            reading(sensor="sound", value=62, unit="dB", status=None, battery_v=None,
-                    device_id=None, firmware_version=None),
+            reading(sensor="SOUND", value=62, unit="dB", status=None, dev=None, fw=None),
         ],
     }
     v.update(overrides)
@@ -84,7 +82,7 @@ def test_submit_saves_visit(client, repo):
     res = client.post("/visits", json=v)
     assert res.status_code == 201
     assert res.json() == {"id": v["id"], "created": True}
-    assert len(repo.visits[UUID(v["id"])]["readings"]) == 5
+    assert len(repo.visits[UUID(v["id"])]["readings"]) == 6
 
 
 def test_retry_with_same_id_is_not_saved_twice(client, repo):
@@ -129,10 +127,14 @@ def test_missing_supabase_config_is_a_clear_503(monkeypatch):
     [
         reading(unit="F"),                                   # wrong unit
         reading(value=-127),                                 # DS18B20 disconnected value
-        reading(sensor="pressure", value=2.0, unit="MPa"),   # beyond the transducer
+        reading(sensor="PRESS", value=20, unit="bar"),       # beyond the transducer
+        reading(sensor="PRESS", value=0.25, unit="MPa"),     # firmware sends bar
+        reading(sensor="temperature"),                       # not a firmware sensor code
+        reading(value=None),                                 # null value without a fault
         reading(result="ok"),                                # not pass/warn/fail
-        reading(device_id=None),                             # device reading without device id
-        reading(taken_at="2026-10-06T10:01:00"),             # no timezone
+        reading(dev=None),                                   # device reading without unit ID
+        reading(note={"nested": 1}),                         # extra fields must be simple values
+        reading(taken_at="2026-10-08T10:01:00"),             # no timezone
     ],
 )
 def test_rejects_bad_reading(client, repo, bad):
@@ -146,12 +148,15 @@ def test_rejects_visit_without_readings(client):
 
 
 def test_payload_sent_to_storage_matches_sql_function(client, repo):
-    # submit_visit() in the migration reads these exact keys.
+    # submit_visit() in the migrations reads these exact keys.
     v = visit()
     client.post("/visits", json=v)
-    stored = deepcopy(repo.visits[UUID(v["id"])])
-    assert set(stored) >= {"id", "technician_id", "customer", "location", "notes", "started_at", "readings"}
-    assert set(stored["readings"][0]) == {
-        "sensor", "value", "unit", "result", "status", "battery_v",
-        "device_id", "firmware_version", "taken_at",
+    stored = repo.visits[UUID(v["id"])]
+    assert set(stored) == {"id", "technician_id", "customer", "location", "notes", "started_at", "readings"}
+    tds = stored["readings"][1]
+    assert tds == {
+        "sensor": "TDS", "value": 58.0, "unit": "ppm", "result": None, "status": "settled",
+        "battery_v": None, "device_id": "F294", "firmware_version": "0.4.0",
+        "taken_at": "2026-10-08T10:01:00+05:30", "extra": {"temp": 25.3},
     }
+    assert stored["readings"][0]["extra"] is None

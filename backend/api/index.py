@@ -5,4 +5,4 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from hommiez_api.main import app  # noqa: E402,F401
+from ssos_api.main import app  # noqa: E402,F401

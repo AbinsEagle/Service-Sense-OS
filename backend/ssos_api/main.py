@@ -1,4 +1,4 @@
-"""Hommiez backend: receives completed site visits from the technician app
+"""Service Sense OS backend: receives completed site visits from the technician app
 and stores them in Supabase (PRD §5.3)."""
 
 import hmac
@@ -11,7 +11,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Response, status
 from .repository import VisitRepository, supabase_repository
 from .schemas import SubmitOut, VisitIn
 
-app = FastAPI(title="Hommiez API", version="0.1.0")
+app = FastAPI(title="Service Sense OS API", version="0.1.0")
 
 
 def get_repository() -> VisitRepository:
@@ -47,7 +47,7 @@ def health() -> dict:
 def submit_visit(
     visit: VisitIn, response: Response, repo: VisitRepository = Depends(get_repository)
 ) -> SubmitOut:
-    visit_id, created = repo.submit_visit(visit.model_dump(mode="json"))
+    visit_id, created = repo.submit_visit(visit.to_payload())
     if not created:
         response.status_code = status.HTTP_200_OK
     return SubmitOut(id=visit_id, created=created)
