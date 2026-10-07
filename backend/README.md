@@ -1,7 +1,7 @@
 # Service Sense OS backend (FastAPI on Vercel → Supabase)
 
 ```
-Phone web app (server side) --HTTPS + X-API-Key--> FastAPI on Vercel --service role--> Supabase
+Technician app (phone browser) --HTTPS + sign-in token--> FastAPI on Vercel --service role--> Supabase
 ```
 
 Receives a completed site visit (customer details + readings) and saves it
@@ -15,7 +15,11 @@ in Supabase: one row in `visits`, one row per reading in `readings`.
 | POST | `/visits` | Saves a visit. `201` when new; `200` with `"created": false` if this visit `id` was already saved (safe retry). |
 | GET | `/visits/{id}` | The visit with its readings, oldest first. |
 
-Every call except `/health` needs the `X-API-Key` header. Interactive docs: `/docs`.
+Every call except `/health` needs one of:
+- `Authorization: Bearer <access token>`: a technician signed in to the app with Supabase Auth. The visit is filed under their user id (any `technician_id` in the body is ignored), and they can only read their own visits.
+- `X-API-Key: <API_KEY>`: trusted tools and scripts only (never put this key in the app). The body must include `technician_id`.
+
+Interactive docs: `/docs`.
 
 ### Example `POST /visits`
 Each reading is the device's Bluetooth message, forwarded unchanged, plus `taken_at` (when the phone received it):
@@ -70,7 +74,7 @@ TEST_DATABASE_URL=postgresql://postgres:<password>@localhost/postgres pytest
 The existing Vercel project (service-sense-os.vercel.app) serves the BLE viewer from the repo root. The backend is a **second project** from the same repo:
 1. vercel.com → Add New → Project → import `AbinsEagle/Service-Sense-OS` again (name it e.g. `service-sense-os-api`).
 2. **Root Directory: `backend`**. Framework preset: Other.
-3. Environment Variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `API_KEY`
+3. Environment Variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `API_KEY`, and `CORS_ORIGINS` set to the technician app's address (e.g. `https://service-sense-os.vercel.app`)
    (make one with `python3 -c "import secrets; print(secrets.token_urlsafe(32))"`).
 4. Deploy. Check `https://<your-app>.vercel.app/health`.
 
@@ -79,4 +83,6 @@ Vercel redeploys on every push to the production branch.
 ## Security notes
 - The service role key bypasses Supabase row-level security. It lives only in Vercel's environment variables, never in the repo or the browser.
 - RLS is on for both tables with no policies, so the public anon key can't read or write visits.
-- Call this API from the web app's **server side** (a Next.js route handler), so `API_KEY` never reaches the phone's browser. Per-technician login (Supabase Auth) can replace the shared key later.
+- The app signs technicians in with Supabase Auth and sends their token; the backend checks it with Supabase on every call, so who filed a visit can't be faked.
+- Only invited technicians should have accounts: in Supabase, **Authentication → Sign In / Providers → Email**, turn off "Allow new users to sign up", and add each technician under **Authentication → Users → Add user**.
+- `API_KEY` is for scripts and tests only; it never goes in the app.

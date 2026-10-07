@@ -22,6 +22,9 @@ class FakeRepository:
     def get_visit(self, visit_id):
         return self.visits.get(visit_id)
 
+    def verify_token(self, token):
+        return {"tech-a-token": "user-a", "tech-b-token": "user-b"}.get(token)
+
 
 @pytest.fixture
 def repo(monkeypatch):
@@ -160,3 +163,65 @@ def test_payload_sent_to_storage_matches_sql_function(client, repo):
         "taken_at": "2026-10-08T10:01:00+05:30", "extra": {"temp": 25.3},
     }
     assert stored["readings"][0]["extra"] is None
+
+
+# --- technicians signed in with Supabase Auth ---------------------------------
+
+def as_tech(token):
+    return TestClient(app, headers={"Authorization": f"Bearer {token}"})
+
+
+def test_signed_in_technician_id_comes_from_the_token(repo):
+    v = visit(technician_id="someone-else")
+    assert as_tech("tech-a-token").post("/visits", json=v).status_code == 201
+    assert repo.visits[UUID(v["id"])]["technician_id"] == "user-a"
+
+
+def test_signed_in_technician_needs_no_technician_id(repo):
+    v = visit()
+    del v["technician_id"]
+    assert as_tech("tech-a-token").post("/visits", json=v).status_code == 201
+    assert repo.visits[UUID(v["id"])]["technician_id"] == "user-a"
+
+
+@pytest.mark.parametrize("header", ["Bearer expired", "Bearer ", "Basic dGVzdA=="])
+def test_bad_sign_in_is_rejected(repo, header):
+    res = TestClient(app, headers={"Authorization": header}).post("/visits", json=visit())
+    assert res.status_code == 401
+    assert repo.visits == {}
+
+
+def test_bad_token_is_not_rescued_by_a_valid_api_key(repo):
+    res = TestClient(app, headers={"Authorization": "Bearer expired", "X-API-Key": KEY}).post("/visits", json=visit())
+    assert res.status_code == 401
+
+
+def test_api_key_caller_must_name_the_technician(client):
+    v = visit()
+    del v["technician_id"]
+    assert client.post("/visits", json=v).status_code == 422
+
+
+def test_technicians_only_see_their_own_visits(repo):
+    v = visit()
+    as_tech("tech-a-token").post("/visits", json=v)
+    assert as_tech("tech-a-token").get(f"/visits/{v['id']}").status_code == 200
+    assert as_tech("tech-b-token").get(f"/visits/{v['id']}").status_code == 404
+
+
+def test_cors_allows_only_configured_origins(monkeypatch):
+    import importlib
+
+    import ssos_api.main as main
+
+    monkeypatch.setenv("CORS_ORIGINS", "https://service-sense-os.vercel.app")
+    try:
+        c = TestClient(importlib.reload(main).app)
+        ok = c.options("/visits", headers={"Origin": "https://service-sense-os.vercel.app", "Access-Control-Request-Method": "POST",
+                                           "Access-Control-Request-Headers": "authorization,content-type"})
+        assert ok.headers.get("access-control-allow-origin") == "https://service-sense-os.vercel.app"
+        bad = c.options("/visits", headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "POST"})
+        assert "access-control-allow-origin" not in bad.headers
+    finally:
+        monkeypatch.delenv("CORS_ORIGINS")
+        importlib.reload(main)

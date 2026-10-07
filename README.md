@@ -27,12 +27,15 @@ so a single tagged release describes the whole system.
 
 Pin map, assumptions and open questions for the hardware: [docs/hardware-review.md](docs/hardware-review.md). The hardware team's original bring-up sketch is kept in `firmware/hardware_bringup/`.
 
-### Deploying the viewer on Vercel
-The viewer is a single static page in `app/ble-viewer/`. In Vercel: import this repo, leave the Root Directory as the repo root and the build command empty. `vercel.json` serves the viewer at the site root. Vercel serves it over HTTPS, which Web Bluetooth needs on phones.
+### Deploying the app on Vercel
+The technician app is `app/web/` (React). In Vercel, the project at the repo root builds it with `vercel.json` and serves it at the site root over HTTPS (Web Bluetooth needs HTTPS on phones). The original single-page viewer is kept at `/viewer.html`.
+
+To turn on sign-in and saving, set these in that Vercel project's Environment Variables, then redeploy:
+`VITE_API_URL` (the backend's address), `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (the public anon key). Without them the app still reads the device but runs as a demo. Backend setup: [backend/README.md](backend/README.md).
 
 ## System overview
 ```
-[Device: ESP32 + sensors] --BLE--> [Phone: Next.js web app] --HTTPS--> [FastAPI backend] --> [Supabase]
+[Device: ESP32 + sensors] --BLE--> [Phone: web app] --HTTPS--> [FastAPI backend] --> [Supabase]
                                                         (hosted on Vercel)
 ```
 
@@ -51,7 +54,8 @@ datasheets/          PDFs for sensors/modules
 firmware/            ESP32 source (ssos_main = current firmware; tests/ = bench sketches)
 backend/             FastAPI service on Vercel (Supabase storage)
 supabase/migrations/ Database schema
-app/ble-viewer/      Static Web Bluetooth viewer (Vercel); Next.js app planned
+app/web/             Technician app: React + Vite (Vercel site root)
+app/ble-viewer/      Original single-page viewer (served at /viewer.html)
 .github/workflows/   CI: build firmware, test backend/app         (planned)
 ```
 
@@ -83,10 +87,11 @@ Work proceeds track by track, in this order.
 - [x] Visit submission endpoint (`backend/`, tested; not yet deployed)
 - [ ] Create the Supabase project and deploy the backend to Vercel
 
-**4. Frontend (Next.js on Vercel)**
-- [ ] BLE connect + live readings with pass/warn/fail badges
-- [ ] Site/customer details form, sound level via phone microphone
-- [ ] Submit visit to backend; end-to-end technician test
+**4. Frontend (React app on Vercel, `app/web`)**
+- [x] BLE connect + live readings with settled/unstable/fault status (pass/warn/fail waits on thresholds)
+- [x] Site/customer details form, location, sound level via phone microphone (uncalibrated)
+- [x] Technician sign-in (Supabase Auth) and submit visit to backend
+- [ ] End-to-end technician test on a real phone and device
 
 ## Building firmware locally
 ```bash

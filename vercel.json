@@ -1,3 +1,5 @@
 {
-  "rewrites": [{ "source": "/", "destination": "/app/ble-viewer/index.html" }]
+  "installCommand": "pnpm -C app/web install --frozen-lockfile",
+  "buildCommand": "pnpm -C app/web build && cp app/ble-viewer/index.html app/web/dist/viewer.html",
+  "outputDirectory": "app/web/dist"
 }

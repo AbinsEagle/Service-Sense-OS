@@ -9,6 +9,7 @@ from uuid import UUID
 class VisitRepository(Protocol):
     def submit_visit(self, payload: dict) -> tuple[UUID, bool]: ...
     def get_visit(self, visit_id: UUID) -> Optional[dict]: ...
+    def verify_token(self, token: str) -> Optional[str]: ...
 
 
 class SupabaseRepository:
@@ -36,6 +37,15 @@ class SupabaseRepository:
         visit = rows[0]
         visit["readings"].sort(key=lambda r: r["taken_at"])
         return visit
+
+
+    def verify_token(self, token: str) -> Optional[str]:
+        """The Supabase Auth user id for a technician's access token, or None if it isn't valid."""
+        try:
+            res = self._client.auth.get_user(token)
+        except Exception:
+            return None
+        return res.user.id if res and res.user else None
 
 
 @lru_cache
