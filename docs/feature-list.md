@@ -24,6 +24,19 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 - 🟡 Install check ends in a site verdict and recommendations (e.g. stabilizer needed, softener needed, pressure pump needed)
 - 🟡 Service visit records the complaint first, then readings point to a likely cause (site problem vs product fault)
 
+## 1c. Product categories, first rollout (from Q5)
+Which readings each category asks for (the app shows only these, in this order):
+
+| Category | Water temp | TDS | Inlet pressure | Supply voltage | Sound |
+|---|---|---|---|---|---|
+| Water heater (geyser) | ✓ | ✓ scaling risk | ✓ | ✓ | |
+| Water purifier | | ✓ input water | ✓ | ✓ | |
+| Pump | | | ✓ | ✓ | ✓ bearing noise |
+| Stabilizer / inverter | | | | ✓ min/max | ✓ hum, relay chatter |
+| Kitchen chimney | | | | ✓ | ✓ motor noise |
+
+- ❓ **Gap: chimney suction.** "Weak suction" is the top chimney complaint, and the device has no airflow sensor. Options for later: a small anemometer add-on, or a guided visual check in the app.
+
 ## 2. Device link
 - ✅ Connect to `SSOS_B1.0` over Bluetooth from the browser (Chrome on Android; Bluefy on iPhone)
 - ✅ Live reading per sensor with settled / unstable / fault status
@@ -58,4 +71,5 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 | Q2 | Who uses the device | One brand's service technicians first; bind to technician mobile number; product QR scan; other brands later | 2026-10-08 |
 | Q3 | What the product QR contains | Serial number only | 2026-10-08 |
 | Q4 | How the model is found from the serial | Technician picks category and model from a list | 2026-10-08 |
-| Q5 | Product categories in the first rollout | _open_ | |
+| Q5 | Product categories in the first rollout | Water heater, purifier, pump, stabilizer/inverter, kitchen chimney | 2026-10-08 |
+| Q6 | Where pass/warn/fail limits come from | _open_ | |
