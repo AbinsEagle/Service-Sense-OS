@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Service Sense OS Viewer</title>
+<style>
+  :root { --bg:#eef1f0; --panel:#fff; --ink:#17201e; --muted:#5b6764; --line:#d3dad8; --ok:#0f8a5f; --warn:#b36b00; --bad:#b8362f; --accent:#2f62c9; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111615; --panel:#1a2120; --ink:#e4ebe9; --muted:#9aa7a4; --line:#2d3836; --ok:#3fc58f; --warn:#e7a34a; --bad:#ec7a72; --accent:#7ea3f0; } }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:24px 16px 48px; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, sans-serif; }
+  .wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 16px; }
+  h1 { margin:0; font-size: 26px; }
+  .bar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  button { font:inherit; height:40px; padding:0 18px; border:0; border-radius:8px; background:var(--accent); color:#fff; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:default; }
+  #status { color:var(--muted); }
+  .cards { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+  @media (max-width:520px) { .cards { grid-template-columns: 1fr; } }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .card h2 { margin:0; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+  .val { font-size:44px; font-weight:600; font-variant-numeric: tabular-nums; margin:6px 0 2px; }
+  .badge { display:inline-block; font-size:12px; padding:2px 10px; border-radius:99px; border:1px solid currentColor; }
+  .settled { color:var(--ok); } .unstable { color:var(--warn); } .fault { color:var(--bad); }
+  table { width:100%; border-collapse:collapse; font-size:14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; }
+  th, td { text-align:left; padding:8px 12px; border-bottom:1px solid var(--line); }
+  th { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  p.note { color:var(--muted); margin:0; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Service Sense OS Viewer</h1>
+  <div class="bar">
+    <button id="connect">Connect</button>
+    <button id="disconnect" disabled>Disconnect</button>
+    <span id="status">Not connected</span>
+  </div>
+  <div class="cards">
+    <div class="card"><h2>Temperature</h2><div class="val" id="v-TEMP">&ndash;</div><span class="badge" id="s-TEMP"></span></div>
+    <div class="card"><h2>TDS</h2><div class="val" id="v-TDS">&ndash;</div><span class="badge" id="s-TDS"></span> <span id="t-TDS" class="note"></span></div>
+    <div class="card"><h2>Voltage</h2><div class="val" id="v-VOLT">&ndash;</div><span class="badge" id="s-VOLT"></span> <span id="t-VOLT" class="note"></span></div>
+    <div class="card"><h2>Pressure</h2><div class="val" id="v-PRESS">&ndash;</div><span class="badge" id="s-PRESS"></span></div>
+  </div>
+  <table>
+    <thead><tr><th>Time</th><th>Device</th><th>Sensor</th><th>Value</th><th>Status</th></tr></thead>
+    <tbody id="log"></tbody>
+  </table>
+  <p class="note">Press button 1 (TEMP), 2 (TDS), 3 (VOLT) or 4 (PRESS) on the device. Needs Chrome or Edge (Android, Windows, macOS, Linux) &mdash; not iPhone Safari. Serve this folder with <code>python3 -m http.server</code> and open <code>http://localhost:8000</code>.</p>
+</div>
+<script>
+const SERVICE = "6f1b0001-8c3a-4d7e-9a52-0b1d5c7e4a10";
+const READING = "6f1b0002-8c3a-4d7e-9a52-0b1d5c7e4a10";
+let device = null, buf = "";
+const $ = id => document.getElementById(id);
+
+function show(r) {
+  const val = r.value === null ? "fault" : r.value + " " + r.unit;
+  if ($("v-" + r.sensor)) {
+    $("v-" + r.sensor).textContent = r.value === null ? "–" : val;
+    const b = $("s-" + r.sensor);
+    b.textContent = r.status === "unstable" ? "unstable – re-take" : r.status;
+    b.className = "badge " + r.status;
+    if (r.sensor === "TDS") $("t-TDS").textContent = r.temp !== undefined ? "water " + r.temp + " °C" : "";
+    if (r.sensor === "VOLT") $("t-VOLT").textContent = r.min !== undefined ? "min " + r.min + " / max " + r.max + (r.cal === false ? " – uncalibrated" : "") : "";
+  }
+  const tr = document.createElement("tr");
+  [new Date().toLocaleTimeString(), r.dev, r.sensor, val, r.status].forEach(t => {
+    const td = document.createElement("td"); td.textContent = t; tr.appendChild(td);
+  });
+  $("log").prepend(tr);
+}
+
+function onData(ev) {
+  buf += new TextDecoder().decode(ev.target.value);
+  let i;
+  while ((i = buf.indexOf("\n")) >= 0) {          // a reading ends with a newline
+    const line = buf.slice(0, i); buf = buf.slice(i + 1);
+    try { show(JSON.parse(line)); } catch (e) { console.warn("bad line", line); }
+  }
+}
+
+$("connect").addEventListener("click", async () => {
+  try {
+    device = await navigator.bluetooth.requestDevice({ filters: [{ name: "SSOS_B1.0" }], optionalServices: [SERVICE] });
+    device.addEventListener("gattserverdisconnected", () => {
+      $("status").textContent = "Disconnected"; $("connect").disabled = false; $("disconnect").disabled = true;
+    });
+    $("status").textContent = "Connecting to " + device.name + "…";
+    const server = await device.gatt.connect();
+    const ch = await (await server.getPrimaryService(SERVICE)).getCharacteristic(READING);
+    buf = "";
+    ch.addEventListener("characteristicvaluechanged", onData);
+    await ch.startNotifications();
+    $("status").textContent = "Connected to " + device.name;
+    $("connect").disabled = true; $("disconnect").disabled = false;
+  } catch (e) {
+    $("status").textContent = e.name === "NotFoundError" ? "No device chosen" : "Error: " + e.message;
+  }
+});
+$("disconnect").addEventListener("click", () => { if (device && device.gatt.connected) device.gatt.disconnect(); });
+if (!navigator.bluetooth) $("status").textContent = "This browser has no Web Bluetooth. Use Chrome or Edge.";
+</script>
+</body>
+</html>
