@@ -39,7 +39,7 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 ## 4. Customer and site
 - ✅ Customer name, phone, address, GPS location, notes
 - 🟡 **Scan the product's QR code** to fill the serial number (QR holds the serial only, Q3; phone camera, manual entry fallback where the browser can't scan)
-- ❓ How the model is found from the serial (Q4)
+- 🟡 **After the scan, the technician picks category → model from a short list (Q4).** Works offline; recently used models shown first; the list is editable app data so the brand catalogue can be loaded later
 - 🟡 Product details: brand, model, serial number, install date
 
 ## 5. Finishing a visit
@@ -57,4 +57,5 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 | Q1 | Primary moment of use | Both install checks and service visits, equally | 2026-10-08 |
 | Q2 | Who uses the device | One brand's service technicians first; bind to technician mobile number; product QR scan; other brands later | 2026-10-08 |
 | Q3 | What the product QR contains | Serial number only | 2026-10-08 |
-| Q4 | How the model is found from the serial | _open_ | |
+| Q4 | How the model is found from the serial | Technician picks category and model from a list | 2026-10-08 |
+| Q5 | Product categories in the first rollout | _open_ | |
