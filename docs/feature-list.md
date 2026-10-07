@@ -11,7 +11,7 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 - **Stage 2:** sign-in, saving to the server (built and parked in `backend/`), office view.
 
 ## 1. Who and why (❓ in progress)
-- ✅ **Two visit types, equally important (Q1):** *Install check* (is the site suitable? which model or add-on?) and *Service visit* (what's causing the complaint?)
+- ✅ **Vision: install checks and service visits (Q1). Stage 1 builds the pre-installation check only (Q8);** service/fault visits are a later upgrade, once hardware and app run end to end
 - ✅ **First rollout: one brand's service technicians (Q2).** Multi-brand later; every visit stores the brand from day one so that is a settings change, not a rewrite
 - ❓ Who reads the result: technician only, customer, service centre, product/quality team
 
@@ -19,10 +19,9 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 - 🟡 Technician enters their mobile number once on the phone; it is stamped on every visit
 - ⏭ OTP verification of the number (stage 2, with the server)
 
-## 1a. Visit types (from Q1)
-- 🟡 Pick the visit type when starting a visit: **Install check** or **Service visit**
-- 🟡 Install check ends in a site verdict and recommendations (e.g. stabilizer needed, softener needed, pressure pump needed)
-- 🟡 Service visit records the complaint first, then readings point to a likely cause (site problem vs product fault)
+## 1a. Visit types (Q1, Q8)
+- 🟡 **Stage 1: Install check only.** Is the site suitable for the product? What add-on does it need?
+- ⏭ Service visit: record the complaint (category chips, note, photos), readings point to a likely cause (site problem vs product fault)
 
 ## 1c. Product categories, first rollout (from Q5)
 Which readings each category asks for (the app shows only these, in this order):
@@ -48,7 +47,7 @@ Which readings each category asks for (the app shows only these, in this order):
 - ✅ Sound level from the phone microphone (uncalibrated estimate)
 - ✅ Re-take replaces the earlier reading; full log of everything received
 - ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, editable in settings, replaceable per model when the brand's specs arrive
-- 🟡 **Low / high range bar on every reading (Q6):** a horizontal gauge with a green OK band, amber and red zones on both sides, and a marker at the reading. The verdict names the side: *Low voltage*, *High TDS*, so a service visit points to the right cause
+- 🟡 **Low / high range bar on every reading (Q6):** a horizontal gauge with a green OK band, amber and red zones on both sides, and a marker at the reading. The verdict names the side: *Low voltage*, *High TDS*, which decides the add-on to recommend
 
 Proposed starting limits (to confirm with the brand before field use):
 
@@ -85,4 +84,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q5 | Product categories in the first rollout | Water heater, purifier, pump, stabilizer/inverter, kitchen chimney | 2026-10-08 |
 | Q6 | Where pass/warn/fail limits come from | Indian standards now, brand specs later; show a low/high range bar | 2026-10-08 |
 | Q7 | What the customer gets at the end of a visit | WhatsApp summary | 2026-10-08 |
-| Q8 | How the complaint is recorded on a service visit | _open_ | |
+| Q8 | How the complaint is recorded on a service visit | Later upgrade. Stage 1 focuses on the pre-installation check | 2026-10-08 |
+| Q9 | What an install check concludes | _open_ | |
