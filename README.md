@@ -11,6 +11,25 @@ submits the site visit to the backend.
 All parts of the system (embedded, backend, frontend) live in this one repo,
 so a single tagged release describes the whole system.
 
+## Quick start for the hardware team
+
+1. **Get the code:** https://github.com/AbinsEagle/Service-Sense-OS (`main` branch). Clone it, or use *Code > Download ZIP*.
+2. **Flash the firmware** (`firmware/hommiez_main/hommiez_main.ino`) from Arduino IDE 2:
+   - Install the **esp32 by Espressif Systems** board package, **version 3.x** (the sketch needs the 3.x API).
+   - Install the libraries **OneWire** and **DallasTemperature** (Library Manager). Bluetooth comes with the board package.
+   - Board: **ESP32 Dev Module**. Partition scheme: **Minimal SPIFFS (1.9MB APP with OTA)**. Pick the port and click Upload.
+   - Close the Serial Monitor before uploading, and do not have the battery and USB connected at the same time.
+   - Serial Monitor at 115200 should print `Bluetooth name: SSOS_B1.0`.
+3. **Open the app:** https://YOUR-PROJECT.vercel.app *(replace with the real Vercel URL once deployed)*
+   - Use **Chrome on Android or desktop** (Chrome, Edge or Chromium; Brave has Web Bluetooth switched off). On iPhone use the free **Bluefy** browser, because Safari has no Web Bluetooth.
+   - Tap **Connect** and choose **SSOS_B1.0** (it will not appear in the phone's Bluetooth settings; BLE devices only show in this picker).
+4. **Press the device buttons:** 1 = TEMP, 2 = TDS, 3 = VOLT, 4 = PRESS. Each final reading appears in the app.
+
+Pin map, assumptions and open questions for the hardware: [docs/hardware-review.md](docs/hardware-review.md). The hardware team's original bring-up sketch is kept in `firmware/hardware_bringup/`.
+
+### Deploying the viewer on Vercel
+The viewer is a single static page in `app/ble-viewer/`. In Vercel: import this repo, set **Root Directory** to `app/ble-viewer`, **Framework Preset** to *Other*, leave the build command empty. Vercel serves it over HTTPS, which Web Bluetooth needs on phones.
+
 ## System overview
 ```
 [Device: ESP32 + sensors] --BLE--> [Phone: Next.js web app] --HTTPS--> [FastAPI backend] --> [Supabase]
@@ -29,9 +48,9 @@ so a single tagged release describes the whole system.
 ```
 docs/                PRD, wiring diagrams, pinouts, design notes
 datasheets/          PDFs for sensors/modules
-firmware/            ESP32 source (arduino-cli)
+firmware/            ESP32 source (hommiez_main = current firmware; tests/ = bench sketches)
 backend/             FastAPI service (Supabase storage)           (planned)
-app/                 Next.js technician web app (Vercel)          (planned)
+app/ble-viewer/      Static Web Bluetooth viewer (Vercel); Next.js app planned
 .github/workflows/   CI: build firmware, test backend/app         (planned)
 ```
 
