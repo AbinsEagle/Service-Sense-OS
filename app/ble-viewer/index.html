@@ -82,7 +82,7 @@ function onData(ev) {
 
 $("connect").addEventListener("click", async () => {
   try {
-    device = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: "Hommiez" }], optionalServices: [SERVICE] });
+    device = await navigator.bluetooth.requestDevice({ filters: [{ name: "SSOS_B1.0" }], optionalServices: [SERVICE] });
     device.addEventListener("gattserverdisconnected", () => {
       $("status").textContent = "Disconnected"; $("connect").disabled = false; $("disconnect").disabled = true;
     });

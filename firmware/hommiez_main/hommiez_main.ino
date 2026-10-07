@@ -4,7 +4,8 @@
 //
 // Four buttons, each runs one measurement entirely on the ESP32 and sends only the FINAL result
 // (never raw samples) as one line of JSON over BLE, e.g.
-//   {"dev":"Hommiez-F294","fw":"0.4.0","sensor":"TDS","value":58,"unit":"ppm","status":"settled","temp":25.3}
+//   {"dev":"F294","fw":"0.4.0","sensor":"TDS","value":58,"unit":"ppm","status":"settled","temp":25.3}
+// The Bluetooth name is SSOS_B1.0; "dev" is the unit ID.
 // status: settled / unstable / fault (value is null on a fault).
 //   Button 1 TEMP  - waits until the DS18B20 reading levels off.
 //   Button 2 TDS   - waits until the TDS signal levels off, compensated with the water temperature.
@@ -112,7 +113,8 @@ struct Button {
 
 BLECharacteristic *readingChar = nullptr;
 volatile bool bleConnected = false;
-char deviceName[24];
+#define BLE_NAME "SSOS_B1.0"   // advertised Bluetooth name (the same on every unit)
+char deviceId[8];              // per-unit ID from the chip MAC, sent in every message as "dev"
 
 class ServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer *) override { bleConnected = true; }
@@ -133,7 +135,7 @@ void sendReading(const char *sensor, bool haveValue, float value, int decimals, 
   char msg[256];
   int len = snprintf(msg, sizeof msg,
                      "{\"dev\":\"%s\",\"fw\":\"%s\",\"sensor\":\"%s\",\"value\":%s,\"unit\":\"%s\",\"status\":\"%s\"%s}\n",
-                     deviceName, FW_VERSION, sensor, val, unit, status, extra);
+                     deviceId, FW_VERSION, sensor, val, unit, status, extra);
   if (len >= (int)sizeof msg) len = sizeof msg - 1;
   for (int i = 0; i < len; i += BLE_CHUNK) {
     readingChar->setValue((uint8_t *)(msg + i), min(BLE_CHUNK, len - i));
@@ -453,10 +455,10 @@ void setup() {
   setLights(0, 0, 255); delay(300);
   setLights(0, 0, 0);
 
-  // Bluetooth: name is Hommiez- plus the last two bytes of the chip's MAC address.
+  // Bluetooth name is fixed (BLE_NAME); the unit is told apart by the last two MAC bytes.
   uint64_t mac = ESP.getEfuseMac();
-  snprintf(deviceName, sizeof deviceName, "Hommiez-%02X%02X", (uint8_t)(mac >> 32), (uint8_t)(mac >> 40));
-  BLEDevice::init(deviceName);
+  snprintf(deviceId, sizeof deviceId, "%02X%02X", (uint8_t)(mac >> 32), (uint8_t)(mac >> 40));
+  BLEDevice::init(BLE_NAME);
   BLEServer *server = BLEDevice::createServer();
   server->setCallbacks(new ServerCallbacks());
   BLEService *service = server->createService(BLE_SERVICE_UUID);
@@ -468,7 +470,7 @@ void setup() {
   adv->setScanResponse(true);
   BLEDevice::startAdvertising();
 
-  Serial.printf("Bluetooth name: %s  firmware %s\n", deviceName, FW_VERSION);
+  Serial.printf("Bluetooth name: %s  unit %s  firmware %s\n", BLE_NAME, deviceId, FW_VERSION);
   Serial.printf("Ready. Buttons: 1 TEMP, 2 TDS, 3 VOLT, 4 PRESS. Temperature probe %s.\n",
                 sensors.getDeviceCount() > 0 ? "found" : "NOT found");
 }

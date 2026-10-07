@@ -150,3 +150,11 @@ the result, and any problems. Toolchain setup history (2026-09-27) is in
 **Tested:** compiles (85% flash). Not flashed; nothing tested on their board yet.
 
 **Assumptions:** 10k/15k divider on pressure, direct ESP32 ADC for TDS and pressure, ZMPT uncalibrated, active buzzer.
+
+## 2026-10-08 — Bluetooth name SSOS_B1.0; dry-run test
+
+**Done:** Advertised name is now fixed `SSOS_B1.0` on every unit; the per-unit ID (last two MAC bytes) moved into the `dev` field of each message. Viewer connects to the exact name `SSOS_B1.0`. Supabase stays out of scope: the app only displays readings.
+
+**Tested (host-side dry run, no hardware):** firmware compiles (85% flash). Messages for TEMP, TDS, VOLT, PRESS and a fault (85-125 bytes, under the 256 buffer), split into 20-byte chunks, rejoin and parse correctly in the viewer's logic. RMS maths on simulated 50 Hz and 60 Hz mains with a 100 ms window gives the exact expected value (707.1 mV for 1 V peak), confirming whole-cycle sampling.
+
+**Not tested:** anything on real hardware (settle thresholds, ADC pins, buzzer, buttons on GPIO 12).
