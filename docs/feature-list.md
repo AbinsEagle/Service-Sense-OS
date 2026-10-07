@@ -11,9 +11,14 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 - **Stage 2:** sign-in, saving to the server (built and parked in `backend/`), office view.
 
 ## 1. Who and why (❓ in progress)
-- ❓ Primary moment of use: pre-installation site check, service/complaint visit, or both (Q1)
+- ✅ **Two visit types, equally important (Q1):** *Install check* (is the site suitable? which model or add-on?) and *Service visit* (what's causing the complaint?)
 - ❓ Who holds the device: brand technicians, dealer/franchise technicians, or independents
 - ❓ Who reads the result: technician only, customer, service centre, product/quality team
+
+## 1a. Visit types (from Q1)
+- 🟡 Pick the visit type when starting a visit: **Install check** or **Service visit**
+- 🟡 Install check ends in a site verdict and recommendations (e.g. stabilizer needed, softener needed, pressure pump needed)
+- 🟡 Service visit records the complaint first, then readings point to a likely cause (site problem vs product fault)
 
 ## 2. Device link
 - ✅ Connect to `SSOS_B1.0` over Bluetooth from the browser (Chrome on Android; Bluefy on iPhone)
@@ -43,4 +48,5 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 ## Decision log
 | # | Question | Answer | Date |
 |---|---|---|---|
-| Q1 | Primary moment of use | _open_ | |
+| Q1 | Primary moment of use | Both install checks and service visits, equally | 2026-10-08 |
+| Q2 | Who uses the device | _open_ | |
