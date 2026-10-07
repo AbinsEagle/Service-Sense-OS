@@ -247,7 +247,7 @@ const LEFT = [
   ["SD2", 9, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
   ["SD3", 10, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
   ["CMD", 11, "avoid", "flash", "Connected to the SPI flash chip. Never use."],
-  ["5V", null, "power", "5V (USB)", "5V from USB when plugged in. On battery, the MT3608 boost supplies 5V to the ZMPT101B and pressure sensor instead. On the bench this powers the pressure transducer. With the 4×AA pack fitted, the MT3608 output (set to 5.0V) also joins this pin."],
+  ["5V", null, "power", "5V / VIN", "Power input. On the bench, 4×AA (about 6 V) can go straight here (red +) with the pack − to GND, while only the 3.3 V parts (DS18B20, TDS, buttons, traffic light) are connected. Never connect the pack to 3V3, and do not plug in USB at the same time. 5V from USB when plugged in. On battery, the MT3608 boost supplies 5V to the ZMPT101B and pressure sensor instead. On the bench this powers the pressure transducer. With the 4×AA pack fitted, the MT3608 output (set to 5.0V) also joins this pin."],
 ];
 const RIGHT = [
   ["GND", null, "power", "ground", "Ground. Use this one for the DS18B20's black wire."],
@@ -289,7 +289,8 @@ const MODULES = [
   { id: "adc",      name: "ADS1115 ADC",         kind: "input",  pins: [21, 22],         draw: null,                       on: false },
   { id: "traffic",  name: "Traffic light",       kind: "output", pins: [23, 19, 18],     draw: () => drawTrafficWiring(),  on: true },
   { id: "rgb",      name: "RGB LEDs (WS2812B)",  kind: "output", pins: [16],             draw: null,                       on: false },
-  { id: "battery",  name: "Battery + boost",     kind: "power",  pins: [],               draw: () => drawBatteryWiring(),  on: false },
+  { id: "benchbatt", name: "Battery, direct (bench)", kind: "power", pins: [],            draw: () => drawBenchBattery(),   on: true },
+  { id: "battery",  name: "Battery + boost (final)", kind: "power", pins: [],            draw: () => drawBatteryWiring(),  on: false },
 ];
 try {
   const saved = JSON.parse(localStorage.getItem("pinmapModules") || "null");
@@ -664,6 +665,29 @@ function drawPressureWiring() {
   label(xRed + 10, y5v + 20, "red +5V → 5V pin", "start", 12, 600);
   label(xGnd + 8, tG - 2, "black → GND", "start", 11, 600);
   label(xN + 10, tS + 4, "yellow signal", "start", 11, 600);
+}
+
+// Bench power: 4xAA straight into the board's power input (the pin printed 5V, which is VIN).
+// Fine while only the 3.3 V parts are connected (DS18B20, TDS, buttons, traffic light).
+function drawBenchBattery() {
+  const { g, wire, label, pad } = wireKit();
+  const padL = BX + 14;
+  const y5v = PIN0 + 18 * PITCH, yGnd = PIN0 + 13 * PITCH;
+  const bx = -265, tx = -150, yM = 825, yP = 860;     // minus terminal on top so the wires never cross
+  wire(`M${tx} ${yP} H-120 V${y5v} H${padL}`, "#d23b2f");
+  wire(`M${tx} ${yM} H-130 V${yGnd} H-120`, "#1b1f1e");
+  el("circle", { cx: -120, cy: yGnd, r: 4.5, fill: css("--ink") }, g);
+  el("rect", { x: bx, y: 800, width: 115, height: 80, rx: 6, fill: "#2a2e2d", stroke: "#0e1110", "stroke-width": 1.5 }, g);
+  for (let i = 0; i < 4; i++) {
+    el("rect", { x: bx + 10 + i * 23, y: 812, width: 18, height: 40, rx: 3, fill: "#c9a24b", stroke: "#8a6d2a" }, g);
+    el("rect", { x: bx + 16 + i * 23, y: 808, width: 6, height: 4, fill: "#8a6d2a" }, g);
+  }
+  label(bx + 10, 870, "4×AA holder", "start", 11, 600, "#ffffff");
+  [[yM, "−"], [yP, "+"]].forEach(([y, n]) => { pad(tx - 6, y); label(tx - 18, y + 4, n, "end", 12, 600, "#ffffff"); });
+  label(-112, y5v - 8, "red + → pin printed 5V (VIN)", "start", 12, 600);
+  label(bx, 898, "Bench power for temp + TDS only", "start", 11, 600);
+  label(bx, 913, "Never to 3V3. No USB at the same time.", "start", 11, 600, "#b8362f");
+  label(bx, 928, "Check polarity with a multimeter first.", "start", 11, 400);
 }
 
 // 4xAA battery pack -> MT3608 boost (set to 5.0V) -> 5V pin, plus a 47k/47k divider to ADS1115 A3.

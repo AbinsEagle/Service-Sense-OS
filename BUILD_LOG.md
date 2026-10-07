@@ -117,3 +117,24 @@ the result, and any problems. Toolchain setup history (2026-09-27) is in
 **Tested:** compiles (22% flash). Not flashed. All thresholds are first guesses.
 
 **Pending:** flash and check settling times with the real probes, then tune the thresholds. Voltage (min/max/spread) and pressure (stable value plus leak-hold decay window) are not implemented because those sensors aren't wired yet.
+
+## 2026-10-07 — Bluetooth (BLE) readings + browser viewer (written, not yet flashed)
+
+**Done:**
+- Bench now runs on 4×AA straight into VIN (only temp + TDS wired); USB data cable unplugged.
+- Added `firmware/tests/temp_tds_ble/temp_tds_ble.ino`: same measuring as `temp_tds_buttons`, plus a BLE service that sends each FINAL result as a JSON line (device, firmware version, sensor, value, unit, status settled/unstable/fault, water temp for TDS). Sent in 20-byte notifications ending with a newline. Device name `Hommiez-XXXX` (last MAC bytes).
+- Added `app/ble-viewer/index.html`: a single-page Web Bluetooth viewer (Chrome/Edge) showing the latest temp and TDS and a log.
+
+**Tested:** firmware compiles (85% flash with the BLE stack; if space gets tight, switch to NimBLE or a bigger partition scheme). Viewer script passes a syntax check. Neither tested with hardware yet.
+
+## 2026-10-07 — BLE verified on hardware
+
+**Done:** Flashed `temp_tds_ble` from the Arduino IDE; battery-powered over 4×AA on VIN. The browser viewer (Chromium on Fedora, with Web Bluetooth enabled) connected to `Hommiez-F294` and received readings.
+
+**Tested:** TDS button gave 58 ppm, status settled, shown in the viewer log. TEMP button gave a sensor fault (no valid DS18B20 reading), so the probe wiring or the 4.7k pull-up needs checking.
+
+**Notes:**
+- Brave has Web Bluetooth disabled (`navigator.bluetooth` undefined); Chromium needs the experimental web platform features flag on Linux.
+- BLE devices do not appear in the OS Bluetooth settings; connection is made from inside the page/app. Android uses Chrome; iPhone needs a Web Bluetooth browser such as Bluefy (or a native app later). Wi-Fi AP mode was considered and left for later.
+
+**Pending:** fix the temperature fault; tune settle thresholds on real probes.
