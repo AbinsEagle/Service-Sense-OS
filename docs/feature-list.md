@@ -68,7 +68,7 @@ Proposed starting limits (to confirm with the brand before field use):
 
 ## 5. Finishing a visit
 - ✅ Finish visit (kept on the phone), start the next one
-- ❓ What the customer gets at the end (nothing, a WhatsApp summary, a PDF report)
+- 🟡 **WhatsApp summary to the customer (Q7):** one tap opens WhatsApp to the customer's number with a short report: product + serial, each reading with OK / Low / High, the verdict and the recommendation. Works from the phone with no server
 - ❓ Visit history on the phone
 
 ## 6. Later stages
@@ -84,4 +84,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q4 | How the model is found from the serial | Technician picks category and model from a list | 2026-10-08 |
 | Q5 | Product categories in the first rollout | Water heater, purifier, pump, stabilizer/inverter, kitchen chimney | 2026-10-08 |
 | Q6 | Where pass/warn/fail limits come from | Indian standards now, brand specs later; show a low/high range bar | 2026-10-08 |
-| Q7 | What the customer gets at the end of a visit | _open_ | |
+| Q7 | What the customer gets at the end of a visit | WhatsApp summary | 2026-10-08 |
+| Q8 | How the complaint is recorded on a service visit | _open_ | |
