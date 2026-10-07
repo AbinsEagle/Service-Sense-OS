@@ -47,7 +47,18 @@ Which readings each category asks for (the app shows only these, in this order):
 - ✅ Water temperature, TDS (with water temp), supply voltage (min/max), inlet pressure
 - ✅ Sound level from the phone microphone (uncalibrated estimate)
 - ✅ Re-take replaces the earlier reading; full log of everything received
-- ❓ Pass / warn / fail verdict per reading: who sets the limits, and do they depend on the product being installed or serviced?
+- ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, editable in settings, replaceable per model when the brand's specs arrive
+- 🟡 **Low / high range bar on every reading (Q6):** a horizontal gauge with a green OK band, amber and red zones on both sides, and a marker at the reading. The verdict names the side: *Low voltage*, *High TDS*, so a service visit points to the right cause
+
+Proposed starting limits (to confirm with the brand before field use):
+
+| Reading | OK | Warn | Fail | Basis |
+|---|---|---|---|---|
+| Supply voltage | 216–244 V | 207–216 / 244–253 V | < 207 / > 253 V | 230 V ±6% (CEA supply regulations); ±10% as warn |
+| TDS, drinking/purifier input | ≤ 500 ppm | 500–2000 ppm | > 2000 ppm | IS 10500 acceptable / permissible limits |
+| TDS, heater scaling risk | ≤ 300 ppm | 300–500 ppm | > 500 ppm | proposal; hardness is the real driver, TDS a proxy |
+| Inlet pressure | per category | | | from product manuals (to collect) |
+| Water temp, sound | per category | | | from product manuals (to collect) |
 
 ## 4. Customer and site
 - ✅ Customer name, phone, address, GPS location, notes
@@ -72,4 +83,5 @@ Which readings each category asks for (the app shows only these, in this order):
 | Q3 | What the product QR contains | Serial number only | 2026-10-08 |
 | Q4 | How the model is found from the serial | Technician picks category and model from a list | 2026-10-08 |
 | Q5 | Product categories in the first rollout | Water heater, purifier, pump, stabilizer/inverter, kitchen chimney | 2026-10-08 |
-| Q6 | Where pass/warn/fail limits come from | _open_ | |
+| Q6 | Where pass/warn/fail limits come from | Indian standards now, brand specs later; show a low/high range bar | 2026-10-08 |
+| Q7 | What the customer gets at the end of a visit | _open_ | |
