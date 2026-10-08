@@ -23,10 +23,17 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 - OK / Low / High colours stay reserved for verdicts, separate from the theme colours
 - Big touch targets (48 dp minimum), large numerals for readings, readable in sunlight
 
+## Readings step (U4)
+- **Guided, one reading at a time:** a large card for the next required reading with a picture-style instruction ("Dip the TDS probe in tap water, then press 2 on the device"), a live *measuring…* state while the device settles, then the value with its low/high range bar
+- Settled → auto-advance to the next required reading after a short pause; unstable/fault → stays, says how to fix, "Re-take"
+- Device connection lives at the top of this step (connect once; reconnect prompt if it drops)
+- After the device readings: optional pH strip entry (pick the value), then the step completes
+
 ## Decision log
 | # | Question | Answer | Date |
 |---|---|---|---|
 | U1 | Step-by-step screens or one long page | Step-by-step, with a visible step-progress tracker | 2026-10-08 |
 | U2 | Visual style and branding | Material You (Material 3) | 2026-10-08 |
 | U3 | Seed colour for the Material scheme | Trust blue (`#1565C0`) | 2026-10-08 |
-| U4 | How the Readings step guides the technician | _open_ | |
+| U4 | How the Readings step guides the technician | Guided, one reading at a time, auto-advance | 2026-10-08 |
+| U5 | Format of the WhatsApp summary | _open_ | |
