@@ -100,7 +100,7 @@ Proposed starting limits (to confirm with the brand before field use):
 
 ## 5. Finishing a visit
 - ✅ Finish visit (kept on the phone), start the next one
-- 🟡 **WhatsApp summary to the customer (Q7):** one tap opens WhatsApp to the customer's number with a short report: product + serial, each reading with OK / Low / High, the verdict and the recommendation. Works from the phone with no server
+- 🟡 **WhatsApp summary to the customer (Q7), shared as an image report card (UI plan U5):** product + serial, each reading with OK / Low / High, the verdict and the recommendation. Works from the phone with no server
 - 🟡 **Check history on the phone (Q13):** list of finished checks, search by customer or serial, open one and re-send its WhatsApp summary. No export; the office sees checks from stage 2
 
 ## 5a. Open items carried forward

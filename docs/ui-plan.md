@@ -29,6 +29,11 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 - Device connection lives at the top of this step (connect once; reconnect prompt if it drops)
 - After the device readings: optional pH strip entry (pick the value), then the step completes
 
+## Sharing (U5)
+- **The final summary is shared as an image report card:** the app draws the report (status, each reading with its range bar, add-ons, Langelier estimate) as a picture and opens the phone's share sheet; the technician picks WhatsApp and the customer's chat
+- Fallback where sharing files isn't supported: save the image to the gallery, then send it from WhatsApp
+- The image is also kept with the check in History, so it can be re-sent
+
 ## Decision log
 | # | Question | Answer | Date |
 |---|---|---|---|
@@ -36,4 +41,5 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 | U2 | Visual style and branding | Material You (Material 3) | 2026-10-08 |
 | U3 | Seed colour for the Material scheme | Trust blue (`#1565C0`) | 2026-10-08 |
 | U4 | How the Readings step guides the technician | Guided, one reading at a time, auto-advance | 2026-10-08 |
-| U5 | Format of the WhatsApp summary | _open_ | |
+| U5 | Format of the WhatsApp summary | Image report card via the share sheet | 2026-10-08 |
+| U6 | Whose identity is on the report image | _open_ | |
