@@ -19,6 +19,7 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 ## Look (U2)
 - **Material You / Material 3:** M3 components (top app bar, filled/tonal buttons, cards, chips, bottom sheets, snackbars), Roboto type scale, M3 shape and elevation
 - A web app can't read the phone's wallpaper colours, so "dynamic colour" becomes one fixed M3 colour scheme generated from a seed colour (U3), with light and dark variants
+- **Seed colour: trust blue `#1565C0` (U3).** Primary, secondary, tertiary, surfaces and outlines are generated from it with the Material colour utilities
 - OK / Low / High colours stay reserved for verdicts, separate from the theme colours
 - Big touch targets (48 dp minimum), large numerals for readings, readable in sunlight
 
@@ -27,4 +28,5 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 |---|---|---|---|
 | U1 | Step-by-step screens or one long page | Step-by-step, with a visible step-progress tracker | 2026-10-08 |
 | U2 | Visual style and branding | Material You (Material 3) | 2026-10-08 |
-| U3 | Seed colour for the Material scheme | _open_ | |
+| U3 | Seed colour for the Material scheme | Trust blue (`#1565C0`) | 2026-10-08 |
+| U4 | How the Readings step guides the technician | _open_ | |
