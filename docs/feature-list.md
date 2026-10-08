@@ -64,7 +64,8 @@ Stage 1 is the site check **before** installation only (Q14), so it takes the re
 - ✅ Water temperature, TDS (with water temp), supply voltage (min/max), inlet pressure
 - ✅ Sound level from the phone microphone (uncalibrated estimate); hidden in stage 1 (post-install only)
 - ✅ Re-take replaces the earlier reading; full log of everything received
-- ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, editable in settings, replaceable per model when the brand's specs arrive
+- ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, replaceable per model when the brand's specs arrive
+- ✅ **Limits are changed only by us, through an app update (Q15)**, so every technician gets the same verdict for the same reading. No limit settings on the phone
 - 🟡 **Low / high range bar on every reading (Q6):** a horizontal gauge with a green OK band, amber and red zones on both sides, and a marker at the reading. The verdict names the side: *Low voltage*, *High TDS*, which decides the add-on to recommend
 
 Proposed starting limits (to confirm with the brand before field use):
@@ -109,4 +110,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q12 | Language of the app and the WhatsApp summary | English only | 2026-10-08 |
 | Q13 | Visit history and reporting without a server | History on the phone only | 2026-10-08 |
 | Q14 | Pre-install check only, or also a post-install test | Before installation only | 2026-10-08 |
-| Q15 | Who can change the limits in stage 1 | _open_ | |
+| Q15 | Who can change the limits in stage 1 | Only us, via app update | 2026-10-08 |
+| Q16 | How long the voltage is watched | _open_ | |
