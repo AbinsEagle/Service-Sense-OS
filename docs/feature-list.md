@@ -65,6 +65,7 @@ Stage 1 is the site check **before** installation only (Q14), so it takes the re
 - 🟡 **Voltage is watched for 5 s for every category (Q16);** firmware change from today's 4 s (min / max / median reported)
 - ✅ Sound level from the phone microphone (uncalibrated estimate); hidden in stage 1 (post-install only)
 - ✅ Re-take replaces the earlier reading; full log of everything received
+- 🟡 **Every required reading must be settled to finish (Q17).** Unstable or sensor-fault readings must be re-taken; the app says how to fix it (probe fully in water, check the connector)
 - ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, replaceable per model when the brand's specs arrive
 - ✅ **Limits are changed only by us, through an app update (Q15)**, so every technician gets the same verdict for the same reading. No limit settings on the phone
 - 🟡 **Low / high range bar on every reading (Q6):** a horizontal gauge with a green OK band, amber and red zones on both sides, and a marker at the reading. The verdict names the side: *Low voltage*, *High TDS*, which decides the add-on to recommend
@@ -113,4 +114,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q14 | Pre-install check only, or also a post-install test | Before installation only | 2026-10-08 |
 | Q15 | Who can change the limits in stage 1 | Only us, via app update | 2026-10-08 |
 | Q16 | How long the voltage is watched | 5 s for every category | 2026-10-08 |
-| Q17 | Can a check finish with unstable or faulty readings | _open_ | |
+| Q17 | Can a check finish with unstable or faulty readings | No: must re-take until settled | 2026-10-08 |
+| Q18 | Must the app work with no mobile signal | _open_ | |
