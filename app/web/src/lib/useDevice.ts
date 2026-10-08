@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { bluetoothAvailable, connectDevice, type Connection } from "./ble";
+import { bluetoothAvailable, connectDevice, ConnectError, type Connection } from "./ble";
 import { simulate } from "./simulator";
 import type { DeviceMessage, DeviceSensor } from "./types";
 
@@ -39,16 +39,13 @@ export function useDevice(onMessage: (m: DeviceMessage) => void) {
       setState({ kind: "connected", name: conn.current.name });
       return true;
     } catch (e) {
-      const err = e as Error;
-      setState({
-        kind: "idle",
-        error:
-          err.name === "NotFoundError"
-            ? undefined
-            : err.name === "SecurityError"
-              ? "Bluetooth isn't allowed on this page. Open the app itself in Chrome (not inside another app)."
-              : `Couldn't connect: ${err.message}`,
-      });
+      try {
+        conn.current?.disconnect();
+      } catch {
+        /* half-open link */
+      }
+      conn.current = null;
+      setState({ kind: "idle", error: connectErrorText(e) });
       return false;
     }
   }, []);
@@ -81,3 +78,14 @@ export function useDevice(onMessage: (m: DeviceMessage) => void) {
 
 export type Device = ReturnType<typeof useDevice>;
 export const deviceReady = (d: Device) => d.state.kind === "connected" || d.state.kind === "simulating";
+
+// What the technician sees when Connect fails. Cancelling the device list is not an error.
+export function connectErrorText(e: unknown): string | undefined {
+  const err = e instanceof ConnectError ? e : new ConnectError("choose", e);
+  const text = `${err.name} ${err.message}`;
+  if (err.name === "NotFoundError" || /cancel/i.test(text)) return undefined;
+  if (err.name === "SecurityError") return "Bluetooth isn't allowed on this page. Open the app itself in Chrome or Bluefy (not inside another app).";
+  if (err.step === "choose") return `Couldn't open the device list (${err.message}). Turn Bluetooth on, allow it for this browser, then try again.`;
+  if (err.step === "connect") return `Found the device but couldn't connect (${err.message}). Keep it switched on and close by, then try again.`;
+  return `Connected, but the device didn't answer as expected (${err.message}). Restart the device and try again; if it repeats, the firmware may be out of date.`;
+}

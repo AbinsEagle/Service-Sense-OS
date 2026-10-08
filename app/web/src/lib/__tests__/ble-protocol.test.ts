@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BLE_NAME, lineSplitter, parseMessage } from "@/lib/ble";
+import { BLE_NAME, ConnectError, lineSplitter, parseMessage } from "@/lib/ble";
+import { connectErrorText } from "@/lib/useDevice";
 import { isSettled, judgeReading } from "@/lib/evaluate";
 import type { Check, DeviceMessage } from "@/lib/types";
 
@@ -71,5 +72,23 @@ describe("Bluetooth protocol with firmware/ssos_main", () => {
   it("ignores garbage and keeps going", () => {
     const got = receive(["not json\n", firmwareLine("TEMP", 25, 2, "C", "settled")]);
     expect(got).toHaveLength(1);
+  });
+});
+
+describe("connect errors (Bluefy)", () => {
+  it("never shows 'undefined' for errors without a message", () => {
+    for (const cause of [{}, undefined, null, "", { name: "NetworkError" }]) {
+      const t = connectErrorText(new ConnectError("connect", cause));
+      expect(t).toBeTruthy();
+      expect(t).not.toMatch(/undefined|object Object/);
+    }
+  });
+  it("accepts plain-string rejections and names the failed step", () => {
+    expect(connectErrorText(new ConnectError("choose", "Bluetooth adapter is off"))).toMatch(/device list \(Bluetooth adapter is off\)/);
+    expect(connectErrorText(new ConnectError("service", new Error("No service")))).toMatch(/didn't answer/);
+  });
+  it("treats closing the device list as no error", () => {
+    expect(connectErrorText(new ConnectError("choose", Object.assign(new Error("User cancelled the requestDevice() chooser."), { name: "NotFoundError" })))).toBeUndefined();
+    expect(connectErrorText(new ConnectError("choose", "User cancelled"))).toBeUndefined();
   });
 });

@@ -55,21 +55,42 @@ export function parseMessage(line: string): DeviceMessage | null {
   }
 }
 
+// Bluefy and other iPhone Bluetooth browsers sometimes reject with a plain string or an
+// object without .message; turn anything into an Error that says which step failed.
+export class ConnectError extends Error {
+  readonly step: "choose" | "connect" | "service" | "notify";
+  constructor(step: ConnectError["step"], cause: unknown) {
+    const c = cause as { name?: string; message?: string } | string | null | undefined;
+    const msg = typeof c === "string" ? c : c?.message || c?.name || (c == null ? "" : String(c));
+    super(msg && msg !== "[object Object]" ? msg : "no details from the browser");
+    this.name = typeof c === "object" && c?.name ? c.name : "Error";
+    this.step = step;
+  }
+}
+
+async function step<T>(name: ConnectError["step"], p: () => Promise<T>): Promise<T> {
+  try {
+    return await p();
+  } catch (e) {
+    throw new ConnectError(name, e);
+  }
+}
+
 export async function connectDevice(
   onMessage: (m: DeviceMessage) => void,
   onDisconnect: () => void,
 ): Promise<Connection> {
   const bt = (navigator as unknown as { bluetooth: Bluetooth }).bluetooth;
-  const device = await bt.requestDevice({ filters: [{ name: BLE_NAME }], optionalServices: [SERVICE] });
+  const device = await step("choose", () => bt.requestDevice({ filters: [{ name: BLE_NAME }], optionalServices: [SERVICE] }));
   device.addEventListener("gattserverdisconnected", onDisconnect);
-  const server = await device.gatt.connect();
-  const ch = await (await server.getPrimaryService(SERVICE)).getCharacteristic(READING);
+  const server = await step("connect", () => device.gatt.connect());
+  const ch = await step("service", async () => (await server.getPrimaryService(SERVICE)).getCharacteristic(READING));
   const feed = lineSplitter((line) => {
     const m = parseMessage(line);
     if (m) onMessage(m);
   });
   ch.addEventListener("characteristicvaluechanged", (e) => feed((e.target as BtCharacteristic).value));
-  await ch.startNotifications();
+  await step("notify", () => ch.startNotifications());
   return {
     name: device.name ?? BLE_NAME,
     disconnect: () => device.gatt.connected && device.gatt.disconnect(),
