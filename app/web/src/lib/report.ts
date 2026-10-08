@@ -235,7 +235,9 @@ export async function drawReport(check: Check): Promise<HTMLCanvasElement> {
     ["Checked on", new Date(check.finishedAt ?? check.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })],
     ["Location", check.location ? `${check.location.latitude}, ${check.location.longitude}  (±${check.location.accuracy} m)` : "not captured"],
     ["Map", check.location ? mapLink(check.location).replace("https://", "") : ""],
-    ["Technician", `${check.technician.name} · +91 ${check.technician.mobile}`],
+    ...(check.technician.name || check.technician.mobile
+      ? ([["Technician", [check.technician.name, check.technician.mobile && `+91 ${check.technician.mobile}`].filter(Boolean).join(" · ")]] as [string, string][])
+      : []),
   ];
   const dh = details.length * 46 + 40;
   roundRect(ctx, PAD, y, W - PAD * 2, dh, 20);

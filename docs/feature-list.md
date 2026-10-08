@@ -17,6 +17,7 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage ·
 
 ## 1b. Technician identity (from Q2)
 - ✅ Technician enters their mobile number once on the phone; it is stamped on every visit
+- ✅ First-run screen can be skipped ("Skip for now"); details can be added later from the profile icon. Reports from a skipped profile omit the technician line
 - ⏭ OTP verification of the number (stage 2, with the server)
 
 ## 1a. Visit types (Q1, Q8)

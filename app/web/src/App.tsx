@@ -63,7 +63,7 @@ export default function App() {
   return (
     <>
       <HomeScreen
-        technicianName={tech.name}
+        technicianName={tech.name || "Add your details"}
         device={device}
         draft={unfinished}
         history={history}
