@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Bluetooth, BluetoothConnected, BluetoothOff, FlaskConical } from "lucide-react";
 import { BLE_NAME } from "@/lib/ble";
+import { isIOS } from "@/lib/platform";
 import type { Device } from "@/lib/useDevice";
 import { cn } from "@/lib/utils";
 import { BottomSheet, Button } from "./m3";
@@ -84,7 +85,10 @@ export function DeviceControls({ device, onDone }: { device: Device; onDone?: ()
         </p>
       ) : (
         <p className="flex gap-2 text-sm text-on-surface-variant">
-          <BluetoothOff className="h-4 w-4 shrink-0" aria-hidden /> This browser can't use Bluetooth. Open the app in Chrome on Android, or Bluefy on iPhone.
+          <BluetoothOff className="h-4 w-4 shrink-0" aria-hidden />
+          {isIOS()
+            ? "Safari and Chrome on iPhone can't use Bluetooth. Install the free Bluefy browser from the App Store and open this same link in it."
+            : "This browser can't use Bluetooth. Open the app in Chrome on Android."}
         </p>
       )}
       <Button

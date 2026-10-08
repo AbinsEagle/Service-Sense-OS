@@ -7,7 +7,7 @@ import { Progress, type StepState } from "@/components/Progress";
 import { isSettled, requiredSensors } from "@/lib/evaluate";
 import { rememberModel, withReading } from "@/lib/store";
 import type { Check } from "@/lib/types";
-import type { Device } from "@/lib/useDevice";
+import { deviceReady, type Device } from "@/lib/useDevice";
 import { validMobile } from "@/lib/validate";
 import { CustomerStep } from "./CustomerStep";
 import { ProductStep } from "./ProductStep";
@@ -23,7 +23,7 @@ const STEPS: { id: StepId; title: string }[] = [
   { id: "result", title: "Result" },
 ];
 
-function blocker(c: Check, id: StepId): string | null {
+function blocker(c: Check, id: StepId, ready: boolean): string | null {
   if (id === "product") {
     if (!c.product.serial.trim()) return "Add the serial number";
     if (!c.product.categoryId) return "Pick the product type";
@@ -38,6 +38,8 @@ function blocker(c: Check, id: StepId): string | null {
     const left = requiredSensors(c).filter((s) => !isSettled(c.readings[s])).length;
     if (left) return `Take ${left} more reading${left > 1 ? "s" : ""}`;
   }
+  // No check moves on without a live device link (or the training simulator).
+  if (id !== "result" && !c.finishedAt && !ready) return "Connect the device to continue";
   return null;
 }
 
@@ -62,7 +64,8 @@ export function CheckFlow({
   const notify = useCallback((m: string) => setToast(m), []);
   const finished = Boolean(check.finishedAt);
   const id = STEPS[step].id;
-  const why = blocker(check, id);
+  const ready = deviceReady(device);
+  const why = blocker(check, id, ready);
 
   const go = (i: number) => {
     setStep(i);
@@ -84,7 +87,7 @@ export function CheckFlow({
 
   const steps = STEPS.map((s, i) => {
     const reached = i <= check.step;
-    const state: StepState = i === step ? "current" : reached && blocker(check, s.id) && i < step ? "attention" : reached || finished ? "done" : "todo";
+    const state: StepState = i === step ? "current" : reached && blocker(check, s.id, ready) && i < step ? "attention" : reached || finished ? "done" : "todo";
     return { label: s.title, state, reachable: !finished && reached };
   });
 

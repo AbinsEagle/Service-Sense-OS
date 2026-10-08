@@ -1,4 +1,5 @@
 import { useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -121,7 +122,8 @@ export function Dialog({
   onClose(): void;
 }) {
   if (!open) return null;
-  return (
+  // Portal to <body>: a dialog opened from inside the sticky header must still sit above the bottom bar.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-scrim/40 p-4 sm:items-center" role="presentation" onClick={onClose}>
       <div
         role="dialog"
@@ -135,7 +137,8 @@ export function Dialog({
         <div className="text-sm leading-5 text-on-surface-variant">{children}</div>
         <div className="mt-6 flex flex-wrap justify-end gap-2">{actions}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -173,7 +176,7 @@ export function Snackbar({ message, onClose }: { message: string | null; onClose
 // Modal bottom sheet (M3): slides up from the bottom, scrim behind.
 export function BottomSheet({ open, title, onClose, children }: { open: boolean; title: string; onClose(): void; children: ReactNode }) {
   if (!open) return null;
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-scrim/40" role="presentation" onClick={onClose}>
       <div
         role="dialog"
@@ -186,6 +189,7 @@ export function BottomSheet({ open, title, onClose, children }: { open: boolean;
         <h2 className="mb-4 text-xl text-on-surface">{title}</h2>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

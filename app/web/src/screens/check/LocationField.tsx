@@ -2,6 +2,7 @@ import { useState } from "react";
 import { LocateFixed, MapPin, MapPinOff } from "lucide-react";
 import { Button, Dialog } from "@/components/m3";
 import { fetchLocation, GeoError, geoPermission, mapLink } from "@/lib/location";
+import { isIOS } from "@/lib/platform";
 import type { GeoFix } from "@/lib/types";
 
 // Required location field (feature list Q22–Q24). Nothing is fetched until the technician taps:
@@ -84,9 +85,9 @@ export function LocationField({ value, onChange, showError = false }: { value: G
       >
         <p>Your phone will now ask for location. Tap <b className="text-on-surface">Allow</b>, so this check can be completed.</p>
         <div className="mt-4 rounded-md bg-surface-container-highest p-4 text-on-surface" aria-hidden>
-          <p className="text-sm">Allow this site to use your device's location?</p>
+          <p className="text-sm">{isIOS() ? "“This website” would like to use your current location." : "Allow this site to use your device's location?"}</p>
           <div className="mt-3 flex justify-end gap-4 text-sm font-medium">
-            <span className="opacity-50">Block</span>
+            <span className="opacity-50">{isIOS() ? "Don't Allow" : "Block"}</span>
             <span className="rounded-full bg-primary px-3 py-1 text-on-primary">Allow</span>
           </div>
         </div>
@@ -114,10 +115,24 @@ export function LocationField({ value, onChange, showError = false }: { value: G
         }
       >
         <p>Location was blocked for this site earlier, so the phone won't ask again. To allow it:</p>
-        <ol className="mt-3 list-decimal space-y-1 pl-5 text-on-surface">
-          <li>Tap the icon left of the address bar in Chrome (🔒 or ⚙).</li>
-          <li>Tap <b>Permissions → Location → Allow</b>.</li>
-        </ol>
+        {isIOS() ? (
+          <ol className="mt-3 list-decimal space-y-1 pl-5 text-on-surface">
+            <li>
+              Open <b>Settings → Privacy &amp; Security → Location Services</b> and make sure it's on.
+            </li>
+            <li>
+              In the same list, tap your browser (Safari, Chrome or Bluefy) and choose <b>While Using the App</b>.
+            </li>
+            <li>Come back here and tap Try again; tap <b>Allow</b> when asked.</li>
+          </ol>
+        ) : (
+          <ol className="mt-3 list-decimal space-y-1 pl-5 text-on-surface">
+            <li>Tap the icon left of the address bar in Chrome (🔒 or ⚙).</li>
+            <li>
+              Tap <b>Permissions → Location → Allow</b>.
+            </li>
+          </ol>
+        )}
         <p className="mt-3">Also check that Location is switched on in the phone's quick settings. Then tap Try again.</p>
       </Dialog>
     </div>

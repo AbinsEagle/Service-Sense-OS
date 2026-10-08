@@ -21,7 +21,7 @@ interface BtDevice extends EventTarget {
 type Bluetooth = { requestDevice(o: object): Promise<BtDevice> };
 
 export function bluetoothAvailable(): boolean {
-  return typeof navigator !== "undefined" && "bluetooth" in navigator;
+  return typeof navigator !== "undefined" && Boolean((navigator as unknown as { bluetooth?: unknown }).bluetooth);
 }
 
 export interface Connection {

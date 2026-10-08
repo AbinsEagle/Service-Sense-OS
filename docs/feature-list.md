@@ -61,6 +61,8 @@ Stage 1 is the site check **before** installation only (Q14). Water temperature 
 - ✅ **Website only in stage 1 (Q18):** opened from the link, needs mobile signal to load. Installable offline app (PWA) and a Play Store build are later options
 - ✅ Live reading per sensor with settled / unstable / fault status
 - ✅ Survives disconnects; readings taken so far are kept
+- ✅ **No check without a connected device (Q26):** New/Continue check is locked until the device is connected, and Next locks again if the link drops (training simulator excepted)
+- ✅ iPhone: Safari/Chrome have no Web Bluetooth, so the app points technicians to the Bluefy browser; location prompts and fixes use iPhone wording
 - ✅ Simulate mode for training and demos
 
 ## 3. Readings
@@ -150,3 +152,4 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q23 | Automatic or on tap | On tap as a field: fetch if allowed, otherwise ask for permission again | 2026-10-08 |
 | Q24 | Where the 'tap Allow' hint lives | In the app, shown just before the permission pop-up | 2026-10-08 |
 | Q25 | Where are temperature and sound? | Required where they fit: temperature for heaters and purifiers, sound for pumps, stabilizers and chimneys; provisional limits | 2026-10-08 |
+| Q26 | Can a check go ahead without the device? | No: starting a check and every Next need a connected device; the simulator remains the only (training-only) exception | 2026-10-08 |

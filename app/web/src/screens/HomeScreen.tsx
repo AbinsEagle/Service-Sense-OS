@@ -64,7 +64,11 @@ export function HomeScreen({
         )}
 
         <section className="grid gap-3">
-          {draft ? (
+          {!deviceReady(device) ? (
+            <Button size="lg" disabled>
+              Connect the device to start
+            </Button>
+          ) : draft ? (
             <>
               <Button size="lg" onClick={onResume}>
                 Continue check{draft.product.serial ? ` · ${draft.product.serial}` : ""}
@@ -74,7 +78,7 @@ export function HomeScreen({
               </Button>
             </>
           ) : (
-            <Button size="lg" variant={deviceReady(device) ? "filled" : "tonal"} icon={<Plus className="h-5 w-5" />} onClick={onNew}>
+            <Button size="lg" icon={<Plus className="h-5 w-5" />} onClick={onNew}>
               New site check
             </Button>
           )}
