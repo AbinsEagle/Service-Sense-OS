@@ -84,7 +84,11 @@ Proposed starting limits (to confirm with the brand before field use):
 ## 3a. Manual water tests (Q19)
 - 🟡 **pH from indicator paper strips, entered by hand, optional (Q19).** The technician picks the matching colour/value (e.g. 5.0–9.0 in 0.5 steps); shown with its own OK / Low / High bar (IS 10500: 6.5–8.5). Marked "strip" in the summary so it isn't mistaken for a probe reading
 - ⏭ pH probe on the device (needs a free ADC input, isolation from the TDS probe, calibration)
-- ❓ Langelier index needs hardness and alkalinity too (Q20)
+- 🟡 **Langelier index, estimated (Q20):** computed when pH is entered, from pH (strip), TDS and water temperature (device), with calcium hardness and alkalinity **estimated from TDS** using typical ratios from published water data. Shown as *Scale-forming* / *Balanced* / *Corrosive* and always labelled "estimate"
+  - Formula (Carrier): pHs = (9.3 + A + B) − (C + D); A = (log₁₀TDS − 1)/10; B = −13.12·log₁₀(T °C + 273) + 34.55; C = log₁₀(Ca hardness as CaCO₃) − 0.4; D = log₁₀(alkalinity as CaCO₃); LSI = pH − pHs
+  - Bands (proposed): LSI < −0.5 corrosive · −0.5 to +0.5 balanced · > +0.5 scale-forming
+  - The TDS→hardness and TDS→alkalinity ratios are app data; validate them against a few lab-tested local samples before trusting the label in the field
+- ⏭ Hardness/alkalinity strip entry or probe, to replace the estimate
 
 ## 4. Customer and site
 - ✅ Customer name, phone, address, GPS location, notes
@@ -129,4 +133,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q17 | Can a check finish with unstable or faulty readings | No: must re-take until settled | 2026-10-08 |
 | Q18 | How technicians get the app | Website only (needs signal) | 2026-10-08 |
 | Q19 | pH probe and Langelier index | pH from paper strips, optional manual entry; probe later | 2026-10-08 |
-| Q20 | Hardness/alkalinity entry for the Langelier index | _open_ | |
+| Q20 | Hardness/alkalinity for the Langelier index | Estimate from TDS with typical ratios; LSI from pH + TDS + temp | 2026-10-08 |
+| Q21 | Ask the water source to improve the estimate | _open_ | |
