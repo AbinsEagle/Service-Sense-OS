@@ -85,7 +85,7 @@ Proposed starting limits (to confirm with the brand before field use):
 ## 5. Finishing a visit
 - ✅ Finish visit (kept on the phone), start the next one
 - 🟡 **WhatsApp summary to the customer (Q7):** one tap opens WhatsApp to the customer's number with a short report: product + serial, each reading with OK / Low / High, the verdict and the recommendation. Works from the phone with no server
-- ❓ Visit history on the phone
+- 🟡 **Check history on the phone (Q13):** list of finished checks, search by customer or serial, open one and re-send its WhatsApp summary. No export; the office sees checks from stage 2
 
 ## 6. Later stages
 - ⏭ Sign-in per technician; visits saved to the server (`backend/`, Supabase)
@@ -106,4 +106,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q10 | Is the product already on site during the check | Yes, already bought. Model suggestion parked for later | 2026-10-08 |
 | Q11 | What happens when the site isn't ready and the customer declines the fix | Decide later | 2026-10-08 |
 | Q12 | Language of the app and the WhatsApp summary | English only | 2026-10-08 |
-| Q13 | Visit history and reporting without a server | _open_ | |
+| Q13 | Visit history and reporting without a server | History on the phone only | 2026-10-08 |
+| Q14 | Pre-install check only, or also a post-install test | _open_ | |
