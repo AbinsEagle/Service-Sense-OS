@@ -88,6 +88,8 @@ Proposed starting limits (to confirm with the brand before field use):
   - Formula (Carrier): pHs = (9.3 + A + B) − (C + D); A = (log₁₀TDS − 1)/10; B = −13.12·log₁₀(T °C + 273) + 34.55; C = log₁₀(Ca hardness as CaCO₃) − 0.4; D = log₁₀(alkalinity as CaCO₃); LSI = pH − pHs
   - Bands (proposed): LSI < −0.5 corrosive · −0.5 to +0.5 balanced · > +0.5 scale-forming
   - The TDS→hardness and TDS→alkalinity ratios are app data; validate them against a few lab-tested local samples before trusting the label in the field
+- ✅ One general TDS ratio for every site in stage 1 (Q21)
+- ⏭ Water-source pick (open well / borewell / municipal) with per-source ratios
 - ⏭ Hardness/alkalinity strip entry or probe, to replace the estimate
 
 ## 4. Customer and site
@@ -134,4 +136,4 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q18 | How technicians get the app | Website only (needs signal) | 2026-10-08 |
 | Q19 | pH probe and Langelier index | pH from paper strips, optional manual entry; probe later | 2026-10-08 |
 | Q20 | Hardness/alkalinity for the Langelier index | Estimate from TDS with typical ratios; LSI from pH + TDS + temp | 2026-10-08 |
-| Q21 | Ask the water source to improve the estimate | _open_ | |
+| Q21 | Ask the water source to improve the estimate | Not now; one general ratio, water source is a later upgrade | 2026-10-08 |
