@@ -12,7 +12,12 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 7. **Share:** WhatsApp summary to the customer → done → Home
 - **History detail:** the finished check, re-send on WhatsApp
 
+## Navigation (U1)
+- **Step-by-step:** one task per screen, one big primary button at the thumb (bottom of the screen)
+- **Step tracker always visible** at the top: Product · Customer · Readings · Result · Share, each marked *done* ✓, *current*, *to do*, or *needs attention* (e.g. a reading to re-take). Tapping a done step goes back to it; answers are kept
+
 ## Decision log
 | # | Question | Answer | Date |
 |---|---|---|---|
-| U1 | Step-by-step screens or one long page | _open_ | |
+| U1 | Step-by-step screens or one long page | Step-by-step, with a visible step-progress tracker | 2026-10-08 |
+| U2 | Visual style and branding | _open_ | |
