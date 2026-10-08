@@ -5,12 +5,21 @@ import { fetchLocation, GeoError, geoPermission, mapLink } from "@/lib/location"
 import { isIOS } from "@/lib/platform";
 import type { GeoFix } from "@/lib/types";
 
-// Required location field (feature list Q22–Q24). Nothing is fetched until the technician taps:
-// allowed → fetch at once; not yet allowed → a "tap Allow" hint, then the phone's pop-up (every tap);
-// blocked → how to unblock it in Chrome, then try again.
+// Required location field (feature list Q22–Q24). Nothing is fetched until the technician taps.
+// The tap goes straight to the phone's own pop-up (iPhone already stacks two: website + browser app),
+// with a one-line "tap Allow" hint under the button until location has worked once on this phone.
+// Blocked → how to unblock it, then try again.
+const GEO_OK = "ssos.geoOk.v1";
+const everAllowed = () => {
+  try {
+    return localStorage.getItem(GEO_OK) === "1";
+  } catch {
+    return false;
+  }
+};
 export function LocationField({ value, onChange, showError = false }: { value: GeoFix | null; onChange(g: GeoFix | null): void; showError?: boolean }) {
   const [busy, setBusy] = useState(false);
-  const [hint, setHint] = useState(false);
+  const [allowedBefore, setAllowedBefore] = useState(everAllowed);
   const [blocked, setBlocked] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -19,6 +28,14 @@ export function LocationField({ value, onChange, showError = false }: { value: G
     setMessage(null);
     try {
       onChange(await fetchLocation());
+      if (!allowedBefore) {
+        setAllowedBefore(true);
+        try {
+          localStorage.setItem(GEO_OK, "1");
+        } catch {
+          /* private mode */
+        }
+      }
     } catch (e) {
       const err = e as GeoError;
       if (err.kind === "denied") {
@@ -32,10 +49,8 @@ export function LocationField({ value, onChange, showError = false }: { value: G
   };
 
   const capture = async () => {
-    const p = await geoPermission();
-    if (p === "granted") return fetchNow();
-    if (p === "denied") return setBlocked(true);
-    setHint(true); // prompt / unknown: prime the technician before the browser pop-up
+    if ((await geoPermission()) === "denied") return setBlocked(true);
+    fetchNow();
   };
 
   return (
@@ -58,40 +73,15 @@ export function LocationField({ value, onChange, showError = false }: { value: G
           {busy ? "Getting location…" : "Capture location"}
         </Button>
       )}
+      {!value && !allowedBefore && !message && (
+        <p className="px-4 pt-1 text-xs text-on-surface-variant">
+          Your phone will ask for location. Tap <b className="text-on-surface">Allow</b>
+          {isIOS() ? " (and Allow While Using App the first time)" : ""}.
+        </p>
+      )}
       {message && <p className="px-4 text-xs text-error">{message}</p>}
       {showError && !value && !message && <p className="px-4 text-xs text-error">Capture the site location to continue</p>}
       {value && value.accuracy > 100 && <p className="px-4 text-xs text-warn">Low accuracy. Step outside or near a window and tap Update.</p>}
-
-      <Dialog
-        open={hint}
-        onClose={() => setHint(false)}
-        icon={<LocateFixed className="h-6 w-6" />}
-        title="Allow location"
-        actions={
-          <>
-            <Button variant="text" onClick={() => setHint(false)}>
-              Not now
-            </Button>
-            <Button
-              onClick={() => {
-                setHint(false);
-                fetchNow();
-              }}
-            >
-              Continue
-            </Button>
-          </>
-        }
-      >
-        <p>Your phone will now ask for location. Tap <b className="text-on-surface">Allow</b>, so this check can be completed.</p>
-        <div className="mt-4 rounded-md bg-surface-container-highest p-4 text-on-surface" aria-hidden>
-          <p className="text-sm">{isIOS() ? "“This website” would like to use your current location." : "Allow this site to use your device's location?"}</p>
-          <div className="mt-3 flex justify-end gap-4 text-sm font-medium">
-            <span className="opacity-50">{isIOS() ? "Don't Allow" : "Block"}</span>
-            <span className="rounded-full bg-primary px-3 py-1 text-on-primary">Allow</span>
-          </div>
-        </div>
-      </Dialog>
 
       <Dialog
         open={blocked}

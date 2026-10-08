@@ -101,7 +101,7 @@ Proposed starting limits (to confirm with the brand before field use):
 - ⏸ Customer name, phone, address, notes: **step hidden for now (UI plan U7)**; switch back on in `app/web/src/config/features.ts`
 - ✅ **Geo location: a required field the technician taps (Q22, revised Q23).** Nothing is fetched until they tap *Capture location*:
   - Permission already allowed → the location is fetched straight away (accuracy shown, e.g. "±12 m")
-  - **In-app hint before the pop-up (Q24):** when permission isn't allowed yet, tapping first shows a short card: "Your phone will now ask for location. Tap **Allow**, so this check can be completed." with a picture of the pop-up and a *Continue* button that opens it
+  - **In-app hint (Q24, revised after iPhone test):** a one-line note under the button, "Your phone will ask for location. Tap **Allow**", shown until location has worked once on that phone. No extra card before the pop-up: iPhone + Bluefy already show two system pop-ups the first time (website, then Bluefy app)
   - Not yet allowed → the phone's permission pop-up is shown again, every time they tap, until allowed
   - Blocked earlier ("Don't allow") → browsers won't show the pop-up again, so the app shows the 2-step fix (Chrome → site settings → Location → Allow) and a *Try again* button
   - The check can't finish without it; stamped on the report image with coordinates and a map link, and kept in History
