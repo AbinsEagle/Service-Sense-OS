@@ -62,6 +62,7 @@ Stage 1 is the site check **before** installation only (Q14), so it takes the re
 
 ## 3. Readings
 - ✅ Water temperature, TDS (with water temp), supply voltage (min/max), inlet pressure
+- 🟡 **Voltage is watched for 5 s for every category (Q16);** firmware change from today's 4 s (min / max / median reported)
 - ✅ Sound level from the phone microphone (uncalibrated estimate); hidden in stage 1 (post-install only)
 - ✅ Re-take replaces the earlier reading; full log of everything received
 - ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, replaceable per model when the brand's specs arrive
@@ -111,4 +112,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q13 | Visit history and reporting without a server | History on the phone only | 2026-10-08 |
 | Q14 | Pre-install check only, or also a post-install test | Before installation only | 2026-10-08 |
 | Q15 | Who can change the limits in stage 1 | Only us, via app update | 2026-10-08 |
-| Q16 | How long the voltage is watched | _open_ | |
+| Q16 | How long the voltage is watched | 5 s for every category | 2026-10-08 |
+| Q17 | Can a check finish with unstable or faulty readings | _open_ | |
