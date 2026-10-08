@@ -33,6 +33,7 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 - **The final summary is shared as an image report card:** the app draws the report (status, each reading with its range bar, add-ons, Langelier estimate) as a picture and opens the phone's share sheet; the technician picks WhatsApp and the customer's chat
 - Fallback where sharing files isn't supported: save the image to the gallery, then send it from WhatsApp
 - The image is also kept with the check in History, so it can be re-sent
+- **Identity on the image (U6):** the partner brand's logo and name at the top; a small "Checked with Service Sense OS" footer. Also on it: date and time, technician name and mobile, product category, model and serial, customer name
 
 ## Decision log
 | # | Question | Answer | Date |
@@ -42,4 +43,4 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 | U3 | Seed colour for the Material scheme | Trust blue (`#1565C0`) | 2026-10-08 |
 | U4 | How the Readings step guides the technician | Guided, one reading at a time, auto-advance | 2026-10-08 |
 | U5 | Format of the WhatsApp summary | Image report card via the share sheet | 2026-10-08 |
-| U6 | Whose identity is on the report image | _open_ | |
+| U6 | Whose identity is on the report image | Brand first; small 'Checked with Service Sense OS' footer | 2026-10-08 |
