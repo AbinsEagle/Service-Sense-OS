@@ -37,17 +37,18 @@ The customer has already bought the product; the technician arrives to install i
 - ⏭ Customer declines the add-on: acknowledgement / blocking rules decided later (Q11)
 - ⏭ Model suggestion from readings (later upgrade, Q10). Stage 1 checks the product the customer has already bought
 
-## 1c. Product categories, first rollout (from Q5)
-Which readings each category asks for (the app shows only these, in this order):
+## 1c. Product categories, first rollout (Q5, Q14)
+Stage 1 is the site check **before** installation only (Q14), so it takes the readings that describe the site. Water temperature and sound describe a running product, so they are hidden until the post-install test (later upgrade); the device still measures them.
 
-| Category | Water temp | TDS | Inlet pressure | Supply voltage | Sound |
-|---|---|---|---|---|---|
-| Water heater (geyser) | ✓ | ✓ scaling risk | ✓ | ✓ | |
-| Water purifier | | ✓ input water | ✓ | ✓ | |
-| Pump | | | ✓ | ✓ | ✓ bearing noise |
-| Stabilizer / inverter | | | | ✓ min/max | ✓ hum, relay chatter |
-| Kitchen chimney | | | | ✓ | ✓ motor noise |
+| Category | TDS | Inlet pressure | Supply voltage |
+|---|---|---|---|
+| Water heater (geyser) | ✓ scaling risk | ✓ | ✓ |
+| Water purifier | ✓ input water | ✓ | ✓ |
+| Pump | | ✓ | ✓ |
+| Stabilizer / inverter | | | ✓ min/max |
+| Kitchen chimney | | | ✓ |
 
+- ⏭ Post-install commissioning test: heater reaches temperature, chimney/pump noise, output pressure
 - ❓ **Gap: chimney suction.** "Weak suction" is the top chimney complaint, and the device has no airflow sensor. Options for later: a small anemometer add-on, or a guided visual check in the app.
 
 ## 1f. Language (Q12)
@@ -61,7 +62,7 @@ Which readings each category asks for (the app shows only these, in this order):
 
 ## 3. Readings
 - ✅ Water temperature, TDS (with water temp), supply voltage (min/max), inlet pressure
-- ✅ Sound level from the phone microphone (uncalibrated estimate)
+- ✅ Sound level from the phone microphone (uncalibrated estimate); hidden in stage 1 (post-install only)
 - ✅ Re-take replaces the earlier reading; full log of everything received
 - ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, editable in settings, replaceable per model when the brand's specs arrive
 - 🟡 **Low / high range bar on every reading (Q6):** a horizontal gauge with a green OK band, amber and red zones on both sides, and a marker at the reading. The verdict names the side: *Low voltage*, *High TDS*, which decides the add-on to recommend
@@ -107,4 +108,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q11 | What happens when the site isn't ready and the customer declines the fix | Decide later | 2026-10-08 |
 | Q12 | Language of the app and the WhatsApp summary | English only | 2026-10-08 |
 | Q13 | Visit history and reporting without a server | History on the phone only | 2026-10-08 |
-| Q14 | Pre-install check only, or also a post-install test | _open_ | |
+| Q14 | Pre-install check only, or also a post-install test | Before installation only | 2026-10-08 |
+| Q15 | Who can change the limits in stage 1 | _open_ | |
