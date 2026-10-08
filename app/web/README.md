@@ -24,7 +24,8 @@ the whole session. The customer step is built but hidden (`src/config/features.t
 ## Where things live
 | What | File |
 |---|---|
-| Brand name/logo on the report | `src/config/brand.ts` (placeholder) |
+| Product name, optional partner brand | `src/config/brand.ts` (Service Sense OS; partner brand off) |
+| Logo | `src/components/Logo.tsx`, `public/favicon.svg`, `drawLogo` in `src/lib/report.ts` |
 | Categories, models, readings per category, how-to text | `src/config/catalog.ts` (placeholder models) |
 | OK/Low/High limits, add-ons, pH, Langelier ratios | `src/config/limits.ts` (pressure limits and ratios are placeholders) |
 | Verdicts, site status, Langelier | `src/lib/evaluate.ts` (+ `__tests__`) |

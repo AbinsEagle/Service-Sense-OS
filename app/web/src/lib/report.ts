@@ -1,4 +1,4 @@
-import { BRAND } from "@/config/brand";
+import { BRAND, PRODUCT, displayName } from "@/config/brand";
 import { category, model, SENSOR_INFO } from "@/config/catalog";
 import type { Band } from "@/config/limits";
 import { isSimulated, judgePh, judgeReading, lsiFor, outcome, requiredSensors, type Level } from "./evaluate";
@@ -80,28 +80,31 @@ export async function drawReport(check: Check): Promise<HTMLCanvasElement> {
   ctx.fillRect(0, 0, W, canvas.height);
   ctx.textBaseline = "alphabetic";
 
-  // Header: brand first (U6)
-  ctx.fillStyle = C.primaryContainer;
-  ctx.fillRect(0, 0, W, 170);
-  let x = PAD;
+  // Header: partner brand if one is set, otherwise Service Sense OS (UI plan U6, U9)
+  let logoDrawn = false;
   if (BRAND.logo) {
     const img = new Image();
     img.src = BRAND.logo;
     try {
       await img.decode();
-      ctx.drawImage(img, PAD, 35, 100, 100);
-      x = PAD + 124;
+      ctx.drawImage(img, PAD, 40, 96, 96);
+      logoDrawn = true;
     } catch {
-      /* no logo */
+      /* fall back to the Service Sense mark */
     }
   }
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `700 52px ${FONT}`;
-  ctx.fillText(BRAND.name, x, 92);
+  if (!logoDrawn) drawLogo(ctx, PAD, 40, 96);
+  const x = PAD + 124;
+  ctx.fillStyle = C.ink;
+  ctx.font = `700 46px ${FONT}`;
+  ctx.fillText(displayName(), x, 92);
+  ctx.fillStyle = C.sub;
   ctx.font = `400 28px ${FONT}`;
-  ctx.fillText("Pre-installation site check", x, 136);
+  ctx.fillText("Pre-installation site check", x, 132);
+  ctx.fillStyle = C.primaryContainer;
+  ctx.fillRect(0, 172, W, 6);
 
-  let y = 170;
+  let y = 178;
   if (simulated) {
     ctx.fillStyle = C.warnC;
     ctx.fillRect(0, y, W, 56);
@@ -253,12 +256,15 @@ export async function drawReport(check: Check): Promise<HTMLCanvasElement> {
   y += dh + 50;
 
   // Footer: Service Sense, small (U6)
+  // Footer: "Powered by Service Sense OS" with the mark, centred
+  ctx.font = `500 26px ${FONT}`;
+  const label = PRODUCT.tagline;
+  const lw = ctx.measureText(label).width;
+  const fx = (W - (40 + 14 + lw)) / 2;
+  drawLogo(ctx, fx, y - 30, 40);
   ctx.fillStyle = C.sub;
-  ctx.font = `400 22px ${FONT}`;
-  ctx.textAlign = "center";
-  ctx.fillText("Checked with Service Sense OS", W / 2, y);
-  ctx.textAlign = "left";
-  y += 40;
+  ctx.fillText(label, fx + 54, y);
+  y += 44;
 
   const trimmed = document.createElement("canvas");
   trimmed.width = W;
@@ -306,4 +312,23 @@ export async function shareReport(check: Check): Promise<"shared" | "saved" | "c
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
   return "saved";
+}
+
+// Service Sense OS mark, same geometry as components/Logo.tsx (48-unit viewBox).
+function drawLogo(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(size / 48, size / 48);
+  ctx.fillStyle = "#1565C0";
+  roundRect(ctx, 0, 0, 48, 48, 13);
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 3.6;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.stroke(new Path2D("M8 27h7l4-10 6 17 5-12 3 5h5"));
+  ctx.fillStyle = "#69F0AE";
+  ctx.beginPath();
+  ctx.arc(40, 27, 3.6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }

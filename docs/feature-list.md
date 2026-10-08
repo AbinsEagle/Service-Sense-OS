@@ -115,7 +115,7 @@ Proposed starting limits (to confirm with the brand before field use):
 - ✅ **Check history on the phone (Q13):** list of finished checks, search by customer or serial, open one and re-send its WhatsApp summary. No export; the office sees checks from stage 2
 
 ## 5a. Open items carried forward
-- **Placeholders in the app, to replace with real data:** brand name and logo (`app/web/src/config/brand.ts`), model catalogue (`config/catalog.ts`), inlet-pressure, water-temperature and sound limits and the Langelier TDS ratios (`config/limits.ts`)
+- **Placeholders in the app, to replace with real data:** partner brand (optional; app shows Service Sense OS), model catalogue (`config/catalog.ts`), inlet-pressure, water-temperature and sound limits and the Langelier TDS ratios (`config/limits.ts`)
 - Q11: customer declines the add-on (deferred)
 - Chimney suction gap (no airflow sensor)
 - Inlet-pressure limits per category: collect from product manuals

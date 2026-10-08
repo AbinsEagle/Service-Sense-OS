@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, FileText, MapPin, Smartphone } from "lucide-react";
 import { BRAND } from "@/config/brand";
+import { Logo, PoweredBy } from "@/components/Logo";
 import { Button, IconButton, TextField, TopAppBar } from "@/components/m3";
 import type { Technician } from "@/lib/types";
 import { validMobile } from "@/lib/validate";
@@ -41,9 +42,15 @@ export function ProfileScreen({ initial, onSave, onBack }: { initial: Technician
       <form onSubmit={save} noValidate className="mx-auto flex w-full max-w-md flex-1 flex-col px-6">
         {firstRun && (
           <header className="pb-8 pt-6 [@media(max-height:720px)]:pb-4 [@media(max-height:720px)]:pt-0">
-            <AppMark />
-            <p className="mt-6 text-sm font-medium text-primary">{BRAND.name}</p>
-            <h1 className="mt-1 text-[36px] font-normal leading-[44px] text-on-surface">Site check</h1>
+            {BRAND.name ? (
+              <p className="flex items-center gap-3 text-lg font-medium text-on-surface">
+                {BRAND.logo ? <img src={BRAND.logo} alt="" className="h-12 w-12 rounded-md" /> : <Logo size={48} />}
+                {BRAND.name}
+              </p>
+            ) : (
+              <PoweredBy size={52} />
+            )}
+            <h1 className="mt-8 text-[36px] font-normal leading-[44px] text-on-surface">Site check</h1>
             <p className="mt-3 text-base text-on-surface-variant">Measure the site before you install, and send the customer a clear report.</p>
             <ul className="mt-6 grid gap-3 text-sm text-on-surface-variant [@media(max-height:720px)]:hidden">
               <Point icon={<Smartphone className="h-4 w-4" />}>Works with the Service Sense device over Bluetooth</Point>
@@ -80,6 +87,7 @@ export function ProfileScreen({ initial, onSave, onBack }: { initial: Technician
             </Button>
           )}
           {firstRun && <p className="pt-1 text-center text-xs text-on-surface-variant">You can add your details later from the profile icon.</p>}
+          {firstRun && BRAND.name && <PoweredBy size={24} className="justify-self-center pt-2" />}
         </div>
       </form>
     </div>
@@ -94,16 +102,5 @@ function Point({ icon, children }: { icon: React.ReactNode; children: React.Reac
       </span>
       {children}
     </li>
-  );
-}
-
-// The app icon: the device's traffic light on the brand blue.
-function AppMark() {
-  return (
-    <span className="inline-flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-lg bg-primary-container shadow-e1" aria-hidden>
-      <span className="h-2.5 w-2.5 rounded-full bg-[#ff8a80]" />
-      <span className="h-2.5 w-2.5 rounded-full bg-[#ffd54f]" />
-      <span className="h-2.5 w-2.5 rounded-full bg-[#69f0ae]" />
-    </span>
   );
 }

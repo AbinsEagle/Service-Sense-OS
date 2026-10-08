@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BRAND } from "@/config/brand";
+import { displayName } from "@/config/brand";
 import type { Check, Reading, Technician } from "./types";
 
 // Stage 1: everything lives on this phone (feature list: stage plan, Q13).
@@ -36,7 +36,7 @@ export function newCheck(technician: Technician): Check {
   return {
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
-    brand: BRAND.name,
+    brand: displayName(),
     technician,
     product: { serial: "", categoryId: null, modelId: null },
     customer: { name: "", phone: "", address: "", notes: "" },

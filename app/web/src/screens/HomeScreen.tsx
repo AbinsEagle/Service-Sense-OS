@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
-import { ChevronRight, Plus, Search, UserRound } from "lucide-react";
-import { BRAND } from "@/config/brand";
+import { ChevronRight, Plus, Search } from "lucide-react";
+import { displayName } from "@/config/brand";
+import { Logo } from "@/components/Logo";
 import { category } from "@/config/catalog";
 import { DeviceChip, DeviceControls } from "@/components/Device";
-import { Button, IconButton, TopAppBar } from "@/components/m3";
-import { ThemeButton } from "@/components/ThemeButton";
+import { Button, TopAppBar } from "@/components/m3";
+import { SettingsButton } from "@/components/Settings";
 import { isSimulated, outcome } from "@/lib/evaluate";
 import type { Check } from "@/lib/types";
 import { deviceReady, type Device } from "@/lib/useDevice";
@@ -40,15 +41,14 @@ export function HomeScreen({
   return (
     <div className="min-h-svh pb-10">
       <TopAppBar
-        title={BRAND.name}
+        leading={<Logo size={30} className="ml-2.5" />}
+        title={displayName()}
+        compact
         subtitle={technicianName}
         trailing={
           <>
             <DeviceChip device={device} />
-            <ThemeButton />
-            <IconButton label="Technician profile" onClick={onProfile}>
-              <UserRound />
-            </IconButton>
+            <SettingsButton technicianLabel={technicianName} onProfile={onProfile} />
           </>
         }
       />

@@ -91,13 +91,13 @@ export function TextField({
   );
 }
 
-export function TopAppBar({ leading, title, subtitle, trailing }: { leading?: ReactNode; title: ReactNode; subtitle?: ReactNode; trailing?: ReactNode }) {
+export function TopAppBar({ leading, title, subtitle, trailing, compact }: { leading?: ReactNode; title: ReactNode; subtitle?: ReactNode; trailing?: ReactNode; compact?: boolean }) {
   return (
     <header className="sticky top-0 z-30 bg-surface">
       <div className="mx-auto flex h-16 max-w-2xl items-center gap-1 px-1">
         {leading ?? <span className="w-3" />}
         <div className="min-w-0 flex-1 px-1">
-          <h1 className="truncate text-[22px] leading-7 text-on-surface">{title}</h1>
+          <h1 className={cn("truncate text-on-surface", compact ? "text-[17px] font-medium leading-6" : "text-[22px] leading-7")}>{title}</h1>
           {subtitle && <p className="truncate text-xs text-on-surface-variant">{subtitle}</p>}
         </div>
         {trailing}

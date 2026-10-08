@@ -19,14 +19,15 @@ export function DeviceChip({ device }: { device: Device }) {
         onClick={() => setOpen(true)}
         aria-label={`Device: ${s.kind === "connected" ? `connected to ${s.name}` : s.kind === "simulating" ? "simulator" : "not connected"}`}
         className={cn(
-          "state mr-1 inline-flex h-9 items-center gap-1.5 rounded-sm px-3 text-sm font-medium",
+          "state mr-0.5 inline-flex h-9 items-center gap-1 rounded-sm px-2.5 text-sm font-medium",
           s.kind === "connected" && "bg-ok-container text-on-ok-container",
           s.kind === "simulating" && "bg-warn-container text-on-warn-container",
           (s.kind === "idle" || s.kind === "connecting") && "border border-outline text-primary",
         )}
       >
         <Icon className="h-4 w-4" aria-hidden />
-        {label}
+        {/* very narrow phones: icon only (the colour still shows the state) */}
+        <span className="max-[379px]:hidden">{label}</span>
       </button>
       <DeviceSheet open={open} onClose={() => setOpen(false)} device={device} />
     </>
