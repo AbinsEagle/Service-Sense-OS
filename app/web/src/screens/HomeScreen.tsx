@@ -3,7 +3,7 @@ import { ChevronRight, Plus, Search } from "lucide-react";
 import { displayName } from "@/config/brand";
 import { Logo } from "@/components/Logo";
 import { category } from "@/config/catalog";
-import { DeviceChip, DeviceControls } from "@/components/Device";
+import { ConnectHero, DeviceChip } from "@/components/Device";
 import { Button, TopAppBar } from "@/components/m3";
 import { SettingsButton } from "@/components/Settings";
 import { isSimulated, outcome } from "@/lib/evaluate";
@@ -66,23 +66,7 @@ export function HomeScreen({
         }
       />
       <main className="mx-auto grid max-w-2xl grid-cols-[minmax(0,1fr)] gap-8 px-4 pt-4">
-        {!deviceReady(device) && (
-          <section className="grid gap-3">
-            <h2 className="text-[28px] leading-9 text-on-surface">
-              Connect the device
-            </h2>
-            <p className="-mt-1 text-sm text-on-surface-variant">
-              Checks start once the device is connected.
-            </p>
-            <DeviceControls device={device} />
-            <button
-              onClick={device.startSimulating}
-              className="justify-self-start text-sm text-on-surface-variant underline-offset-4 hover:underline"
-            >
-              No device? Use the simulator
-            </button>
-          </section>
-        )}
+        {!deviceReady(device) && <ConnectHero device={device} />}
 
         {deviceReady(device) && (
           <section className="grid gap-3">
