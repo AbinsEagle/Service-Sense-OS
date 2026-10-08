@@ -2,14 +2,19 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
+import { applyThemeMode, getThemeMode } from "./lib/theme";
 
-// Follow the phone's light/dark setting (shadcn styles key off the .dark class).
-// A data-theme="light" | "dark" attribute on <html>, when a host page sets one, wins.
+// Light/dark: follow the phone, unless the technician picked Light or Dark in the app
+// (data-theme on <html>, set from lib/theme.ts). Styles key off the .dark class.
 const root = document.documentElement;
+const saved = getThemeMode();
+if (saved !== "system") applyThemeMode(saved);
 const dark = window.matchMedia("(prefers-color-scheme: dark)");
 const applyTheme = () => {
   const forced = root.getAttribute("data-theme");
-  root.classList.toggle("dark", forced ? forced === "dark" : dark.matches);
+  const isDark = forced ? forced === "dark" : dark.matches;
+  root.classList.toggle("dark", isDark);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", isDark ? "#111318" : "#f9f9ff");
 };
 applyTheme();
 dark.addEventListener("change", applyTheme);

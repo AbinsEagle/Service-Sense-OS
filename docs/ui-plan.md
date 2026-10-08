@@ -8,6 +8,7 @@ After the first build was judged too busy:
 - **Customer step hidden for now** (`app/web/src/config/features.ts`); **site location moves to the Product step** ("Product & site") and stays required.
 - **3 steps:** Product & site → Readings → Result. Share is part of Result: *Share report* finishes the check and opens the share sheet; *Finish without sharing* below it.
 - Thin segmented progress bar instead of numbered circles; one full-width bottom button whose label says what's missing ("Take 2 more readings").
+- **Theme (U8):** sun/moon icon on the Home top bar opens System / Light / Dark; the choice is remembered on the phone.
 - Plain rows and dividers instead of filled cards; readings shown as a compact strip plus one focus area; pH as a −/+ stepper; range bars as soft tints.
 
 ## Screen map (original; see U7 for the current flow)
@@ -53,3 +54,4 @@ After the first build was judged too busy:
 | U5 | Format of the WhatsApp summary | Image report card via the share sheet | 2026-10-08 |
 | U6 | Whose identity is on the report image | Brand first; small 'Checked with Service Sense OS' footer | 2026-10-08 |
 | U7 | First build too busy; where is the Bluetooth setup? | Minimal pass: device chip on every screen, connect-first Home, customer step hidden, location in Product, 3 steps, share inside Result | 2026-10-08 |
+| U8 | App only showed dark on a dark-mode phone | Theme choice on Home (System / Light / Dark), remembered on the phone; System follows the phone | 2026-10-08 |

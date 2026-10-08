@@ -4,6 +4,7 @@ import { BRAND } from "@/config/brand";
 import { category } from "@/config/catalog";
 import { DeviceChip, DeviceControls } from "@/components/Device";
 import { Button, IconButton, TopAppBar } from "@/components/m3";
+import { ThemeButton } from "@/components/ThemeButton";
 import { isSimulated, outcome } from "@/lib/evaluate";
 import type { Check } from "@/lib/types";
 import { deviceReady, type Device } from "@/lib/useDevice";
@@ -44,6 +45,7 @@ export function HomeScreen({
         trailing={
           <>
             <DeviceChip device={device} />
+            <ThemeButton />
             <IconButton label="Technician profile" onClick={onProfile}>
               <UserRound />
             </IconButton>
