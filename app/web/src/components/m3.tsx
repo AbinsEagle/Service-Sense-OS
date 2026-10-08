@@ -169,3 +169,23 @@ export function Snackbar({ message, onClose }: { message: string | null; onClose
     </div>
   );
 }
+
+// Modal bottom sheet (M3): slides up from the bottom, scrim behind.
+export function BottomSheet({ open, title, onClose, children }: { open: boolean; title: string; onClose(): void; children: ReactNode }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-scrim/40" role="presentation" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className="w-full max-w-lg rounded-t-xl bg-surface-container-low px-6 pb-[max(24px,env(safe-area-inset-bottom))] pt-3 shadow-e3"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mx-auto mb-4 h-1 w-8 rounded-full bg-on-surface-variant/40" aria-hidden />
+        <h2 className="mb-4 text-xl text-on-surface">{title}</h2>
+        {children}
+      </div>
+    </div>
+  );
+}

@@ -3,7 +3,7 @@ import { BRAND } from "@/config/brand";
 import type { Check, Reading, Technician } from "./types";
 
 // Stage 1: everything lives on this phone (feature list: stage plan, Q13).
-const KEYS = { tech: "ssos.tech.v1", draft: "ssos.draft.v2", history: "ssos.history.v1", recent: "ssos.recentModels.v1" };
+const KEYS = { tech: "ssos.tech.v1", draft: "ssos.draft.v3", history: "ssos.history.v1", recent: "ssos.recentModels.v1" };
 
 function read<T>(key: string, fallback: T): T {
   try {

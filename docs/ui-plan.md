@@ -2,7 +2,15 @@
 
 Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at a time.
 
-## Screen map
+## Minimal pass (U7, 2026-10-08)
+After the first build was judged too busy:
+- **Device first:** a device chip in the top bar of every screen (Connect / unit ID / Simulator) opens a bottom sheet to connect, disconnect or use the simulator. Home leads with "Connect the device" until connected. The Bluetooth link lives at app level, so it stays up across Home and every step.
+- **Customer step hidden for now** (`app/web/src/config/features.ts`); **site location moves to the Product step** ("Product & site") and stays required.
+- **3 steps:** Product & site → Readings → Result. Share is part of Result: *Share report* finishes the check and opens the share sheet; *Finish without sharing* below it.
+- Thin segmented progress bar instead of numbered circles; one full-width bottom button whose label says what's missing ("Take 2 more readings").
+- Plain rows and dividers instead of filled cards; readings shown as a compact strip plus one focus area; pH as a −/+ stepper; range bars as soft tints.
+
+## Screen map (original; see U7 for the current flow)
 1. **First run: technician profile** (once): name, mobile number
 2. **Home:** "New install check" + check history (search by customer or serial)
 3. **Product:** scan the product QR (serial) or type it → pick category → pick model (recent first)
@@ -44,3 +52,4 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 | U4 | How the Readings step guides the technician | Guided, one reading at a time, auto-advance | 2026-10-08 |
 | U5 | Format of the WhatsApp summary | Image report card via the share sheet | 2026-10-08 |
 | U6 | Whose identity is on the report image | Brand first; small 'Checked with Service Sense OS' footer | 2026-10-08 |
+| U7 | First build too busy; where is the Bluetooth setup? | Minimal pass: device chip on every screen, connect-first Home, customer step hidden, location in Product, 3 steps, share inside Result | 2026-10-08 |

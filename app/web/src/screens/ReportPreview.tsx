@@ -40,13 +40,11 @@ export function ReportPreview({ check }: { check: Check }) {
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
-      <div className="rounded-md bg-surface-container-low p-4">
-        <p className="text-sm text-on-surface-variant">Send to</p>
-        <p className="text-lg text-on-surface">
-          {check.customer.name} · <span className="tabnum">+91 {check.customer.phone}</span>
+      {check.customer.phone && (
+        <p className="text-on-surface-variant">
+          Send to {check.customer.name} · <span className="tabnum">+91 {check.customer.phone}</span>
         </p>
-        <p className="mt-1 text-sm text-on-surface-variant">Tap Share report, choose WhatsApp, then this customer's chat.</p>
-      </div>
+      )}
       <Button size="lg" icon={<Share2 className="h-5 w-5" />} onClick={share} disabled={busy || !url}>
         {busy ? "Preparing…" : "Share report"}
       </Button>

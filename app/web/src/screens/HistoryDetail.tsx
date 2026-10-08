@@ -13,7 +13,7 @@ export function HistoryDetail({ check, onBack }: { check: Check; onBack(): void 
             <ChevronLeft />
           </IconButton>
         }
-        title={check.customer.name}
+        title={check.customer.name || check.product.serial}
         subtitle={`${category(check.product.categoryId)?.name} · ${check.product.serial} · ${new Date(check.finishedAt!).toLocaleDateString("en-IN", { dateStyle: "medium" })}`}
       />
       <main className="mx-auto max-w-2xl px-4 pt-2">

@@ -1,17 +1,14 @@
 import { TextField } from "@/components/m3";
-import type { Check, GeoFix } from "@/lib/types";
+import type { Check } from "@/lib/types";
 import { validMobile } from "@/lib/validate";
-import { LocationField } from "./LocationField";
 
 export function CustomerStep({
   check,
   update,
-  setLocation,
   showErrors,
 }: {
   check: Check;
   update(c: Partial<Check["customer"]>): void;
-  setLocation(g: GeoFix | null): void;
   showErrors: boolean;
 }) {
   const c = check.customer;
@@ -29,7 +26,6 @@ export function CustomerStep({
         supporting="The report is sent to this WhatsApp number"
       />
       <TextField label="Address" multiline value={c.address} onChange={(e) => update({ address: e.target.value })} />
-      <LocationField value={check.location} onChange={setLocation} showError={showErrors} />
       <TextField label="Notes" multiline value={c.notes} onChange={(e) => update({ notes: e.target.value })} supporting="Optional, for your own records" />
     </div>
   );

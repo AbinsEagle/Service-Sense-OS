@@ -22,7 +22,7 @@ export function useDevice(onMessage: (m: DeviceMessage) => void) {
 
   useEffect(() => () => conn.current?.disconnect(), []);
 
-  const connect = useCallback(async () => {
+  const connect = useCallback(async (): Promise<boolean> => {
     setState({ kind: "connecting" });
     try {
       conn.current = await connectDevice(
@@ -37,9 +37,19 @@ export function useDevice(onMessage: (m: DeviceMessage) => void) {
         },
       );
       setState({ kind: "connected", name: conn.current.name });
+      return true;
     } catch (e) {
       const err = e as Error;
-      setState({ kind: "idle", error: err.name === "NotFoundError" ? undefined : `Couldn't connect: ${err.message}` });
+      setState({
+        kind: "idle",
+        error:
+          err.name === "NotFoundError"
+            ? undefined
+            : err.name === "SecurityError"
+              ? "Bluetooth isn't allowed on this page. Open the app itself in Chrome (not inside another app)."
+              : `Couldn't connect: ${err.message}`,
+      });
+      return false;
     }
   }, []);
 
@@ -68,3 +78,6 @@ export function useDevice(onMessage: (m: DeviceMessage) => void) {
 
   return { state, connect, disconnect, startSimulating, stopSimulating: () => setState({ kind: "idle" }), simulatePress, simMeasuring, btAvailable: bluetoothAvailable() };
 }
+
+export type Device = ReturnType<typeof useDevice>;
+export const deviceReady = (d: Device) => d.state.kind === "connected" || d.state.kind === "simulating";

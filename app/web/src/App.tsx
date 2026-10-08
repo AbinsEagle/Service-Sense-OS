@@ -4,8 +4,9 @@ import { CheckFlow } from "@/screens/check/CheckFlow";
 import { HistoryDetail } from "@/screens/HistoryDetail";
 import { HomeScreen } from "@/screens/HomeScreen";
 import { ProfileScreen } from "@/screens/ProfileScreen";
-import { newCheck, useDraft, useHistory, useTechnician } from "@/lib/store";
+import { newCheck, useDraft, useHistory, useTechnician, withReading } from "@/lib/store";
 import type { Check } from "@/lib/types";
+import { useDevice } from "@/lib/useDevice";
 
 // Stage 1: everything stays on this phone (no sign-in, no server). See docs/feature-list.md.
 type View = { kind: "home" } | { kind: "check" } | { kind: "profile" } | { kind: "history"; id: string };
@@ -16,6 +17,8 @@ export default function App() {
   const [history, setHistory] = useHistory();
   const [view, setView] = useState<View>({ kind: "home" });
   const [confirmNew, setConfirmNew] = useState(false);
+  // One Bluetooth link for the whole app: connect once on Home, it stays up through the check.
+  const device = useDevice((m) => setDraft((c) => (c && !c.finishedAt ? withReading(c, { ...m, taken_at: new Date().toISOString() }) : c)));
 
   if (!tech) return <ProfileScreen initial={null} onSave={setTech} />;
 
@@ -35,6 +38,7 @@ export default function App() {
     return (
       <CheckFlow
         check={draft}
+        device={device}
         setCheck={(f) => setDraft((c) => (c ? f(c) : c))}
         onFinish={(c) => setHistory((h) => [c, ...h.filter((x) => x.id !== c.id)])}
         onExit={() => {
@@ -60,6 +64,7 @@ export default function App() {
     <>
       <HomeScreen
         technicianName={tech.name}
+        device={device}
         draft={unfinished}
         history={history}
         onProfile={() => setView({ kind: "profile" })}

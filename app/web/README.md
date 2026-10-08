@@ -13,11 +13,13 @@ pnpm build      # output in dist/
 ```
 
 ## Flow
-Technician profile (once) → Home (history, search) → **Product** (scan QR serial, type,
-model) → **Customer** (name, mobile, address, tap-to-capture location) → **Readings**
-(guided, one at a time, must settle; optional pH strip) → **Result** (Ready / Ready with
-add-on / Not ready, add-ons, range bars, Langelier estimate) → **Share** (image report via
-the share sheet).
+Technician profile (once) → Home (connect the device, recent checks) → **Product & site**
+(scan QR serial, type, model, tap-to-capture location) → **Readings** (guided, one at a time,
+must settle; optional pH strip) → **Result** (Ready / Ready with add-on / Not ready, add-ons,
+range bars, Langelier estimate; *Share report* sends the image report via the share sheet).
+
+The device chip in the top bar (every screen) connects to `SSOS_B1.0`; the link is kept for
+the whole session. The customer step is built but hidden (`src/config/features.ts`).
 
 ## Where things live
 | What | File |

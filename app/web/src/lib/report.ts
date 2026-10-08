@@ -229,7 +229,7 @@ export async function drawReport(check: Check): Promise<HTMLCanvasElement> {
   y += 50;
   ctx.fillStyle = C.band;
   const details: [string, string][] = [
-    ["Customer", check.customer.name],
+    ...(check.customer.name ? ([["Customer", check.customer.name]] as [string, string][]) : []),
     ["Product", `${cat?.name ?? ""} · ${mdl?.name ?? ""}`],
     ["Serial no.", check.product.serial],
     ["Checked on", new Date(check.finishedAt ?? check.createdAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })],
@@ -281,7 +281,7 @@ export const reportBlob = (c: HTMLCanvasElement) =>
 
 export function reportFileName(check: Check) {
   const d = new Date(check.finishedAt ?? check.createdAt).toISOString().slice(0, 10);
-  const name = check.customer.name.trim().replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || "customer";
+  const name = (check.customer.name.trim() || check.product.serial).replace(/[^\w]+/g, "-").replace(/^-|-$/g, "") || "check";
   return `site-check-${name}-${d}.png`;
 }
 

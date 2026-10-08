@@ -4,7 +4,7 @@ Status: **v1 approved and built** (2026-10-08). Stage 1 app: `app/web`. Built on
 is logged at the bottom and folded into the list. UI design starts only after
 this list is agreed.
 
-Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
+Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage · ⏸ built, hidden for now
 
 ## Stage plan
 - **Stage 1 (now):** device + phone app, everything on the phone. No sign-in, no server.
@@ -25,8 +25,8 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 
 ## 1e. Stage 1 install-check flow (Q10)
 The customer has already bought the product; the technician arrives to install it.
-1. Scan the product QR (serial), pick category and model
-2. Customer name, phone, address, location (tap to capture)
+1. Scan the product QR (serial), pick category and model, capture the site location
+2. (Customer details: hidden for now, U7)
 3. Take only the readings that category needs (see 1c)
 4. Site status for that product + add-ons, with the low/high bars
 5. WhatsApp summary to the customer, finish
@@ -93,7 +93,7 @@ Proposed starting limits (to confirm with the brand before field use):
 - ⏭ Hardness/alkalinity strip entry or probe, to replace the estimate
 
 ## 4. Customer and site
-- ✅ Customer name, phone, address, notes
+- ⏸ Customer name, phone, address, notes: **step hidden for now (UI plan U7)**; switch back on in `app/web/src/config/features.ts`
 - ✅ **Geo location: a required field the technician taps (Q22, revised Q23).** Nothing is fetched until they tap *Capture location*:
   - Permission already allowed → the location is fetched straight away (accuracy shown, e.g. "±12 m")
   - **In-app hint before the pop-up (Q24):** when permission isn't allowed yet, tapping first shows a short card: "Your phone will now ask for location. Tap **Allow**, so this check can be completed." with a picture of the pop-up and a *Continue* button that opens it

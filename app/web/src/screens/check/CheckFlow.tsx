@@ -1,160 +1,133 @@
 import { useCallback, useState } from "react";
 import { ChevronLeft, X } from "lucide-react";
-import { category } from "@/config/catalog";
+import { FEATURES } from "@/config/features";
+import { DeviceChip } from "@/components/Device";
 import { Button, Dialog, IconButton, Snackbar, TopAppBar } from "@/components/m3";
-import { StepTracker, type StepState } from "@/components/StepTracker";
+import { Progress, type StepState } from "@/components/Progress";
 import { isSettled, requiredSensors } from "@/lib/evaluate";
-import { rememberModel, withReading } from "@/lib/store";
+import { rememberModel } from "@/lib/store";
 import type { Check } from "@/lib/types";
-import { useDevice } from "@/lib/useDevice";
+import type { Device } from "@/lib/useDevice";
 import { validMobile } from "@/lib/validate";
-import { ReportPreview } from "../ReportPreview";
 import { CustomerStep } from "./CustomerStep";
 import { ProductStep } from "./ProductStep";
 import { ReadingsStep } from "./ReadingsStep";
 import { ResultStep } from "./ResultStep";
 
-const STEPS = ["Product", "Customer", "Readings", "Result", "Share"];
-
-const valid = (c: Check) => [
-  Boolean(c.product.serial.trim() && c.product.categoryId && c.product.modelId),
-  Boolean(c.customer.name.trim() && validMobile(c.customer.phone) && c.location),
-  requiredSensors(c).length > 0 && requiredSensors(c).every((s) => isSettled(c.readings[s])),
-  true,
-  Boolean(c.finishedAt),
+type StepId = "product" | "customer" | "readings" | "result";
+// Customer step is hidden for now (FEATURES.customerStep); location lives in the Product step.
+const STEPS: { id: StepId; title: string }[] = [
+  { id: "product", title: "Product & site" },
+  ...(FEATURES.customerStep ? [{ id: "customer" as const, title: "Customer" }] : []),
+  { id: "readings", title: "Site readings" },
+  { id: "result", title: "Result" },
 ];
 
-const blocker = (c: Check, step: number): string | null => {
-  if (step === 0) {
-    if (!c.product.serial.trim()) return "Scan or type the serial number";
+function blocker(c: Check, id: StepId): string | null {
+  if (id === "product") {
+    if (!c.product.serial.trim()) return "Add the serial number";
     if (!c.product.categoryId) return "Pick the product type";
     if (!c.product.modelId) return "Pick the model";
-  }
-  if (step === 1) {
-    if (!c.customer.name.trim()) return "Enter the customer's name";
-    if (!validMobile(c.customer.phone)) return "Enter the customer's mobile";
     if (!c.location) return "Capture the site location";
   }
-  if (step === 2) {
+  if (id === "customer") {
+    if (!c.customer.name.trim()) return "Enter the customer's name";
+    if (!validMobile(c.customer.phone)) return "Enter the customer's mobile";
+  }
+  if (id === "readings") {
     const left = requiredSensors(c).filter((s) => !isSettled(c.readings[s])).length;
-    if (left) return `${left} reading${left > 1 ? "s" : ""} still to take`;
+    if (left) return `Take ${left} more reading${left > 1 ? "s" : ""}`;
   }
   return null;
-};
+}
 
-// Step-by-step site check with an always-visible tracker (UI plan U1).
+// Step-by-step site check (UI plan U1, U7): thin progress bar, one button at the bottom.
 export function CheckFlow({
   check,
   setCheck,
+  device,
   onExit,
   onFinish,
 }: {
   check: Check;
   setCheck(f: (c: Check) => Check): void;
+  device: Device;
   onExit(): void;
   onFinish(c: Check): void;
 }) {
-  const finished = Boolean(check.finishedAt);
-  const [step, setStep] = useState(finished ? 4 : Math.min(check.step, 3));
-  const [showErrors, setShowErrors] = useState(false);
+  const last = STEPS.length - 1;
+  const [step, setStep] = useState(Math.min(check.step, last));
   const [toast, setToast] = useState<string | null>(null);
   const [confirmExit, setConfirmExit] = useState(false);
-  const device = useDevice((m) => setCheck((c) => (c.finishedAt ? c : withReading(c, { ...m, taken_at: new Date().toISOString() }))));
   const notify = useCallback((m: string) => setToast(m), []);
+  const finished = Boolean(check.finishedAt);
+  const id = STEPS[step].id;
+  const why = blocker(check, id);
 
-  const ok = valid(check);
   const go = (i: number) => {
-    setShowErrors(false);
     setStep(i);
     setCheck((c) => ({ ...c, step: Math.max(c.step, i) }));
     window.scrollTo({ top: 0 });
   };
   const next = () => {
-    if (!ok[step]) return setShowErrors(true);
-    if (step === 0 && check.product.modelId) rememberModel(check.product.modelId);
-    if (step === 3) {
-      const done = { ...check, finishedAt: new Date().toISOString(), step: 4 };
-      setCheck(() => done);
-      onFinish(done);
-      device.disconnect();
-      return setStep(4);
-    }
+    if (why) return;
+    if (id === "product" && check.product.modelId) rememberModel(check.product.modelId);
     go(step + 1);
   };
+  const finish = () => {
+    if (finished) return check;
+    const done = { ...check, finishedAt: new Date().toISOString() };
+    setCheck(() => done);
+    onFinish(done);
+    return done;
+  };
 
-  const states: { label: string; state: StepState; reachable: boolean }[] = STEPS.map((label, i) => ({
-    label,
-    reachable: finished ? i === 4 : i <= check.step && i !== 4,
-    state:
-      i === step
-        ? "current"
-        : finished || (i <= check.step && ok[i])
-          ? "done"
-          : i <= check.step && i < step
-            ? "attention"
-            : i <= check.step && !ok[i] && i < 3
-              ? "attention"
-              : "todo",
-  }));
-
-  const why = blocker(check, step);
-  const cat = category(check.product.categoryId);
+  const steps = STEPS.map((s, i) => {
+    const reached = i <= check.step;
+    const state: StepState = i === step ? "current" : reached && blocker(check, s.id) && i < step ? "attention" : reached || finished ? "done" : "todo";
+    return { label: s.title, state, reachable: !finished && reached };
+  });
 
   return (
-    <div className="min-h-svh pb-32">
-      <div className="sticky top-0 z-30 bg-surface shadow-[0_1px_0_var(--md-outline-variant)]">
+    <div className={id === "result" ? "min-h-svh pb-40" : "min-h-svh pb-28"}>
+      <div className="sticky top-0 z-30 bg-surface">
         <TopAppBar
           leading={
-            finished ? (
-              <IconButton label="Close" onClick={onExit}>
-                <X />
-              </IconButton>
-            ) : (
-              <IconButton label={step === 0 ? "Close check" : "Back"} onClick={() => (step === 0 ? setConfirmExit(true) : go(step - 1))}>
-                {step === 0 ? <X /> : <ChevronLeft />}
-              </IconButton>
-            )
+            <IconButton label={step === 0 || finished ? "Close" : "Back"} onClick={() => (finished ? onExit() : step === 0 ? setConfirmExit(true) : go(step - 1))}>
+              {step === 0 || finished ? <X /> : <ChevronLeft />}
+            </IconButton>
           }
-          title={["Product", "Customer & site", "Site readings", "Result", "Share report"][step]}
-          subtitle={[check.customer.name, cat?.name, check.product.serial].filter(Boolean).join(" · ") || "New site check"}
+          title={STEPS[step].title}
+          trailing={<DeviceChip device={device} />}
         />
-        <StepTracker steps={states} onSelect={go} />
+        <Progress steps={steps} onSelect={go} />
       </div>
 
       <main className="mx-auto max-w-2xl px-4 pt-4">
-        {step === 0 && <ProductStep check={check} update={(p) => setCheck((c) => ({ ...c, product: { ...c.product, ...p } }))} notify={notify} />}
-        {step === 1 && (
-          <CustomerStep
+        {id === "product" && (
+          <ProductStep
             check={check}
-            showErrors={showErrors}
-            update={(p) => setCheck((c) => ({ ...c, customer: { ...c.customer, ...p } }))}
+            update={(p) => setCheck((c) => ({ ...c, product: { ...c.product, ...p } }))}
             setLocation={(g) => setCheck((c) => ({ ...c, location: g }))}
+            notify={notify}
           />
         )}
-        {step === 2 && <ReadingsStep check={check} device={device} setPh={(ph) => setCheck((c) => ({ ...c, ph }))} />}
-        {step === 3 && <ResultStep check={check} />}
-        {step === 4 && <ReportPreview check={check} />}
+        {id === "customer" && (
+          <CustomerStep check={check} showErrors={false} update={(p) => setCheck((c) => ({ ...c, customer: { ...c.customer, ...p } }))} />
+        )}
+        {id === "readings" && <ReadingsStep check={check} device={device} setPh={(ph) => setCheck((c) => ({ ...c, ph }))} />}
+        {id === "result" && <ResultStep check={check} finish={finish} onDone={onExit} notify={notify} />}
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-outline-variant bg-surface-container px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3">
-        <div className="mx-auto flex max-w-2xl items-center gap-3">
-          {step < 4 ? (
-            <>
-              <p className="mr-auto text-sm text-on-surface-variant">{why ?? (step === 3 ? "Finishing locks the readings" : "Ready")}</p>
-              <Button size="lg" onClick={next} className={why ? "!bg-surface-container-highest !text-on-surface-variant" : undefined}>
-                {step === 3 ? "Finish check" : "Next"}
-              </Button>
-            </>
-          ) : (
-            <>
-              <p className="mr-auto text-sm text-on-surface-variant">Saved in history on this phone</p>
-              <Button size="lg" variant="tonal" onClick={onExit}>
-                Done
-              </Button>
-            </>
-          )}
+      {id !== "result" && (
+        <div className="fixed inset-x-0 bottom-0 z-30 bg-surface px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3">
+          <div className="mx-auto max-w-2xl">
+            <Button size="lg" className="w-full" onClick={next} disabled={Boolean(why)}>
+              {why ?? "Next"}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       <Dialog
         open={confirmExit}

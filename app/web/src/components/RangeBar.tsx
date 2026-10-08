@@ -11,13 +11,13 @@ export function RangeBar({ band, values, level, unit }: { band: Band; values: nu
   const marker = level === "ok" ? "bg-ok" : level === "warn" ? "bg-warn" : "bg-fail";
   return (
     <div aria-hidden className="pt-2">
-      <div className="relative h-3 overflow-visible rounded-full bg-fail-container">
-        <div className="absolute inset-y-0 bg-warn-container" style={{ left: `${wl}%`, width: `${wh - wl}%` }} />
-        <div className="absolute inset-y-0 bg-ok-container" style={{ left: `${ol}%`, width: `${oh - ol}%` }} />
+      <div className="relative h-2 overflow-visible rounded-full bg-fail/20">
+        <div className="absolute inset-y-0 bg-warn/25" style={{ left: `${wl}%`, width: `${wh - wl}%` }} />
+        <div className="absolute inset-y-0 bg-ok/30" style={{ left: `${ol}%`, width: `${oh - ol}%` }} />
         {values.length === 2 ? (
-          <div className={cn("absolute -top-1 h-5 rounded-full", marker)} style={{ left: `${pct(values[0])}%`, width: `max(6px, ${pct(values[1]) - pct(values[0])}%)` }} />
+          <div className={cn("absolute -top-1.5 h-5 rounded-full", marker)} style={{ left: `${pct(values[0])}%`, width: `max(6px, ${pct(values[1]) - pct(values[0])}%)` }} />
         ) : (
-          <div className={cn("absolute -top-1.5 h-6 w-1.5 -translate-x-1/2 rounded-full", marker)} style={{ left: `${pct(values[0])}%` }} />
+          <div className={cn("absolute -top-2 h-6 w-1.5 -translate-x-1/2 rounded-full", marker)} style={{ left: `${pct(values[0])}%` }} />
         )}
       </div>
       <div className="mt-1 flex justify-between text-[11px] text-on-surface-variant tabnum">

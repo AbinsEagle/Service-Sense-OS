@@ -3,12 +3,11 @@ import { LocateFixed, MapPin, MapPinOff } from "lucide-react";
 import { Button, Dialog } from "@/components/m3";
 import { fetchLocation, GeoError, geoPermission, mapLink } from "@/lib/location";
 import type { GeoFix } from "@/lib/types";
-import { cn } from "@/lib/utils";
 
 // Required location field (feature list Q22–Q24). Nothing is fetched until the technician taps:
 // allowed → fetch at once; not yet allowed → a "tap Allow" hint, then the phone's pop-up (every tap);
 // blocked → how to unblock it in Chrome, then try again.
-export function LocationField({ value, onChange, showError }: { value: GeoFix | null; onChange(g: GeoFix | null): void; showError: boolean }) {
+export function LocationField({ value, onChange, showError = false }: { value: GeoFix | null; onChange(g: GeoFix | null): void; showError?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState(false);
   const [blocked, setBlocked] = useState(false);
@@ -40,26 +39,21 @@ export function LocationField({ value, onChange, showError }: { value: GeoFix | 
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-1">
-      <span className={cn("text-sm font-medium", showError && !value ? "text-error" : "text-on-surface-variant")}>
-        Site location<span className="text-error"> *</span>
-      </span>
       {value ? (
-        <div className="flex items-center gap-3 rounded-xs border border-outline px-4 py-3">
+        <div className="flex items-center gap-3">
           <MapPin className="h-5 w-5 shrink-0 text-ok" aria-hidden />
           <div className="min-w-0 flex-1">
             <a href={mapLink(value)} target="_blank" rel="noreferrer" className="block truncate text-on-surface underline-offset-2 hover:underline tabnum">
               {value.latitude}, {value.longitude}
             </a>
-            <span className="text-xs text-on-surface-variant">
-              ±{value.accuracy} m · {new Date(value.at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
-            </span>
+            <span className="text-xs text-on-surface-variant">±{value.accuracy} m</span>
           </div>
           <Button variant="text" onClick={capture} disabled={busy}>
             Update
           </Button>
         </div>
       ) : (
-        <Button variant="tonal" size="lg" className="justify-start" icon={<LocateFixed className="h-5 w-5" />} onClick={capture} disabled={busy}>
+        <Button variant="outlined" size="lg" className="w-full" icon={<LocateFixed className="h-5 w-5" />} onClick={capture} disabled={busy}>
           {busy ? "Getting location…" : "Capture location"}
         </Button>
       )}
