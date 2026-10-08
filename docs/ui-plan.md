@@ -6,7 +6,7 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 1. **First run: technician profile** (once): name, mobile number
 2. **Home:** "New install check" + check history (search by customer or serial)
 3. **Product:** scan the product QR (serial) or type it → pick category → pick model (recent first)
-4. **Customer:** name, phone (for WhatsApp), address, location
+4. **Customer:** name, phone (for WhatsApp), address; location status chip (captured automatically when the check started, Q22)
 5. **Readings:** connect the device; only the readings this category needs; each with a low/high range bar; must be settled to continue; optional pH strip entry (→ Langelier estimate)
 6. **Result:** site status (Ready / Ready with add-on / Not ready), reasons, add-ons, Langelier estimate
 7. **Share:** WhatsApp summary to the customer → done → Home
@@ -14,7 +14,7 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 
 ## Navigation (U1)
 - **Step-by-step:** one task per screen, one big primary button at the thumb (bottom of the screen)
-- **Step tracker always visible** at the top: Product · Customer · Readings · Result · Share, each marked *done* ✓, *current*, *to do*, or *needs attention* (e.g. a reading to re-take). Tapping a done step goes back to it; answers are kept
+- **Step tracker always visible** at the top: Product · Customer · Readings · Result · Share, each marked *done* ✓, *current*, *to do*, or *needs attention* (e.g. a reading to re-take, or location not captured yet). Tapping a done step goes back to it; answers are kept
 
 ## Look (U2)
 - **Material You / Material 3:** M3 components (top app bar, filled/tonal buttons, cards, chips, bottom sheets, snackbars), Roboto type scale, M3 shape and elevation
@@ -33,7 +33,7 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 - **The final summary is shared as an image report card:** the app draws the report (status, each reading with its range bar, add-ons, Langelier estimate) as a picture and opens the phone's share sheet; the technician picks WhatsApp and the customer's chat
 - Fallback where sharing files isn't supported: save the image to the gallery, then send it from WhatsApp
 - The image is also kept with the check in History, so it can be re-sent
-- **Identity on the image (U6):** the partner brand's logo and name at the top; a small "Checked with Service Sense OS" footer. Also on it: date and time, technician name and mobile, product category, model and serial, customer name
+- **Identity on the image (U6):** the partner brand's logo and name at the top; a small "Checked with Service Sense OS" footer. Also on it: date and time, location (coordinates + map link), technician name and mobile, product category, model and serial, customer name
 
 ## Decision log
 | # | Question | Answer | Date |
