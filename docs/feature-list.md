@@ -96,6 +96,7 @@ Proposed starting limits (to confirm with the brand before field use):
 - ✅ Customer name, phone, address, notes
 - 🟡 **Geo location: a required field the technician taps (Q22, revised Q23).** Nothing is fetched until they tap *Capture location*:
   - Permission already allowed → the location is fetched straight away (accuracy shown, e.g. "±12 m")
+  - **In-app hint before the pop-up (Q24):** when permission isn't allowed yet, tapping first shows a short card: "Your phone will now ask for location. Tap **Allow**, so this check can be completed." with a picture of the pop-up and a *Continue* button that opens it
   - Not yet allowed → the phone's permission pop-up is shown again, every time they tap, until allowed
   - Blocked earlier ("Don't allow") → browsers won't show the pop-up again, so the app shows the 2-step fix (Chrome → site settings → Location → Allow) and a *Try again* button
   - The check can't finish without it; stamped on the report image with coordinates and a map link, and kept in History
@@ -144,3 +145,4 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q21 | Ask the water source to improve the estimate | Not now; one general ratio, water source is a later upgrade | 2026-10-08 |
 | Q22 | How geo location works | Required, on the report | 2026-10-08 |
 | Q23 | Automatic or on tap | On tap as a field: fetch if allowed, otherwise ask for permission again | 2026-10-08 |
+| Q24 | Where the 'tap Allow' hint lives | In the app, shown just before the permission pop-up | 2026-10-08 |

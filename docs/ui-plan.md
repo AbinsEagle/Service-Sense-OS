@@ -6,7 +6,7 @@ Built from `docs/feature-list.md` v1. Decisions are logged at the bottom, one at
 1. **First run: technician profile** (once): name, mobile number
 2. **Home:** "New install check" + check history (search by customer or serial)
 3. **Product:** scan the product QR (serial) or type it → pick category → pick model (recent first)
-4. **Customer:** name, phone (for WhatsApp), address, and a required **Location** field: tap *Capture location* → fetched if allowed, otherwise the permission pop-up again; if blocked, show how to allow it in Chrome site settings (Q23)
+4. **Customer:** name, phone (for WhatsApp), address, and a required **Location** field: tap *Capture location* → fetched if allowed; otherwise a hint card ("Tap **Allow** on the next pop-up", Q24) and then the permission pop-up again; if blocked, show how to allow it in Chrome site settings (Q23)
 5. **Readings:** connect the device; only the readings this category needs; each with a low/high range bar; must be settled to continue; optional pH strip entry (→ Langelier estimate)
 6. **Result:** site status (Ready / Ready with add-on / Not ready), reasons, add-ons, Langelier estimate
 7. **Share:** WhatsApp summary to the customer → done → Home
