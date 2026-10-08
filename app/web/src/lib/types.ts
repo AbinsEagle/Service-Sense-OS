@@ -1,7 +1,6 @@
 // The device's Bluetooth message (firmware/ssos_main), one JSON object per line:
 //   {"dev":"F294","fw":"0.4.0","sensor":"TDS","value":58,"unit":"ppm","status":"settled","temp":25.3}
 export type DeviceSensor = "TEMP" | "TDS" | "VOLT" | "PRESS";
-export type Sensor = DeviceSensor | "SOUND";
 export type Status = "settled" | "unstable" | "fault";
 
 export interface DeviceMessage {
@@ -17,30 +16,35 @@ export interface DeviceMessage {
   cal?: boolean; // VOLT: false while the ZMPT101B is uncalibrated
 }
 
-// What the backend stores: the message as received, plus when the phone got it.
-export interface Reading extends Partial<Omit<DeviceMessage, "sensor">> {
-  sensor: Sensor;
-  value: number | null;
-  unit: string;
-  taken_at: string;
+export interface Reading extends DeviceMessage {
+  taken_at: string; // when the phone received it
 }
 
-export interface Customer {
+export type CategoryId = "heater" | "purifier" | "pump" | "stabilizer" | "chimney";
+
+export interface Technician {
   name: string;
-  phone: string;
-  address: string;
+  mobile: string; // 10 digits, Indian mobile
 }
 
-export interface GeoLocation {
+export interface GeoFix {
   latitude: number;
   longitude: number;
-  label?: string;
+  accuracy: number; // metres
+  at: string;
 }
 
-export const SENSORS: { key: Sensor; label: string; unit: string; button?: number }[] = [
-  { key: "TEMP", label: "Water temp", unit: "°C", button: 1 },
-  { key: "TDS", label: "TDS", unit: "ppm", button: 2 },
-  { key: "VOLT", label: "Supply voltage", unit: "V", button: 3 },
-  { key: "PRESS", label: "Inlet pressure", unit: "bar", button: 4 },
-  { key: "SOUND", label: "Sound level", unit: "dB" },
-];
+export interface Check {
+  id: string;
+  createdAt: string;
+  finishedAt?: string;
+  brand: string; // stored from day one so multi-brand is a settings change (feature list Q2)
+  technician: Technician;
+  product: { serial: string; categoryId: CategoryId | null; modelId: string | null };
+  customer: { name: string; phone: string; address: string; notes: string };
+  location: GeoFix | null;
+  readings: Partial<Record<DeviceSensor, Reading>>; // latest per sensor; a re-take replaces it
+  log: Reading[]; // everything received, newest first
+  ph: number | null; // from an indicator paper strip, optional (Q19)
+  step: number; // furthest step reached, 0..4
+}

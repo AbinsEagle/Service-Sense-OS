@@ -28,9 +28,9 @@ so a single tagged release describes the whole system.
 Pin map, assumptions and open questions for the hardware: [docs/hardware-review.md](docs/hardware-review.md). The hardware team's original bring-up sketch is kept in `firmware/hardware_bringup/`.
 
 ### Deploying the app on Vercel
-The technician app is `app/web/` (React). In Vercel, the project at the repo root builds it with `vercel.json` and serves it at the site root over HTTPS (Web Bluetooth needs HTTPS on phones). The original single-page viewer is kept at `/viewer.html`.
+The technician app is `app/web/` (React + Material 3). In Vercel, the project at the repo root builds it with `vercel.json` and serves it at the site root over HTTPS (Web Bluetooth needs HTTPS on phones). The original single-page viewer is kept at `/viewer.html`.
 
-**Stage 1 (now):** the app works fully on the phone: no sign-in, no server, visits are kept on the phone. Sign-in and saving to the backend/Supabase are the next stage; `backend/` and `supabase/` are parked until then.
+**Stage 1 (now):** the pre-installation site check, fully on the phone: no sign-in, no server, checks kept on the phone. What it does: [docs/feature-list.md](docs/feature-list.md); screens: [docs/ui-plan.md](docs/ui-plan.md). Sign-in and saving to the backend/Supabase are the next stage; `backend/` and `supabase/` are parked until then.
 
 ## System overview
 ```

@@ -1,6 +1,6 @@
 # Feature list: Service Sense OS
 
-Status: **v1: stage 1 core agreed** (2026-10-08). Built one decision at a time; each answer
+Status: **v1 approved and built** (2026-10-08). Stage 1 app: `app/web`. Built one decision at a time; each answer
 is logged at the bottom and folded into the list. UI design starts only after
 this list is agreed.
 
@@ -16,11 +16,11 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 - ❓ Who reads the result: technician only, customer, service centre, product/quality team
 
 ## 1b. Technician identity (from Q2)
-- 🟡 Technician enters their mobile number once on the phone; it is stamped on every visit
+- ✅ Technician enters their mobile number once on the phone; it is stamped on every visit
 - ⏭ OTP verification of the number (stage 2, with the server)
 
 ## 1a. Visit types (Q1, Q8)
-- 🟡 **Stage 1: Install check only.** Is the site suitable for the product? What add-on does it need?
+- ✅ **Stage 1: Install check only.** Is the site suitable for the product? What add-on does it need?
 - ⏭ Service visit: record the complaint (category chips, note, photos), readings point to a likely cause (site problem vs product fault)
 
 ## 1e. Stage 1 install-check flow (Q10)
@@ -32,8 +32,8 @@ The customer has already bought the product; the technician arrives to install i
 5. WhatsApp summary to the customer, finish
 
 ## 1d. Install check outcome (Q9, Q10)
-- 🟡 **Site status:** *Ready* / *Ready with add-on* / *Not ready*, with the reason in one line (e.g. "Low voltage: 198 V")
-- 🟡 **Add-ons that fix the site:** stabilizer, pre-filter/softener, booster pump, pressure-reducing valve
+- ✅ **Site status:** *Ready* / *Ready with add-on* / *Not ready*, with the reason in one line (e.g. "Low voltage: 198 V")
+- ✅ **Add-ons that fix the site:** stabilizer, pre-filter/softener, booster pump, pressure-reducing valve
 - ⏭ Customer declines the add-on: acknowledgement / blocking rules decided later (Q11)
 - ⏭ Model suggestion from readings (later upgrade, Q10). Stage 1 checks the product the customer has already bought
 
@@ -52,7 +52,7 @@ Stage 1 is the site check **before** installation only (Q14), so it takes the re
 - ❓ **Gap: chimney suction.** "Weak suction" is the top chimney complaint, and the device has no airflow sensor. Options for later: a small anemometer add-on, or a guided visual check in the app.
 
 ## 1f. Language (Q12)
-- ✅ English only in stage 1 (app and WhatsApp summary). Text kept in one place so languages can be added later
+- ✅ English only in stage 1 (app and report image). Text is in the screens for now; it moves to one translation file when a second language is added
 
 ## 2. Device link
 - ✅ Connect to `SSOS_B1.0` over Bluetooth from the browser (Chrome on Android; Bluefy on iPhone)
@@ -66,10 +66,10 @@ Stage 1 is the site check **before** installation only (Q14), so it takes the re
 - 🟡 **Voltage is watched for 5 s for every category (Q16);** firmware change from today's 4 s (min / max / median reported)
 - ✅ Sound level from the phone microphone (uncalibrated estimate); hidden in stage 1 (post-install only)
 - ✅ Re-take replaces the earlier reading; full log of everything received
-- 🟡 **Every required reading must be settled to finish (Q17).** Unstable or sensor-fault readings must be re-taken; the app says how to fix it (probe fully in water, check the connector)
+- ✅ **Every required reading must be settled to finish (Q17).** Unstable or sensor-fault readings must be re-taken; the app says how to fix it (probe fully in water, check the connector)
 - ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, replaceable per model when the brand's specs arrive
 - ✅ **Limits are changed only by us, through an app update (Q15)**, so every technician gets the same verdict for the same reading. No limit settings on the phone
-- 🟡 **Low / high range bar on every reading (Q6):** a horizontal gauge with a green OK band, amber and red zones on both sides, and a marker at the reading. The verdict names the side: *Low voltage*, *High TDS*, which decides the add-on to recommend
+- ✅ **Low / high range bar on every reading (Q6):** a horizontal gauge with a green OK band, amber and red zones on both sides, and a marker at the reading. The verdict names the side: *Low voltage*, *High TDS*, which decides the add-on to recommend
 
 Proposed starting limits (to confirm with the brand before field use):
 
@@ -82,9 +82,9 @@ Proposed starting limits (to confirm with the brand before field use):
 | Water temp, sound | per category | | | from product manuals (to collect) |
 
 ## 3a. Manual water tests (Q19)
-- 🟡 **pH from indicator paper strips, entered by hand, optional (Q19).** The technician picks the matching colour/value (e.g. 5.0–9.0 in 0.5 steps); shown with its own OK / Low / High bar (IS 10500: 6.5–8.5). Marked "strip" in the summary so it isn't mistaken for a probe reading
+- ✅ **pH from indicator paper strips, entered by hand, optional (Q19).** The technician picks the matching colour/value (e.g. 5.0–9.0 in 0.5 steps); shown with its own OK / Low / High bar (IS 10500: 6.5–8.5). Marked "strip" in the summary so it isn't mistaken for a probe reading
 - ⏭ pH probe on the device (needs a free ADC input, isolation from the TDS probe, calibration)
-- 🟡 **Langelier index, estimated (Q20):** computed when pH is entered, from pH (strip), TDS and water temperature (device), with calcium hardness and alkalinity **estimated from TDS** using typical ratios from published water data. Shown as *Scale-forming* / *Balanced* / *Corrosive* and always labelled "estimate"
+- ✅ **Langelier index, estimated (Q20):** computed when pH is entered, from pH (strip), TDS and water temperature (device), with calcium hardness and alkalinity **estimated from TDS** using typical ratios from published water data. Shown as *Scale-forming* / *Balanced* / *Corrosive* and always labelled "estimate"
   - Formula (Carrier): pHs = (9.3 + A + B) − (C + D); A = (log₁₀TDS − 1)/10; B = −13.12·log₁₀(T °C + 273) + 34.55; C = log₁₀(Ca hardness as CaCO₃) − 0.4; D = log₁₀(alkalinity as CaCO₃); LSI = pH − pHs
   - Bands (proposed): LSI < −0.5 corrosive · −0.5 to +0.5 balanced · > +0.5 scale-forming
   - The TDS→hardness and TDS→alkalinity ratios are app data; validate them against a few lab-tested local samples before trusting the label in the field
@@ -94,22 +94,23 @@ Proposed starting limits (to confirm with the brand before field use):
 
 ## 4. Customer and site
 - ✅ Customer name, phone, address, notes
-- 🟡 **Geo location: a required field the technician taps (Q22, revised Q23).** Nothing is fetched until they tap *Capture location*:
+- ✅ **Geo location: a required field the technician taps (Q22, revised Q23).** Nothing is fetched until they tap *Capture location*:
   - Permission already allowed → the location is fetched straight away (accuracy shown, e.g. "±12 m")
   - **In-app hint before the pop-up (Q24):** when permission isn't allowed yet, tapping first shows a short card: "Your phone will now ask for location. Tap **Allow**, so this check can be completed." with a picture of the pop-up and a *Continue* button that opens it
   - Not yet allowed → the phone's permission pop-up is shown again, every time they tap, until allowed
   - Blocked earlier ("Don't allow") → browsers won't show the pop-up again, so the app shows the 2-step fix (Chrome → site settings → Location → Allow) and a *Try again* button
   - The check can't finish without it; stamped on the report image with coordinates and a map link, and kept in History
-- 🟡 **Scan the product's QR code** to fill the serial number (QR holds the serial only, Q3; phone camera, manual entry fallback where the browser can't scan)
-- 🟡 **After the scan, the technician picks category → model from a short list (Q4).** Works offline; recently used models shown first; the list is editable app data so the brand catalogue can be loaded later
-- 🟡 Product details: brand, model, serial number, install date
+- ✅ **Scan the product's QR code** to fill the serial number (QR holds the serial only, Q3; phone camera, manual entry fallback where the browser can't scan)
+- ✅ **After the scan, the technician picks category → model from a short list (Q4).** Works offline; recently used models shown first; the list is editable app data so the brand catalogue can be loaded later
+- ✅ Product details stored with every check: brand, category, model, serial number
 
 ## 5. Finishing a visit
-- ✅ Finish visit (kept on the phone), start the next one
-- 🟡 **WhatsApp summary to the customer (Q7), shared as an image report card (UI plan U5):** product + serial, each reading with OK / Low / High, the verdict and the recommendation. Works from the phone with no server
-- 🟡 **Check history on the phone (Q13):** list of finished checks, search by customer or serial, open one and re-send its WhatsApp summary. No export; the office sees checks from stage 2
+- ✅ Finish check (kept on the phone, locked), start the next one; an unfinished check can be continued from Home
+- ✅ **WhatsApp summary to the customer (Q7), shared as an image report card (UI plan U5):** product + serial, each reading with OK / Low / High, the verdict and the recommendation. Works from the phone with no server
+- ✅ **Check history on the phone (Q13):** list of finished checks, search by customer or serial, open one and re-send its WhatsApp summary. No export; the office sees checks from stage 2
 
 ## 5a. Open items carried forward
+- **Placeholders in the app, to replace with real data:** brand name and logo (`app/web/src/config/brand.ts`), model catalogue (`config/catalog.ts`), inlet-pressure limits and the Langelier TDS ratios (`config/limits.ts`)
 - Q11: customer declines the add-on (deferred)
 - Chimney suction gap (no airflow sensor)
 - Inlet-pressure limits per category: collect from product manuals

@@ -2,69 +2,133 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Service Sense OS field palette: same tokens as docs/pinmap.html and the device's traffic light. */
+/* Material 3 colour scheme, generated with material-color-utilities
+   (SchemeFidelity, seed trust blue #1565C0). Verdict colours (ok / warn / fail)
+   are separate custom colours, reserved for OK / Low-High verdicts. */
 @layer base {
   :root {
-    --background: 160 7% 94%;      /* #eef1f0 */
-    --foreground: 168 15% 11%;     /* #17201e */
-    --card: 0 0% 100%;
-    --card-foreground: 168 15% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 168 15% 11%;
-    --primary: 174 33% 18%;        /* #1f3d3a  board green */
-    --primary-foreground: 140 18% 93%;
-    --secondary: 165 8% 88%;
-    --secondary-foreground: 168 15% 11%;
-    --muted: 165 8% 90%;
-    --muted-foreground: 166 6% 38%; /* #5b6764 */
-    --accent: 165 8% 88%;
-    --accent-foreground: 168 15% 11%;
-    --destructive: 4 59% 45%;      /* #b8362f */
-    --destructive-foreground: 0 0% 100%;
-    --border: 165 9% 84%;          /* #d3dad8 */
-    --input: 165 9% 80%;
-    --ring: 174 33% 28%;
-    --radius: 0.375rem;
-    --settled: 158 80% 30%;        /* #0f8a5f */
-    --unstable: 36 100% 35%;       /* #b36b00 */
-    --fault: 4 59% 45%;
+  --md-primary: #004d99;
+  --md-on-primary: #ffffff;
+  --md-primary-container: #1565c0;
+  --md-on-primary-container: #dae5ff;
+  --md-secondary: #4a5f83;
+  --md-on-secondary: #ffffff;
+  --md-secondary-container: #c0d5ff;
+  --md-on-secondary-container: #0f2847; /* darker than generated (#475c80): sunlight legibility */
+  --md-tertiary: #813900;
+  --md-on-tertiary: #ffffff;
+  --md-tertiary-container: #a64c00;
+  --md-on-tertiary-container: #ffdece;
+  --md-error: #ba1a1a;
+  --md-on-error: #ffffff;
+  --md-error-container: #ffdad6;
+  --md-on-error-container: #93000a;
+  --md-surface: #f9f9ff;
+  --md-on-surface: #191c21;
+  --md-surface-variant: #dee2f0;
+  --md-on-surface-variant: #424752;
+  --md-surface-container-lowest: #ffffff;
+  --md-surface-container-low: #f2f3fb;
+  --md-surface-container: #ecedf6;
+  --md-surface-container-high: #e7e8f0;
+  --md-surface-container-highest: #e1e2ea;
+  --md-outline: #727783;
+  --md-outline-variant: #c2c6d4;
+  --md-inverse-surface: #2e3037;
+  --md-inverse-on-surface: #eff0f9;
+  --md-inverse-primary: #a9c7ff;
+  --md-scrim: #000000;
+  --md-ok: #146c2e;
+  --md-on-ok: #ffffff;
+  --md-ok-container: #b7f1bf;
+  --md-on-ok-container: #00210a;
+  --md-warn: #8b5000;
+  --md-on-warn: #ffffff;
+  --md-warn-container: #ffdcbe;
+  --md-on-warn-container: #2d1600;
+  --md-fail: #ba1a1a;
+  --md-on-fail: #ffffff;
+  --md-fail-container: #ffdad6;
+  --md-on-fail-container: #410002;
+    color-scheme: light;
   }
-
   .dark {
-    --background: 168 13% 8%;
-    --foreground: 165 13% 91%;
-    --card: 170 12% 11%;
-    --card-foreground: 165 13% 91%;
-    --popover: 170 12% 11%;
-    --popover-foreground: 165 13% 91%;
-    --primary: 156 52% 51%;
-    --primary-foreground: 168 15% 8%;
-    --secondary: 168 9% 17%;
-    --secondary-foreground: 165 13% 91%;
-    --muted: 168 9% 15%;
-    --muted-foreground: 166 7% 63%;
-    --accent: 168 9% 17%;
-    --accent-foreground: 165 13% 91%;
-    --destructive: 4 77% 69%;
-    --destructive-foreground: 168 15% 8%;
-    --border: 168 9% 20%;
-    --input: 168 9% 24%;
-    --ring: 156 52% 51%;
-    --settled: 156 52% 51%;
-    --unstable: 35 77% 60%;
-    --fault: 4 77% 69%;
+  --md-primary: #a9c7ff;
+  --md-on-primary: #003063;
+  --md-primary-container: #1565c0;
+  --md-on-primary-container: #dae5ff;
+  --md-secondary: #b2c7f1;
+  --md-on-secondary: #1b3052;
+  --md-secondary-container: #32476a;
+  --md-on-secondary-container: #dbe6ff; /* lighter than generated (#a1b6de): sunlight legibility */
+  --md-tertiary: #ffb68c;
+  --md-on-tertiary: #532200;
+  --md-tertiary-container: #a64c00;
+  --md-on-tertiary-container: #ffdece;
+  --md-error: #ffb4ab;
+  --md-on-error: #690005;
+  --md-error-container: #93000a;
+  --md-on-error-container: #ffdad6;
+  --md-surface: #111319;
+  --md-on-surface: #e1e2ea;
+  --md-surface-variant: #424752;
+  --md-on-surface-variant: #c2c6d4;
+  --md-surface-container-lowest: #0b0e14;
+  --md-surface-container-low: #191c21;
+  --md-surface-container: #1d2025;
+  --md-surface-container-high: #272a30;
+  --md-surface-container-highest: #32353b;
+  --md-outline: #8c919d;
+  --md-outline-variant: #424752;
+  --md-inverse-surface: #e1e2ea;
+  --md-inverse-on-surface: #2e3037;
+  --md-inverse-primary: #005db7;
+  --md-scrim: #000000;
+  --md-ok: #8fd99b;
+  --md-on-ok: #003915;
+  --md-ok-container: #005321;
+  --md-on-ok-container: #b7f1bf;
+  --md-warn: #ffb870;
+  --md-on-warn: #4a2800;
+  --md-warn-container: #6a3b00;
+  --md-on-warn-container: #ffdcbe;
+  --md-fail: #ffb4ab;
+  --md-on-fail: #690005;
+  --md-fail-container: #93000a;
+  --md-on-fail-container: #ffdad6;
+    color-scheme: dark;
   }
-}
-
-@layer base {
-  * {
-    @apply border-border;
+  html {
+    -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    @apply bg-surface text-on-surface antialiased;
+    font-family: Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-tap-highlight-color: transparent;
   }
   .tabnum {
     font-variant-numeric: tabular-nums;
   }
+}
+
+@layer components {
+  /* M3 state layer: hover/press tint in the content colour */
+  .state {
+    position: relative;
+    isolation: isolate;
+  }
+  .state::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 120ms;
+    pointer-events: none;
+  }
+  .state:hover::after { opacity: 0.08; }
+  .state:active::after { opacity: 0.12; }
+  .state:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
+  .state:disabled::after { opacity: 0; }
 }

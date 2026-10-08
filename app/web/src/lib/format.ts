@@ -1,7 +1,4 @@
 import type { Reading } from "./types";
 
-export function formatValue(r: Reading): string {
-  if (r.value === null) return "—";
-  const d = r.sensor === "TEMP" || r.sensor === "PRESS" ? 2 : r.sensor === "VOLT" ? 1 : 0;
-  return r.value.toFixed(d);
-}
+export const fmtValue = (r: Reading) =>
+  r.value === null ? "—" : r.sensor === "PRESS" ? r.value.toFixed(2) : r.sensor === "VOLT" ? r.value.toFixed(0) : r.value.toFixed(0);
