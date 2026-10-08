@@ -101,7 +101,7 @@ function Focus({ check, sensor, device, justSettled }: { check: Check; sensor: S
           </div>
           {sensor === "VOLT" && r.min !== undefined && (
             <p className="mt-1 text-sm text-on-surface-variant tabnum">
-              {r.min.toFixed(0)}–{r.max!.toFixed(0)} V over 5 s
+              {r.min.toFixed(0)}–{r.max!.toFixed(0)} V during the measurement
             </p>
           )}
           <RangeBar band={j.band} values={sensor === "VOLT" && r.min !== undefined ? [r.min, r.max!] : [r.value!]} level={j.verdict.level} unit={info.unit} />

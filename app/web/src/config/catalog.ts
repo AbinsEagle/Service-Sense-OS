@@ -82,7 +82,7 @@ export const model = (categoryId: CategoryId | null, modelId: string | null) =>
 export const SENSOR_INFO: Record<Sensor, { label: string; unit: string; button: number; howTo: string }> = {
   TEMP: { label: "Water temperature", unit: "°C", button: 1, howTo: "Put the temperature probe in a cup of inlet water, wait a few seconds, then press 1 on the device." },
   TDS: { label: "TDS", unit: "ppm", button: 2, howTo: "Fill a clean cup from the inlet tap, dip the TDS probe fully, then press 2 on the device." },
-  VOLT: { label: "Supply voltage", unit: "V", button: 3, howTo: "Plug the voltage lead into the socket the product will use, then press 3 on the device. It watches for 5 seconds." },
+  VOLT: { label: "Supply voltage", unit: "V", button: 3, howTo: "Plug the voltage lead into the socket the product will use, then press 3 on the device and keep it plugged in for a few seconds while it measures." },
   PRESS: { label: "Inlet pressure", unit: "bar", button: 4, howTo: "Connect the pressure sensor to the inlet point and open the valve fully, then press 4 on the device." },
   SOUND: { label: "Sound level", unit: "dB", button: 0, howTo: "Stand where the product will be installed, keep the room quiet, and hold the phone at arm's length. Tap Measure: it listens for 5 seconds." },
 };

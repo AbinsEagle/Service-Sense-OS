@@ -25,7 +25,7 @@ export function judge(value: number, band: Band): Verdict {
   return { level: "ok", side: null, text: "OK" };
 }
 
-// Voltage is judged on its worst moment in the 5 s window: the dip or the peak.
+// Voltage is judged on its worst moment in the measuring window (firmware: 4 s now, 5 s planned, Q16): the dip or the peak.
 export function judgeReading(check: Check, r: Reading): { band: Band; verdict: Verdict } | null {
   const cat = check.product.categoryId;
   if (!cat || r.value === null || r.status !== "settled") return null;
