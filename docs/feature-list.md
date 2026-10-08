@@ -26,7 +26,7 @@ Legend: ✅ built · 🟡 proposed · ❓ needs a decision · ⏭ later stage
 ## 1e. Stage 1 install-check flow (Q10)
 The customer has already bought the product; the technician arrives to install it.
 1. Scan the product QR (serial), pick category and model
-2. Customer name, phone, address (location is captured automatically from step 1)
+2. Customer name, phone, address, location (tap to capture)
 3. Take only the readings that category needs (see 1c)
 4. Site status for that product + add-ons, with the low/high bars
 5. WhatsApp summary to the customer, finish
@@ -94,7 +94,11 @@ Proposed starting limits (to confirm with the brand before field use):
 
 ## 4. Customer and site
 - ✅ Customer name, phone, address, notes
-- 🟡 **Geo location: automatic and required (Q22).** Captured when the check starts (accuracy shown, e.g. "±12 m"); the check can't finish without it; "Retry" if GPS is weak or permission was denied (with how to allow it). Stamped on the report image with coordinates and a map link, and kept in History
+- 🟡 **Geo location: a required field the technician taps (Q22, revised Q23).** Nothing is fetched until they tap *Capture location*:
+  - Permission already allowed → the location is fetched straight away (accuracy shown, e.g. "±12 m")
+  - Not yet allowed → the phone's permission pop-up is shown again, every time they tap, until allowed
+  - Blocked earlier ("Don't allow") → browsers won't show the pop-up again, so the app shows the 2-step fix (Chrome → site settings → Location → Allow) and a *Try again* button
+  - The check can't finish without it; stamped on the report image with coordinates and a map link, and kept in History
 - 🟡 **Scan the product's QR code** to fill the serial number (QR holds the serial only, Q3; phone camera, manual entry fallback where the browser can't scan)
 - 🟡 **After the scan, the technician picks category → model from a short list (Q4).** Works offline; recently used models shown first; the list is editable app data so the brand catalogue can be loaded later
 - 🟡 Product details: brand, model, serial number, install date
@@ -138,4 +142,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q19 | pH probe and Langelier index | pH from paper strips, optional manual entry; probe later | 2026-10-08 |
 | Q20 | Hardness/alkalinity for the Langelier index | Estimate from TDS with typical ratios; LSI from pH + TDS + temp | 2026-10-08 |
 | Q21 | Ask the water source to improve the estimate | Not now; one general ratio, water source is a later upgrade | 2026-10-08 |
-| Q22 | How geo location works | Automatic at check start, required to finish, on the report | 2026-10-08 |
+| Q22 | How geo location works | Required, on the report | 2026-10-08 |
+| Q23 | Automatic or on tap | On tap as a field: fetch if allowed, otherwise ask for permission again | 2026-10-08 |
