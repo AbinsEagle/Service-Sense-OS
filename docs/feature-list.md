@@ -105,7 +105,7 @@ Proposed starting limits (to confirm with the brand before field use):
   - Not yet allowed → the phone's permission pop-up is shown again, every time they tap, until allowed
   - Blocked earlier ("Don't allow") → browsers won't show the pop-up again, so the app shows the 2-step fix (Chrome → site settings → Location → Allow) and a *Try again* button
   - The check can't finish without it; stamped on the report image with coordinates and a map link, and kept in History
-- ✅ **Scan the product's QR code** to fill the serial number (QR holds the serial only, Q3; phone camera, manual entry fallback where the browser can't scan)
+- ✅ **Scan the product's QR code** to fill the serial number (QR holds the serial only, Q3; live camera on Android and iPhone incl. Bluefy; take-a-photo fallback if the live camera is blocked; manual entry always available)
 - ✅ **After the scan, the technician picks category → model from a short list (Q4).** Works offline; recently used models shown first; the list is editable app data so the brand catalogue can be loaded later
 - ✅ Product details stored with every check: brand, category, model, serial number
 

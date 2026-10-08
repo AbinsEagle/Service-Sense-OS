@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { QrCode, X } from "lucide-react";
+import { Camera, QrCode, X } from "lucide-react";
 import { Button, IconButton } from "@/components/m3";
-import { makeDetector, qrSupported, serialFromQr } from "@/lib/qr";
+import { cameraAvailable, detectInFile, makeDetector, serialFromQr } from "@/lib/qr";
 
 // Full-screen camera view that reads the product QR (serial only, feature list Q3).
+// Works on Chrome (built-in reader) and iPhone browsers such as Bluefy (jsQR); if the
+// live camera can't start, the technician can take a photo of the QR instead.
 export function ScanDialog({ open, onClose, onSerial }: { open: boolean; onClose(): void; onSerial(serial: string): void }) {
   const video = useRef<HTMLVideoElement>(null);
-  const [error, setError] = useState<string | null>(null);
-  const supported = qrSupported();
+  const photo = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(cameraAvailable() ? null : "The live camera isn't available in this browser.");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!open || !supported) return;
+    if (!open || error) return;
     let stream: MediaStream | null = null;
     let timer = 0;
     let stopped = false;
@@ -20,12 +23,11 @@ export function ScanDialog({ open, onClose, onSerial }: { open: boolean; onClose
         if (stopped || !video.current) return;
         video.current.srcObject = stream;
         await video.current.play();
-        const detector = makeDetector();
+        const detector = await makeDetector();
         const tick = async () => {
           if (stopped || !video.current) return;
           try {
-            const codes = await detector.detect(video.current);
-            const raw = codes.find((c) => c.rawValue.trim())?.rawValue;
+            const raw = await detector.detect(video.current);
             if (raw) {
               onSerial(serialFromQr(raw));
               return;
@@ -33,11 +35,11 @@ export function ScanDialog({ open, onClose, onSerial }: { open: boolean; onClose
           } catch {
             /* frame not ready */
           }
-          timer = window.setTimeout(tick, 200);
+          timer = window.setTimeout(tick, 250);
         };
         tick();
       } catch (e) {
-        setError((e as Error).name === "NotAllowedError" ? "Camera permission was not given. Allow the camera for this site, or type the serial." : "The camera couldn't start. Type the serial instead.");
+        if (!stopped) setError((e as Error).name === "NotAllowedError" ? "Camera permission was not given." : "The live camera couldn't start.");
       }
     })();
     return () => {
@@ -45,7 +47,22 @@ export function ScanDialog({ open, onClose, onSerial }: { open: boolean; onClose
       clearTimeout(timer);
       stream?.getTracks().forEach((t) => t.stop());
     };
-  }, [open, supported, onSerial]);
+  }, [open, error, onSerial]);
+
+  const fromPhoto = async (file: File | undefined) => {
+    if (!file) return;
+    setBusy(true);
+    try {
+      const raw = await detectInFile(file);
+      if (raw) onSerial(serialFromQr(raw));
+      else setError("No QR code found in that photo. Hold the phone closer and keep the QR sharp.");
+    } catch {
+      setError("That photo couldn't be read.");
+    } finally {
+      setBusy(false);
+      if (photo.current) photo.current.value = "";
+    }
+  };
 
   if (!open) return null;
   return (
@@ -56,7 +73,8 @@ export function ScanDialog({ open, onClose, onSerial }: { open: boolean; onClose
         </IconButton>
         <h2 className="text-lg">Scan the product QR</h2>
       </div>
-      {supported && !error ? (
+      <input ref={photo} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => fromPhoto(e.target.files?.[0])} />
+      {!error ? (
         <div className="relative flex-1">
           <video ref={video} playsInline muted className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 flex items-center justify-center">
@@ -67,8 +85,11 @@ export function ScanDialog({ open, onClose, onSerial }: { open: boolean; onClose
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
           <QrCode className="h-12 w-12 opacity-80" aria-hidden />
-          <p>{error ?? "This browser can't scan QR codes. Use Chrome on Android, or type the serial number."}</p>
-          <Button variant="tonal" onClick={onClose}>
+          <p>{error} Take a photo of the QR, or type the serial number.</p>
+          <Button onClick={() => photo.current?.click()} disabled={busy} icon={<Camera className="h-4 w-4" />}>
+            {busy ? "Reading…" : "Take a photo of the QR"}
+          </Button>
+          <Button variant="text" onClick={onClose} className="text-white">
             Type the serial
           </Button>
         </div>
