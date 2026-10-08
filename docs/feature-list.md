@@ -81,6 +81,11 @@ Proposed starting limits (to confirm with the brand before field use):
 | Inlet pressure | per category | | | from product manuals (to collect) |
 | Water temp, sound | per category | | | from product manuals (to collect) |
 
+## 3a. Manual water tests (Q19)
+- 🟡 **pH from indicator paper strips, entered by hand, optional (Q19).** The technician picks the matching colour/value (e.g. 5.0–9.0 in 0.5 steps); shown with its own OK / Low / High bar (IS 10500: 6.5–8.5). Marked "strip" in the summary so it isn't mistaken for a probe reading
+- ⏭ pH probe on the device (needs a free ADC input, isolation from the TDS probe, calibration)
+- ❓ Langelier index needs hardness and alkalinity too (Q20)
+
 ## 4. Customer and site
 - ✅ Customer name, phone, address, GPS location, notes
 - 🟡 **Scan the product's QR code** to fill the serial number (QR holds the serial only, Q3; phone camera, manual entry fallback where the browser can't scan)
@@ -123,4 +128,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q16 | How long the voltage is watched | 5 s for every category | 2026-10-08 |
 | Q17 | Can a check finish with unstable or faulty readings | No: must re-take until settled | 2026-10-08 |
 | Q18 | How technicians get the app | Website only (needs signal) | 2026-10-08 |
-| Q19 | pH probe and Langelier index | _open_ | |
+| Q19 | pH probe and Langelier index | pH from paper strips, optional manual entry; probe later | 2026-10-08 |
+| Q20 | Hardness/alkalinity entry for the Langelier index | _open_ | |
