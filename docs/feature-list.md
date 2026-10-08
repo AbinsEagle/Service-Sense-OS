@@ -38,16 +38,18 @@ The customer has already bought the product; the technician arrives to install i
 - ⏭ Model suggestion from readings (later upgrade, Q10). Stage 1 checks the product the customer has already bought
 
 ## 1c. Product categories, first rollout (Q5, Q14)
-Stage 1 is the site check **before** installation only (Q14), so it takes the readings that describe the site. Water temperature and sound describe a running product, so they are hidden until the post-install test (later upgrade); the device still measures them.
+Stage 1 is the site check **before** installation only (Q14). Water temperature and sound were first left out; Q25 brought them back where they fit, with **provisional** limits until the brand confirms them.
 
-| Category | TDS | Inlet pressure | Supply voltage |
-|---|---|---|---|
-| Water heater (geyser) | ✓ scaling risk | ✓ | ✓ |
-| Water purifier | ✓ input water | ✓ | ✓ |
-| Pump | | ✓ | ✓ |
-| Stabilizer / inverter | | | ✓ min/max |
-| Kitchen chimney | | | ✓ |
+| Category | TDS | Water temp | Inlet pressure | Supply voltage | Sound (phone mic) |
+|---|---|---|---|---|---|
+| Water heater (geyser) | ✓ scaling risk | ✓ inlet water | ✓ | ✓ | |
+| Water purifier | ✓ input water | ✓ inlet water | ✓ | ✓ | |
+| Pump | | | ✓ | ✓ | ✓ background noise |
+| Stabilizer / inverter | | | | ✓ min/max | ✓ background noise |
+| Kitchen chimney | | | | ✓ | ✓ background noise |
 
+- Water temperature: device button 1 (DS18B20), provisional OK 10–38/40 °C; also used for the Langelier estimate
+- Sound: measured by the phone microphone for 5 s (uncalibrated estimate); above 60 dB is a caution only and never blocks an installation
 - ⏭ Post-install commissioning test: heater reaches temperature, chimney/pump noise, output pressure
 - ❓ **Gap: chimney suction.** "Weak suction" is the top chimney complaint, and the device has no airflow sensor. Options for later: a small anemometer add-on, or a guided visual check in the app.
 
@@ -64,7 +66,7 @@ Stage 1 is the site check **before** installation only (Q14), so it takes the re
 ## 3. Readings
 - ✅ Water temperature, TDS (with water temp), supply voltage (min/max), inlet pressure
 - 🟡 **Voltage is watched for 5 s for every category (Q16);** firmware change from today's 4 s (min / max / median reported)
-- ✅ Sound level from the phone microphone (uncalibrated estimate); hidden in stage 1 (post-install only)
+- ✅ Sound level from the phone microphone (uncalibrated estimate), required for pumps, stabilizers and chimneys (Q25)
 - ✅ Re-take replaces the earlier reading; full log of everything received
 - ✅ **Every required reading must be settled to finish (Q17).** Unstable or sensor-fault readings must be re-taken; the app says how to fix it (probe fully in water, check the connector)
 - ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, replaceable per model when the brand's specs arrive
@@ -110,7 +112,7 @@ Proposed starting limits (to confirm with the brand before field use):
 - ✅ **Check history on the phone (Q13):** list of finished checks, search by customer or serial, open one and re-send its WhatsApp summary. No export; the office sees checks from stage 2
 
 ## 5a. Open items carried forward
-- **Placeholders in the app, to replace with real data:** brand name and logo (`app/web/src/config/brand.ts`), model catalogue (`config/catalog.ts`), inlet-pressure limits and the Langelier TDS ratios (`config/limits.ts`)
+- **Placeholders in the app, to replace with real data:** brand name and logo (`app/web/src/config/brand.ts`), model catalogue (`config/catalog.ts`), inlet-pressure, water-temperature and sound limits and the Langelier TDS ratios (`config/limits.ts`)
 - Q11: customer declines the add-on (deferred)
 - Chimney suction gap (no airflow sensor)
 - Inlet-pressure limits per category: collect from product manuals
@@ -147,3 +149,4 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q22 | How geo location works | Required, on the report | 2026-10-08 |
 | Q23 | Automatic or on tap | On tap as a field: fetch if allowed, otherwise ask for permission again | 2026-10-08 |
 | Q24 | Where the 'tap Allow' hint lives | In the app, shown just before the permission pop-up | 2026-10-08 |
+| Q25 | Where are temperature and sound? | Required where they fit: temperature for heaters and purifiers, sound for pumps, stabilizers and chimneys; provisional limits | 2026-10-08 |

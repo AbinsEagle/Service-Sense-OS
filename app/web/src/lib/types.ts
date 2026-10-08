@@ -1,6 +1,7 @@
 // The device's Bluetooth message (firmware/ssos_main), one JSON object per line:
 //   {"dev":"F294","fw":"0.4.0","sensor":"TDS","value":58,"unit":"ppm","status":"settled","temp":25.3}
 export type DeviceSensor = "TEMP" | "TDS" | "VOLT" | "PRESS";
+export type Sensor = DeviceSensor | "SOUND"; // SOUND comes from the phone microphone
 export type Status = "settled" | "unstable" | "fault";
 
 export interface DeviceMessage {
@@ -16,7 +17,8 @@ export interface DeviceMessage {
   cal?: boolean; // VOLT: false while the ZMPT101B is uncalibrated
 }
 
-export interface Reading extends DeviceMessage {
+export interface Reading extends Omit<DeviceMessage, "sensor"> {
+  sensor: Sensor;
   taken_at: string; // when the phone received it
 }
 
@@ -43,7 +45,7 @@ export interface Check {
   product: { serial: string; categoryId: CategoryId | null; modelId: string | null };
   customer: { name: string; phone: string; address: string; notes: string };
   location: GeoFix | null;
-  readings: Partial<Record<DeviceSensor, Reading>>; // latest per sensor; a re-take replaces it
+  readings: Partial<Record<Sensor, Reading>>; // latest per sensor; a re-take replaces it
   log: Reading[]; // everything received, newest first
   ph: number | null; // from an indicator paper strip, optional (Q19)
   step: number; // furthest step reached, 0..4

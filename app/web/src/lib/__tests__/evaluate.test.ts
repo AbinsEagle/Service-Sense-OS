@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CATEGORIES } from "@/config/catalog";
 import { bandFor } from "@/config/limits";
-import { judge, langelier, outcome } from "@/lib/evaluate";
+import { judge, langelier, lsiFor, outcome } from "@/lib/evaluate";
 import type { Check, DeviceSensor } from "@/lib/types";
 
 const base: Check = {
@@ -69,5 +69,30 @@ describe("site status", () => {
     const o = outcome({ ...base, product: { serial: "S", categoryId: "stabilizer", modelId: m.id }, readings: { VOLT: rd("VOLT", 180, { min: 135, max: 200 }) } });
     expect(o.status).toBe("ready");
     expect(o.reasons.length).toBe(1);
+  });
+});
+
+describe("temperature and sound (Q25)", () => {
+  it("each category asks for temperature or sound where it fits", () => {
+    const r = Object.fromEntries(CATEGORIES.map((c) => [c.id, c.readings]));
+    expect(r.heater).toContain("TEMP");
+    expect(r.purifier).toContain("TEMP");
+    for (const id of ["pump", "stabilizer", "chimney"]) expect(r[id]).toContain("SOUND");
+  });
+  it("background noise above 60 dB is a caution only, never blocking", () => {
+    const m = CATEGORIES.find((c) => c.id === "chimney")!.models[0];
+    const o = outcome({ ...base, product: { serial: "S", categoryId: "chimney", modelId: m.id }, readings: { VOLT: rd("VOLT", 230, { min: 229, max: 231 }), SOUND: { ...rd("VOLT", 78), sensor: "SOUND" } } });
+    expect(o.status).toBe("ready");
+    expect(o.reasons).toEqual(["Slightly high background noise: 78 dB"]);
+  });
+  it("inlet water temperature uses the provisional heater range", () => {
+    const T = bandFor("heater", null, "TEMP")!;
+    expect(judge(28, T).level).toBe("ok");
+    expect(judge(43, T).level).toBe("warn");
+    expect(T.provisional).toBe(true);
+  });
+  it("Langelier prefers the measured water temperature", () => {
+    const c: Check = { ...base, ph: 7.5, readings: { TDS: rd("TDS", 300, { temp: 25 }), TEMP: rd("TEMP", 45) } };
+    expect(lsiFor(c)!.tempC).toBe(45);
   });
 });

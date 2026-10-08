@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check as CheckIcon, FlaskConical, LoaderCircle, Minus, Plus } from "lucide-react";
+import { Check as CheckIcon, FlaskConical, LoaderCircle, Mic, Minus, Plus } from "lucide-react";
 import { FIX_HINT, SENSOR_INFO } from "@/config/catalog";
 import { PH_STEPS } from "@/config/limits";
 import { DeviceControls } from "@/components/Device";
@@ -7,18 +7,20 @@ import { Button } from "@/components/m3";
 import { RangeBar, VerdictText } from "@/components/RangeBar";
 import { isSettled, judgePh, judgeReading, lsiFor, requiredSensors } from "@/lib/evaluate";
 import { fmtValue } from "@/lib/format";
-import type { Check, DeviceSensor } from "@/lib/types";
+import { simulateSound } from "@/lib/simulator";
+import { measureSound } from "@/lib/sound";
+import type { Check, DeviceSensor, Reading, Sensor } from "@/lib/types";
 import { deviceReady, type Device } from "@/lib/useDevice";
 import { cn } from "@/lib/utils";
 
-const SHORT: Record<DeviceSensor, string> = { TEMP: "Temp", TDS: "TDS", VOLT: "Voltage", PRESS: "Pressure" };
+const SHORT: Record<Sensor, string> = { TEMP: "Temp", TDS: "TDS", VOLT: "Voltage", PRESS: "Pressure", SOUND: "Sound" };
 
 // Guided, one reading at a time (UI plan U4): what to do → waiting → the value with its
 // range bar, then on to the next. Unstable or fault must be re-taken (feature list Q17).
-export function ReadingsStep({ check, device, setPh }: { check: Check; device: Device; setPh(ph: number | null): void }) {
+export function ReadingsStep({ check, device, setPh, addReading }: { check: Check; device: Device; setPh(ph: number | null): void; addReading(r: Reading): void }) {
   const required = requiredSensors(check);
   const pending = required.find((s) => !isSettled(check.readings[s])) ?? null;
-  const [hold, setHold] = useState<DeviceSensor | null>(null);
+  const [hold, setHold] = useState<Sensor | null>(null);
   const lastSeen = useRef(check.log[0]?.taken_at);
 
   // A settled reading for the sensor on screen stays visible briefly, then the next one shows.
@@ -39,7 +41,7 @@ export function ReadingsStep({ check, device, setPh }: { check: Check; device: D
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-8">
-      <ol className="flex gap-2" aria-label="Readings in this check">
+      <ol className={cn("flex", required.length > 3 ? "gap-1.5" : "gap-2")} aria-label="Readings in this check">
         {required.map((s) => {
           const r = check.readings[s];
           const ok = isSettled(r);
@@ -48,15 +50,16 @@ export function ReadingsStep({ check, device, setPh }: { check: Check; device: D
             <li
               key={s}
               className={cn(
-                "flex min-w-0 flex-1 flex-col rounded-sm px-3 py-2",
+                "flex min-w-0 flex-1 flex-col rounded-sm py-2",
+                required.length > 3 ? "px-2" : "px-3",
                 s === focus ? "bg-secondary-container text-on-secondary-container" : "bg-surface-container-low text-on-surface-variant",
               )}
             >
               <span className="flex items-center gap-1 text-xs font-medium">
-                {ok && <CheckIcon className="h-3.5 w-3.5 text-ok" strokeWidth={3} aria-hidden />}
+                {ok && <CheckIcon className="h-3.5 w-3.5 shrink-0 text-ok" strokeWidth={3} aria-hidden />}
                 {SHORT[s]}
               </span>
-              <span className={cn("truncate text-sm tabnum", bad && "text-warn", ok && "text-on-surface")}>
+              <span className={cn("truncate tabnum", required.length > 3 ? "text-[13px]" : "text-sm", bad && "text-warn", ok && "text-on-surface")}>
                 {ok ? `${fmtValue(r!)} ${SENSOR_INFO[s].unit}` : bad ? "re-take" : "–"}
               </span>
             </li>
@@ -64,17 +67,24 @@ export function ReadingsStep({ check, device, setPh }: { check: Check; device: D
         })}
       </ol>
 
-      {focus ? <Focus check={check} sensor={focus} device={device} justSettled={hold === focus} /> : <AllDone check={check} setPh={setPh} />}
+      {focus === "SOUND" && hold !== "SOUND" ? (
+        <SoundFocus check={check} simulating={device.state.kind === "simulating"} addReading={addReading} />
+      ) : focus ? (
+        <Focus check={check} sensor={focus} device={device} justSettled={hold === focus} />
+      ) : (
+        <AllDone check={check} setPh={setPh} />
+      )}
     </div>
   );
 }
 
-function Focus({ check, sensor, device, justSettled }: { check: Check; sensor: DeviceSensor; device: Device; justSettled: boolean }) {
+function Focus({ check, sensor, device, justSettled }: { check: Check; sensor: Sensor; device: Device; justSettled: boolean }) {
   const info = SENSOR_INFO[sensor];
   const r = check.readings[sensor];
   const j = r && justSettled ? judgeReading(check, r) : null;
   const bad = r && !justSettled && r.status !== "settled";
   const measuring = device.simMeasuring === sensor;
+  const press = sensor as DeviceSensor; // the waiting state is only reached for device sensors
 
   return (
     <section aria-live="polite" className="grid grid-cols-[minmax(0,1fr)] gap-4">
@@ -115,12 +125,50 @@ function Focus({ check, sensor, device, justSettled }: { check: Check; sensor: D
           </div>
           <p className="text-on-surface-variant">{bad ? <span className="text-warn">{r!.status === "fault" ? "Sensor fault. " : "Didn't settle. "}{FIX_HINT[sensor]}</span> : info.howTo}</p>
           {device.state.kind === "simulating" && (
-            <Button variant="text" className="justify-self-start" icon={<FlaskConical className="h-4 w-4" />} onClick={() => device.simulatePress(sensor)} disabled={measuring}>
+            <Button variant="text" className="justify-self-start" icon={<FlaskConical className="h-4 w-4" />} onClick={() => device.simulatePress(press)} disabled={measuring}>
               Simulate press {info.button}
             </Button>
           )}
         </>
       )}
+    </section>
+  );
+}
+
+// Sound is measured with the phone's microphone (feature list Q25), not the device.
+function SoundFocus({ check, simulating, addReading }: { check: Check; simulating: boolean; addReading(r: Reading): void }) {
+  const info = SENSOR_INFO.SOUND;
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const prior = check.readings.SOUND;
+  const take = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const db = simulating ? await new Promise<number>((res) => setTimeout(() => res(simulateSound()), 1500)) : await measureSound(5000);
+      addReading({ dev: simulating ? "DEMO" : "PHONE", fw: "app", sensor: "SOUND", value: db, unit: "dB", status: "settled", taken_at: new Date().toISOString() });
+    } catch {
+      setError(FIX_HINT.SOUND);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section aria-live="polite" className="grid grid-cols-[minmax(0,1fr)] gap-4">
+      <h2 className="text-[28px] leading-9 text-on-surface">{info.label}</h2>
+      <div className="flex items-center gap-5">
+        <button
+          onClick={take}
+          disabled={busy}
+          aria-label="Measure sound level"
+          className={cn("state flex h-20 w-20 shrink-0 items-center justify-center rounded-full", busy ? "bg-primary text-on-primary" : "bg-primary-container text-on-primary-container")}
+        >
+          {busy ? <LoaderCircle className="h-8 w-8 animate-spin motion-reduce:animate-none" /> : <Mic className="h-8 w-8" />}
+        </button>
+        <p className="text-lg text-on-surface">{busy ? "Listening for 5 seconds…" : "Tap to measure"}</p>
+      </div>
+      <p className="text-on-surface-variant">{error ? <span className="text-warn">{error}</span> : info.howTo}</p>
+      {prior && !busy && <p className="text-sm text-on-surface-variant">Uses this phone's microphone; the value is an estimate.</p>}
     </section>
   );
 }

@@ -11,9 +11,19 @@ export function RangeBar({ band, values, level, unit }: { band: Band; values: nu
   const marker = level === "ok" ? "bg-ok" : level === "warn" ? "bg-warn" : "bg-fail";
   return (
     <div aria-hidden className="pt-2">
-      <div className="relative h-2 overflow-visible rounded-full bg-fail/20">
-        <div className="absolute inset-y-0 bg-warn/25" style={{ left: `${wl}%`, width: `${wh - wl}%` }} />
-        <div className="absolute inset-y-0 bg-ok/30" style={{ left: `${ol}%`, width: `${oh - ol}%` }} />
+      <div className="relative h-2 overflow-hidden rounded-full">
+        {/* side-by-side zones (not stacked), so the soft tints stay clean */}
+        {(
+          [
+            [0, wl, "bg-fail/20"],
+            [wl, ol, "bg-warn/25"],
+            [ol, oh, "bg-ok/30"],
+            [oh, wh, "bg-warn/25"],
+            [wh, 100, "bg-fail/20"],
+          ] as const
+        ).map(([a, b, c], i) => (b > a ? <div key={i} className={cn("absolute inset-y-0", c)} style={{ left: `${a}%`, width: `${b - a}%` }} /> : null))}
+      </div>
+      <div className="relative -mt-2 h-2">
         {values.length === 2 ? (
           <div className={cn("absolute -top-1.5 h-5 rounded-full", marker)} style={{ left: `${pct(values[0])}%`, width: `max(6px, ${pct(values[1]) - pct(values[0])}%)` }} />
         ) : (

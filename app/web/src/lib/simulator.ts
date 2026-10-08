@@ -26,3 +26,8 @@ export function simulate(sensor: DeviceSensor): DeviceMessage {
       return { ...base, sensor, value: r(0.3, 4.5, 2), unit: "bar", status };
   }
 }
+
+// Simulated phone sound measurement (dB).
+export function simulateSound(): number {
+  return Math.round(r(38, 72, 0));
+}

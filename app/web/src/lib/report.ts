@@ -161,7 +161,7 @@ export async function drawReport(check: Check): Promise<HTMLCanvasElement> {
     ctx.fillStyle = C.ink;
     ctx.font = `500 30px ${FONT}`;
     ctx.fillText(SENSOR_INFO[s].label, PAD, y);
-    const val = s === "VOLT" && r.min !== undefined ? `${r.value.toFixed(0)} V  (${r.min.toFixed(0)}–${r.max!.toFixed(0)})` : `${s === "PRESS" ? r.value.toFixed(2) : r.value.toFixed(0)} ${SENSOR_INFO[s].unit}`;
+    const val = s === "VOLT" && r.min !== undefined ? `${r.value.toFixed(0)} V  (${r.min.toFixed(0)}–${r.max!.toFixed(0)})` : `${s === "PRESS" ? r.value.toFixed(2) : s === "TEMP" ? r.value.toFixed(1) : r.value.toFixed(0)} ${SENSOR_INFO[s].unit}${s === "SOUND" ? " (phone, approx.)" : ""}`;
     ctx.textAlign = "right";
     ctx.font = `700 34px ${FONT}`;
     ctx.fillText(val, W - PAD, y);

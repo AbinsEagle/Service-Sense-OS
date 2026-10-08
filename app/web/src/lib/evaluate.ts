@@ -1,7 +1,7 @@
 import { SIMULATED_DEV } from "./simulator";
 import { category, model, SENSOR_INFO } from "@/config/catalog";
 import { bandFor, LSI_BANDS, LSI_RATIOS, PH_BAND, type Band } from "@/config/limits";
-import type { Check, DeviceSensor, Reading } from "./types";
+import type { Check, Reading, Sensor } from "./types";
 
 export type Level = "ok" | "warn" | "fail" | "critical";
 export interface Verdict {
@@ -40,7 +40,7 @@ export function judgeReading(check: Check, r: Reading): { band: Band; verdict: V
   return { band, verdict: judge(r.value, band) };
 }
 
-export function requiredSensors(check: Check): DeviceSensor[] {
+export function requiredSensors(check: Check): Sensor[] {
   return category(check.product.categoryId)?.readings ?? [];
 }
 
@@ -54,11 +54,11 @@ export interface Outcome {
   addons: string[];
 }
 
-const fmt = (sensor: DeviceSensor, v: number) =>
-  `${sensor === "PRESS" ? v.toFixed(2) : sensor === "VOLT" ? v.toFixed(0) : v.toFixed(0)} ${SENSOR_INFO[sensor].unit}`;
+const fmt = (sensor: Sensor, v: number) =>
+  `${sensor === "PRESS" ? v.toFixed(2) : sensor === "TEMP" ? v.toFixed(1) : v.toFixed(0)} ${SENSOR_INFO[sensor].unit}`;
 
 export function reasonLine(r: Reading, v: Verdict): string {
-  const label = { TEMP: "water temperature", TDS: "TDS", VOLT: "supply voltage", PRESS: "inlet pressure" }[r.sensor];
+  const label = { TEMP: "water temperature", TDS: "TDS", VOLT: "supply voltage", PRESS: "inlet pressure", SOUND: "background noise" }[r.sensor];
   const shown = r.sensor === "VOLT" && r.min !== undefined && r.max !== undefined
     ? v.side === "low" ? `dips to ${fmt("VOLT", r.min)}` : v.side === "high" ? `peaks at ${fmt("VOLT", r.max)}` : fmt("VOLT", r.value!)
     : fmt(r.sensor, r.value!);
@@ -116,7 +116,9 @@ export function langelier(ph: number, tds: number, tempC: number | undefined): L
 export function lsiFor(check: Check): Lsi | null {
   const tds = check.readings.TDS;
   if (check.ph === null || !tds || !isSettled(tds) || !requiredSensors(check).includes("TDS")) return null;
-  return langelier(check.ph, tds.value!, tds.temp);
+  // Prefer the measured water temperature; fall back to the one the TDS reading carries.
+  const temp = check.readings.TEMP;
+  return langelier(check.ph, tds.value!, isSettled(temp) ? temp!.value! : tds.temp);
 }
 
 // Simulated readings make a training-only check (its report is stamped so).

@@ -1,4 +1,4 @@
-import type { CategoryId, DeviceSensor } from "@/lib/types";
+import type { CategoryId, Sensor } from "@/lib/types";
 import type { Model } from "./catalog";
 
 // OK / Low / High limits (feature list Q6, Q15). Changed only by us, in an app update.
@@ -44,7 +44,17 @@ const TDS: Partial<Record<CategoryId, Band>> = {
   heater: { okHigh: 300, warnHigh: 500, fixHigh: "Water softener / scale guard", scale: [0, 1000], basis: "scaling risk (proposal)" },
 };
 
-export function bandFor(categoryId: CategoryId, model: Model | null, sensor: DeviceSensor): Band | null {
+// PLACEHOLDER inlet water temperature limits (Q25): typical operating range from product manuals, to confirm.
+const TEMP: Partial<Record<CategoryId, Band>> = {
+  heater: { okLow: 10, okHigh: 40, warnLow: 5, warnHigh: 45, scale: [0, 60], basis: "manual, to confirm", provisional: true },
+  purifier: { okLow: 10, okHigh: 38, warnLow: 5, warnHigh: 45, scale: [0, 60], basis: "manual, to confirm", provisional: true },
+};
+
+// PLACEHOLDER sound limits (Q25): background noise at the site, measured by the phone (uncalibrated).
+// Above 60 dB is a caution only; it never blocks an installation.
+const SOUND_BAND: Band = { okHigh: 60, warnHigh: 150, scale: [30, 100], basis: "background noise, to confirm", provisional: true };
+
+export function bandFor(categoryId: CategoryId, model: Model | null, sensor: Sensor): Band | null {
   if (sensor === "VOLT") {
     if (categoryId === "stabilizer" && model?.voltRange) {
       // The product itself must cope: inside its working range is fine, near the edge is a
@@ -59,6 +69,8 @@ export function bandFor(categoryId: CategoryId, model: Model | null, sensor: Dev
   }
   if (sensor === "PRESS") return PRESS[categoryId] ?? null;
   if (sensor === "TDS") return TDS[categoryId] ?? null;
+  if (sensor === "TEMP") return TEMP[categoryId] ?? null;
+  if (sensor === "SOUND") return SOUND_BAND;
   return null;
 }
 

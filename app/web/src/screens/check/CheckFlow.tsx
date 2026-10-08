@@ -5,7 +5,7 @@ import { DeviceChip } from "@/components/Device";
 import { Button, Dialog, IconButton, Snackbar, TopAppBar } from "@/components/m3";
 import { Progress, type StepState } from "@/components/Progress";
 import { isSettled, requiredSensors } from "@/lib/evaluate";
-import { rememberModel } from "@/lib/store";
+import { rememberModel, withReading } from "@/lib/store";
 import type { Check } from "@/lib/types";
 import type { Device } from "@/lib/useDevice";
 import { validMobile } from "@/lib/validate";
@@ -115,7 +115,9 @@ export function CheckFlow({
         {id === "customer" && (
           <CustomerStep check={check} showErrors={false} update={(p) => setCheck((c) => ({ ...c, customer: { ...c.customer, ...p } }))} />
         )}
-        {id === "readings" && <ReadingsStep check={check} device={device} setPh={(ph) => setCheck((c) => ({ ...c, ph }))} />}
+        {id === "readings" && (
+          <ReadingsStep check={check} device={device} setPh={(ph) => setCheck((c) => ({ ...c, ph }))} addReading={(r) => setCheck((c) => withReading(c, r))} />
+        )}
         {id === "result" && <ResultStep check={check} finish={finish} onDone={onExit} notify={notify} />}
       </main>
 
