@@ -4,7 +4,7 @@ import { FEATURES } from "@/config/features";
 import { DeviceChip } from "@/components/Device";
 import { Button, Dialog, IconButton, Snackbar, TopAppBar } from "@/components/m3";
 import { Progress, type StepState } from "@/components/Progress";
-import { isSettled, requiredSensors } from "@/lib/evaluate";
+import { isDone, requiredSensors } from "@/lib/evaluate";
 import { rememberModel, withReading } from "@/lib/store";
 import type { Check } from "@/lib/types";
 import { deviceReady, type Device } from "@/lib/useDevice";
@@ -35,7 +35,7 @@ function blocker(c: Check, id: StepId, ready: boolean): string | null {
     if (!validMobile(c.customer.phone)) return "Enter the customer's mobile";
   }
   if (id === "readings") {
-    const left = requiredSensors(c).filter((s) => !isSettled(c.readings[s])).length;
+    const left = requiredSensors(c).filter((s) => !isDone(c, c.readings[s])).length;
     if (left) return `Take ${left} more reading${left > 1 ? "s" : ""}`;
   }
   // No check moves on without a live device link (or the training simulator).

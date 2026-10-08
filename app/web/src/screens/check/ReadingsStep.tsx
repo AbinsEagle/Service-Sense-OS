@@ -5,7 +5,7 @@ import { PH_STEPS } from "@/config/limits";
 import { DeviceControls } from "@/components/Device";
 import { Button } from "@/components/m3";
 import { RangeBar, VerdictText } from "@/components/RangeBar";
-import { isSettled, judgePh, judgeReading, lsiFor, requiredSensors } from "@/lib/evaluate";
+import { isDone, judgePh, judgeReading, lsiFor, requiredSensors, unstableVoltTries } from "@/lib/evaluate";
 import { fmtValue } from "@/lib/format";
 import { simulateSound } from "@/lib/simulator";
 import { measureSound } from "@/lib/sound";
@@ -19,7 +19,7 @@ const SHORT: Record<Sensor, string> = { TEMP: "Temp", TDS: "TDS", VOLT: "Voltage
 // range bar, then on to the next. Unstable or fault must be re-taken (feature list Q17).
 export function ReadingsStep({ check, device, setPh, addReading }: { check: Check; device: Device; setPh(ph: number | null): void; addReading(r: Reading): void }) {
   const required = requiredSensors(check);
-  const pending = required.find((s) => !isSettled(check.readings[s])) ?? null;
+  const pending = required.find((s) => !isDone(check, check.readings[s])) ?? null;
   const [hold, setHold] = useState<Sensor | null>(null);
   const lastSeen = useRef(check.log[0]?.taken_at);
 
@@ -28,7 +28,7 @@ export function ReadingsStep({ check, device, setPh, addReading }: { check: Chec
   useEffect(() => {
     if (!newest || newest.taken_at === lastSeen.current) return;
     lastSeen.current = newest.taken_at;
-    if (isSettled(newest) && requiredSensors(check).includes(newest.sensor)) setHold(newest.sensor);
+    if (isDone(check, newest) && requiredSensors(check).includes(newest.sensor)) setHold(newest.sensor);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newest]);
   useEffect(() => {
@@ -44,7 +44,7 @@ export function ReadingsStep({ check, device, setPh, addReading }: { check: Chec
       <ol className={cn("flex", required.length > 3 ? "gap-1.5" : "gap-2")} aria-label="Readings in this check">
         {required.map((s) => {
           const r = check.readings[s];
-          const ok = isSettled(r);
+          const ok = isDone(check, r);
           const bad = r && !ok;
           return (
             <li
@@ -82,7 +82,8 @@ function Focus({ check, sensor, device, justSettled }: { check: Check; sensor: S
   const info = SENSOR_INFO[sensor];
   const r = check.readings[sensor];
   const j = r && justSettled ? judgeReading(check, r) : null;
-  const bad = r && !justSettled && r.status !== "settled";
+  const bad = r && !justSettled && !isDone(check, r);
+  const voltRetake = sensor === "VOLT" && r?.status === "unstable" && unstableVoltTries(check) === 1;
   const measuring = device.simMeasuring === sensor;
   const press = sensor as DeviceSensor; // the waiting state is only reached for device sensors
 
@@ -123,7 +124,18 @@ function Focus({ check, sensor, device, justSettled }: { check: Check; sensor: S
             </span>
             <p className="text-lg text-on-surface">{measuring ? "Measuring…" : `Press ${info.button} on the device`}</p>
           </div>
-          <p className="text-on-surface-variant">{bad ? <span className="text-warn">{r!.status === "fault" ? "Sensor fault. " : "Didn't settle. "}{FIX_HINT[sensor]}</span> : info.howTo}</p>
+          <p className="text-on-surface-variant">
+            {voltRetake ? (
+              <span className="text-warn">The supply varied during the measurement. Press 3 again to re-take; if it varies again it's recorded as a fluctuating supply.</span>
+            ) : bad ? (
+              <span className="text-warn">
+                {r!.status === "fault" ? "Sensor fault. " : "Didn't settle. "}
+                {FIX_HINT[sensor]}
+              </span>
+            ) : (
+              info.howTo
+            )}
+          </p>
           {device.state.kind === "simulating" && (
             <Button variant="text" className="justify-self-start" icon={<FlaskConical className="h-4 w-4" />} onClick={() => device.simulatePress(press)} disabled={measuring}>
               Simulate press {info.button}

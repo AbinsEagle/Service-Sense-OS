@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CATEGORIES } from "@/config/catalog";
 import { bandFor } from "@/config/limits";
-import { judge, langelier, lsiFor, outcome } from "@/lib/evaluate";
+import { isDone, judge, langelier, lsiFor, outcome, unstableVoltTries } from "@/lib/evaluate";
 import type { Check, DeviceSensor } from "@/lib/types";
 
 const base: Check = {
@@ -94,5 +94,32 @@ describe("temperature and sound (Q25)", () => {
   it("Langelier prefers the measured water temperature", () => {
     const c: Check = { ...base, ph: 7.5, readings: { TDS: rd("TDS", 300, { temp: 25 }), TEMP: rd("TEMP", 45) } };
     expect(lsiFor(c)!.tempC).toBe(45);
+  });
+});
+
+describe("fluctuating voltage (Q27)", () => {
+  const volt = (status: "settled" | "unstable", min: number, max: number, at: string) => ({ ...rd("VOLT", (min + max) / 2, { min, max }), status, taken_at: at });
+  const withLog = (log: ReturnType<typeof volt>[]): Check => ({ ...base, readings: { TDS: rd("TDS", 200), TEMP: rd("TEMP", 28), PRESS: rd("PRESS", 2), VOLT: log[0] }, log });
+
+  it("first unstable reading must be re-taken", () => {
+    const c = withLog([volt("unstable", 222, 236, "2")]);
+    expect(isDone(c, c.readings.VOLT)).toBe(false);
+    expect(unstableVoltTries(c)).toBe(1);
+  });
+  it("unstable twice in a row is accepted as a fluctuating supply needing a stabilizer", () => {
+    const c = withLog([volt("unstable", 221, 238, "3"), volt("unstable", 222, 236, "2")]);
+    expect(isDone(c, c.readings.VOLT)).toBe(true);
+    const o = outcome(c);
+    expect(o.status).toBe("addon");
+    expect(o.addons).toEqual(["Voltage stabilizer"]);
+    expect(o.reasons).toEqual(["Fluctuating supply voltage: 221–238 V"]);
+  });
+  it("a fluctuating supply that also dips too low keeps the worse verdict", () => {
+    const c = withLog([volt("unstable", 150, 238, "3"), volt("unstable", 160, 236, "2")]);
+    expect(outcome(c).status).toBe("notready");
+  });
+  it("a settled reading in between resets the count", () => {
+    const c = withLog([volt("unstable", 221, 238, "3"), volt("settled", 229, 231, "2"), volt("unstable", 222, 236, "1")]);
+    expect(isDone(c, c.readings.VOLT)).toBe(false);
   });
 });

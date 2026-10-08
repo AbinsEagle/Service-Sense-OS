@@ -71,7 +71,7 @@ Stage 1 is the site check **before** installation only (Q14). Water temperature 
 - 🟡 **Voltage is watched for 5 s for every category (Q16);** firmware change from today's 4 s (min / max / median reported)
 - ✅ Sound level from the phone microphone (uncalibrated estimate), required for pumps, stabilizers and chimneys (Q25)
 - ✅ Re-take replaces the earlier reading; full log of everything received
-- ✅ **Every required reading must be settled to finish (Q17).** Unstable or sensor-fault readings must be re-taken; the app says how to fix it (probe fully in water, check the connector)
+- ✅ **Every required reading must be settled to finish (Q17).** Unstable or sensor-fault readings must be re-taken; the app says how to fix it (probe fully in water, check the connector). Exception (Q27): voltage that comes back unstable twice in a row is accepted as a fluctuating supply and flagged with a stabilizer add-on
 - ✅ **Verdict per reading from standards now, brand specs later (Q6).** Limits are app data per category, replaceable per model when the brand's specs arrive
 - ✅ **Limits are changed only by us, through an app update (Q15)**, so every technician gets the same verdict for the same reading. No limit settings on the phone
 - ✅ **Low / high range bar on every reading (Q6):** a horizontal gauge with a green OK band, amber and red zones on both sides, and a marker at the reading. The verdict names the side: *Low voltage*, *High TDS*, which decides the add-on to recommend
@@ -154,3 +154,4 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q24 | Where the 'tap Allow' hint lives | In the app, shown just before the permission pop-up | 2026-10-08 |
 | Q25 | Where are temperature and sound? | Required where they fit: temperature for heaters and purifiers, sound for pumps, stabilizers and chimneys; provisional limits | 2026-10-08 |
 | Q26 | Can a check go ahead without the device? | No: starting a check and every Next need a connected device; the simulator remains the only (training-only) exception | 2026-10-08 |
+| Q27 | Voltage reads unstable (mains supply varies) | Allow after 2 tries: re-take once; a second unstable reading is recorded as a fluctuating supply → warn + Voltage stabilizer add-on (a dip below the critical limit stays Not ready) | 2026-10-08 |
