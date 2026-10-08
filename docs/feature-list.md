@@ -1,6 +1,6 @@
 # Feature list: Service Sense OS
 
-Status: **draft v0** (2026-10-08). Built one decision at a time; each answer
+Status: **v1: stage 1 core agreed** (2026-10-08). Built one decision at a time; each answer
 is logged at the bottom and folded into the list. UI design starts only after
 this list is agreed.
 
@@ -56,6 +56,7 @@ Stage 1 is the site check **before** installation only (Q14), so it takes the re
 
 ## 2. Device link
 - ✅ Connect to `SSOS_B1.0` over Bluetooth from the browser (Chrome on Android; Bluefy on iPhone)
+- ✅ **Website only in stage 1 (Q18):** opened from the link, needs mobile signal to load. Installable offline app (PWA) and a Play Store build are later options
 - ✅ Live reading per sensor with settled / unstable / fault status
 - ✅ Survives disconnects; readings taken so far are kept
 - ✅ Simulate mode for training and demos
@@ -91,6 +92,12 @@ Proposed starting limits (to confirm with the brand before field use):
 - 🟡 **WhatsApp summary to the customer (Q7):** one tap opens WhatsApp to the customer's number with a short report: product + serial, each reading with OK / Low / High, the verdict and the recommendation. Works from the phone with no server
 - 🟡 **Check history on the phone (Q13):** list of finished checks, search by customer or serial, open one and re-send its WhatsApp summary. No export; the office sees checks from stage 2
 
+## 5a. Open items carried forward
+- Q11: customer declines the add-on (deferred)
+- Chimney suction gap (no airflow sensor)
+- Inlet-pressure limits per category: collect from product manuals
+- Firmware: voltage window 4 s → 5 s (Q16)
+
 ## 6. Later stages
 - ⏭ Sign-in per technician; visits saved to the server (`backend/`, Supabase)
 - ⏭ Office/manager view of visits
@@ -115,4 +122,5 @@ Proposed starting limits (to confirm with the brand before field use):
 | Q15 | Who can change the limits in stage 1 | Only us, via app update | 2026-10-08 |
 | Q16 | How long the voltage is watched | 5 s for every category | 2026-10-08 |
 | Q17 | Can a check finish with unstable or faulty readings | No: must re-take until settled | 2026-10-08 |
-| Q18 | Must the app work with no mobile signal | _open_ | |
+| Q18 | How technicians get the app | Website only (needs signal) | 2026-10-08 |
+| Q19 | pH probe and Langelier index | _open_ | |
