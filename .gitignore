@@ -4,3 +4,10 @@ build/
 *.map
 .vscode/
 .pio/
+
+# Python
+__pycache__/
+.venv/
+.env
+.pytest_cache/
+.vercel/

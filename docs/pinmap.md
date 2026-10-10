@@ -1,5 +1,10 @@
-# Pin map — ESP32 DevKitC (ESP32-WROOM-32)
+# Pin map — NodeMCU ESP-32S V1.1 (38-pin)
 
+The bench board is a NodeMCU ESP-32S V1.1. Its header order is identical to
+the ESP32 DevKitC V4, so GPIO numbers are unchanged. Pin labels are printed
+**on the back only**, with a `P` prefix (`P4` = GPIO 4); flash pins read
+`SD0`–`SD3`, `CLK`, `CMD`, and GPIO 36/39 read `SVP`/`SVN`.
+Full circuit (power, ADS1115, all sensors): `docs/wiring.html`.
 
 Graphical version: open `docs/pinmap.html` in a browser (click any pin for details).
 Reserved up front so each sensor can be added without re-wiring earlier ones.

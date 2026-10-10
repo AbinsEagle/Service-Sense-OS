@@ -27,17 +27,19 @@ so a single tagged release describes the whole system.
 
 Pin map, assumptions and open questions for the hardware: [docs/hardware-review.md](docs/hardware-review.md). The hardware team's original bring-up sketch is kept in `firmware/hardware_bringup/`.
 
-### Deploying the viewer on Vercel
-The viewer is a single static page in `app/ble-viewer/`. In Vercel: import this repo, leave the Root Directory as the repo root and the build command empty. `vercel.json` serves the viewer at the site root. Vercel serves it over HTTPS, which Web Bluetooth needs on phones.
+### Deploying the app on Vercel
+The technician app is `app/web/` (React + Material 3). In Vercel, the project at the repo root builds it with `vercel.json` and serves it at the site root over HTTPS (Web Bluetooth needs HTTPS on phones). The original single-page viewer is kept at `/viewer.html`.
+
+**Stage 1 (now):** the pre-installation site check, fully on the phone: no sign-in, no server, checks kept on the phone. What it does: [docs/feature-list.md](docs/feature-list.md); screens: [docs/ui-plan.md](docs/ui-plan.md). Sign-in and saving to the backend/Supabase are the next stage; `backend/` and `supabase/` are parked until then.
 
 ## System overview
 ```
-[Device: ESP32 + sensors] --BLE--> [Phone: Next.js web app] --HTTPS--> [FastAPI backend] --> [Supabase]
+[Device: ESP32 + sensors] --BLE--> [Phone: web app] --HTTPS--> [FastAPI backend] --> [Supabase]
                                                         (hosted on Vercel)
 ```
 
 ## Hardware (MVP, locked in the PRD)
-- MCU: ESP32-WROOM-32 (dev board: ESP32 DevKitC, 38-pin, CP2102 USB-UART, 4MB flash)
+- MCU: ESP32-WROOM-32 class (dev board: NodeMCU ESP-32S V1.1, 38-pin, DevKitC-compatible pinout, 4MB flash)
 - ADC: ADS1115 16-bit I2C. A0 voltage, A1 TDS, A2 pressure, A3 battery
 - Sensors: DS18B20 (1-Wire), analog TDS, ZMPT101B, 0.5–4.5V pressure transducer (0–1.2 MPa)
 - Power: 4× AA → 3.3V LDO (logic) + MT3608 boost to 5V (ZMPT101B, pressure)
@@ -49,8 +51,10 @@ The viewer is a single static page in `app/ble-viewer/`. In Vercel: import this 
 docs/                PRD, wiring diagrams, pinouts, design notes
 datasheets/          PDFs for sensors/modules
 firmware/            ESP32 source (ssos_main = current firmware; tests/ = bench sketches)
-backend/             FastAPI service (Supabase storage)           (planned)
-app/ble-viewer/      Static Web Bluetooth viewer (Vercel); Next.js app planned
+backend/             FastAPI service on Vercel (Supabase storage)
+supabase/migrations/ Database schema
+app/web/             Technician app: React + Vite (Vercel site root)
+app/ble-viewer/      Original single-page viewer (served at /viewer.html)
 .github/workflows/   CI: build firmware, test backend/app         (planned)
 ```
 
@@ -58,8 +62,8 @@ app/ble-viewer/      Static Web Bluetooth viewer (Vercel); Next.js app planned
 Work proceeds track by track, in this order.
 
 **1. Hardware**
-- [x] Toolchain set up; blink test flashed and verified on the DevKitC
-- [ ] Pin map + wiring diagram in `docs/`
+- [x] Toolchain set up; blink test flashed and verified on the dev board
+- [x] Pin map + wiring diagram in `docs/` (`pinmap.md`, `pinmap.html`, `wiring.html`)
 - [ ] Power budget review against the <10 µA sleep target
 - [ ] Bench build on perfboard, each sensor verified individually
   - [x] DS18B20 temperature (reference thermometer check pending)
@@ -77,14 +81,16 @@ Work proceeds track by track, in this order.
 - [ ] BLE service + reading payload
 - [ ] 20× wake → read → transmit → sleep reliability run
 
-**3. Backend (FastAPI + Supabase)**
-- [ ] Schema for visits and readings
-- [ ] Visit submission endpoint
+**3. Backend (FastAPI + Supabase): parked until stage 2**
+- [x] Schema for visits and readings (`supabase/migrations/`)
+- [x] Visit submission endpoint (`backend/`, tested; not yet deployed)
+- [ ] Create the Supabase project and deploy the backend to Vercel
 
-**4. Frontend (Next.js on Vercel)**
-- [ ] BLE connect + live readings with pass/warn/fail badges
-- [ ] Site/customer details form, sound level via phone microphone
-- [ ] Submit visit to backend; end-to-end technician test
+**4. Frontend (React app on Vercel, `app/web`)**: feature list in [docs/feature-list.md](docs/feature-list.md)
+- [x] BLE connect + live readings with settled/unstable/fault status (pass/warn/fail waits on thresholds)
+- [x] Site/customer details form, location, sound level via phone microphone (uncalibrated)
+- [ ] Technician sign-in and submit visit to backend (next stage; backend is built and parked)
+- [ ] End-to-end technician test on a real phone and device
 
 ## Building firmware locally
 ```bash

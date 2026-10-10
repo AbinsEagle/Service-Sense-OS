@@ -1,0 +1,5 @@
+-r requirements.txt
+httpx
+pytest
+psycopg[binary]>=3.2
+uvicorn

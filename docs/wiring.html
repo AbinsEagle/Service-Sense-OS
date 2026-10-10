@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SSOS Circuit Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e1116; --surface-0:#161b22; --surface-1:#1c232d; --surface-2:#232c38;
+    --border:#2d3745; --border-strong:#3d4a5c; --text:#e6edf3; --dim:#9aa7b5; --faint:#6b7684;
+    --accent:#4d9fff; --green:#3fb950; --amber:#d29922; --red:#f85149;
+    --wire-vcc:#f85149; --wire-3v3:#d29922; --wire-gnd:#8b98a5; --wire-sig:#e3b341; --wire-i2c:#4d9fff; --wire-data:#3fb950; --wire-btn:#db6d28;
+    --mono:'JetBrains Mono',ui-monospace,Consolas,monospace; --ui:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+    --bg:#eef1f5; --surface-0:#ffffff; --surface-1:#f0f3f7; --surface-2:#e7ecf2;
+    --border:#d5dbe3; --border-strong:#b8c2ce; --text:#1a2230; --dim:#4a5666; --faint:#6b7684;
+    --accent:#1f6feb; --green:#1a7f37; --amber:#9a6700; --red:#cf222e;
+    --wire-vcc:#cf222e; --wire-3v3:#9a6700; --wire-gnd:#6b7684; --wire-sig:#b07d00; --wire-i2c:#1f6feb; --wire-data:#1a7f37; --wire-btn:#bc4c00;
+    color-scheme:light;
+  }}
+  :root[data-theme="light"]{--bg:#eef1f5;--surface-0:#ffffff;--surface-1:#f0f3f7;--surface-2:#e7ecf2;--border:#d5dbe3;--border-strong:#b8c2ce;--text:#1a2230;--dim:#4a5666;--faint:#6b7684;--accent:#1f6feb;--green:#1a7f37;--amber:#9a6700;--red:#cf222e;--wire-vcc:#cf222e;--wire-3v3:#9a6700;--wire-gnd:#6b7684;--wire-sig:#b07d00;--wire-i2c:#1f6feb;--wire-data:#1a7f37;--wire-btn:#bc4c00;color-scheme:light;}
+  :root[data-theme="dark"]{--bg:#0e1116;--surface-0:#161b22;--surface-1:#1c232d;--surface-2:#232c38;--border:#2d3745;--border-strong:#3d4a5c;--text:#e6edf3;--dim:#9aa7b5;--faint:#6b7684;--accent:#4d9fff;--green:#3fb950;--amber:#d29922;--red:#f85149;--wire-vcc:#f85149;--wire-3v3:#d29922;--wire-gnd:#8b98a5;--wire-sig:#e3b341;--wire-i2c:#4d9fff;--wire-data:#3fb950;--wire-btn:#db6d28;color-scheme:dark;}
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--ui);line-height:1.5;padding:clamp(16px,3vw,26px);}
+  .wrap{max-width:1240px;margin:0 auto;}
+  h1{font-size:clamp(1.2rem,3.4vw,1.6rem);margin:0 0 4px;letter-spacing:-0.02em;}
+  .sub{color:var(--dim);font-size:0.9rem;margin-bottom:16px;max-width:75ch;}
+  .badge{display:inline-block;font-family:var(--mono);font-size:0.66rem;padding:2px 7px;border:1px solid var(--border-strong);border-radius:20px;color:var(--dim);margin-left:6px;vertical-align:middle;}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .tab{background:var(--surface-1);border:1px solid var(--border-strong);color:var(--dim);border-radius:9px;padding:8px 14px;font-size:0.82rem;cursor:pointer;font-family:var(--ui);font-weight:500;}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .panel{background:var(--surface-0);border:1px solid var(--border);border-radius:14px;padding:14px;}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px;background:var(--surface-1);border:1px solid var(--border);}
+  .scroll svg{display:block;min-width:900px;height:auto;}
+  .encl .scroll svg{min-width:600px;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:0.74rem;color:var(--dim);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .lw{width:22px;height:3px;border-radius:2px;display:inline-block;}
+  .note{font-size:0.8rem;color:var(--dim);margin-top:12px;line-height:1.55;}
+  .flag{background:color-mix(in srgb,var(--amber) 12%,transparent);border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);border-radius:8px;padding:9px 12px;font-size:0.8rem;color:var(--dim);margin-top:10px;}
+  .flag b{color:var(--amber);}
+  table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+  th{text-align:left;color:var(--faint);font-weight:600;font-size:0.66rem;text-transform:uppercase;letter-spacing:0.04em;padding:7px 9px;border-bottom:1px solid var(--border-strong);position:sticky;top:0;background:var(--surface-0);}
+  td{padding:7px 9px;border-bottom:1px solid var(--surface-1);}
+  td.mono,.mono{font-family:var(--mono);font-size:0.76rem;}
+  .grp td{font-weight:700;color:var(--accent);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;background:var(--surface-1);}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+  .toolbar{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .tbtn{background:var(--surface-1);border:1px solid var(--border-strong);color:var(--dim);border-radius:8px;padding:6px 12px;font-size:0.76rem;cursor:pointer;font-family:var(--ui);}
+  svg text{font-family:var(--mono);}
+  .t-title{font-family:var(--ui);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Service Sense OS — Circuit Diagram <span class="badge">NodeMCU ESP-32S V1.1</span></h1>
+  <div class="sub">Pin-to-pin wiring for the bench build. GPIOs match <span class="mono">docs/pinmap.md</span>; power matches PRD §3. Board labels (P4, P16…) are printed on the back of the board.</div>
+
+  <div class="tabs">
+    <button class="tab active" data-v="wiring">Wiring diagram</button>
+    <button class="tab" data-v="table">Connection table</button>
+    <button class="tab" data-v="encl">Circular enclosure</button>
+  </div>
+
+  <!-- ============ WIRING ============ -->
+  <div class="view active" id="wiring">
+    <div class="panel">
+      <div class="scroll">
+        <svg viewBox="0 0 1260 860" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Service Sense OS circuit diagram">
+          <text x="20" y="28" fill="var(--accent)" font-size="15" class="t-title" font-weight="700">POWER</text>
+          <!-- Battery -->
+          <rect x="20" y="40" width="170" height="66" rx="8" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+          <text x="105" y="67" fill="var(--text)" font-size="13" text-anchor="middle">4×AA · 6V nom.</text>
+          <text x="105" y="87" fill="var(--faint)" font-size="10" text-anchor="middle">holder + ON/OFF switch</text>
+          <!-- MT3608 -->
+          <rect x="250" y="40" width="170" height="66" rx="8" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+          <text x="335" y="67" fill="var(--text)" font-size="13" text-anchor="middle">MT3608 boost</text>
+          <text x="335" y="87" fill="var(--faint)" font-size="10" text-anchor="middle">trim to 5.0V first</text>
+          <line x1="190" y1="73" x2="250" y2="73" stroke="var(--wire-vcc)" stroke-width="3"/>
+          <text x="220" y="66" fill="var(--faint)" font-size="9" text-anchor="middle">IN+</text>
+
+          <!-- rails -->
+          <line x1="150" y1="106" x2="150" y2="140" stroke="var(--wire-vcc)" stroke-width="3"/>
+          <line x1="150" y1="140" x2="1140" y2="140" stroke="var(--wire-vcc)" stroke-width="3"/>
+          <text x="1150" y="144" fill="var(--wire-vcc)" font-size="11">BAT+ 4.2–6.4V</text>
+          <line x1="335" y1="106" x2="335" y2="165" stroke="var(--wire-vcc)" stroke-width="3"/>
+          <line x1="335" y1="165" x2="1140" y2="165" stroke="var(--wire-vcc)" stroke-width="3" stroke-dasharray="10 4"/>
+          <text x="1150" y="169" fill="var(--wire-vcc)" font-size="11">5V sensors</text>
+          <line x1="380" y1="190" x2="1140" y2="190" stroke="var(--wire-3v3)" stroke-width="2.5"/>
+          <text x="1150" y="194" fill="var(--wire-3v3)" font-size="11">3V3</text>
+          <line x1="60" y1="106" x2="60" y2="215" stroke="var(--wire-gnd)" stroke-width="2.5"/>
+          <line x1="60" y1="215" x2="1140" y2="215" stroke="var(--wire-gnd)" stroke-width="2.5"/>
+          <text x="1150" y="219" fill="var(--wire-gnd)" font-size="11">GND</text>
+          <circle cx="150" cy="140" r="3.5" fill="var(--wire-vcc)"/>
+          <circle cx="335" cy="165" r="3.5" fill="var(--wire-vcc)"/>
+          <circle cx="60" cy="215" r="3.5" fill="var(--wire-gnd)"/>
+
+          <!-- ESP32 board -->
+          <rect x="430" y="290" width="230" height="420" rx="10" fill="var(--surface-1)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="545" y="316" fill="var(--accent)" font-size="14" text-anchor="middle" class="t-title" font-weight="700">NodeMCU ESP-32S</text>
+          <text x="545" y="332" fill="var(--faint)" font-size="10" text-anchor="middle">onboard AMS1117 · BLE · USB</text>
+          <!-- left pins -->
+          <g fill="var(--dim)" font-size="11">
+            <text x="440" y="364">5V  (in)</text>
+            <text x="440" y="394">3V3 (out)</text>
+            <text x="440" y="424">GND</text>
+            <text x="440" y="474">P4  · GPIO4</text>
+            <text x="440" y="524">P16 · GPIO16</text>
+            <text x="440" y="574">P33 · GPIO33</text>
+            <text x="440" y="604">P32 · GPIO32</text>
+            <text x="440" y="634">P25 · GPIO25</text>
+            <text x="440" y="664">P26 · GPIO26</text>
+            <text x="440" y="694">P27 · GPIO27</text>
+            <text x="650" y="364" text-anchor="end">GPIO21 · P21</text>
+            <text x="650" y="394" text-anchor="end">GPIO22 · P22</text>
+          </g>
+          <!-- board power -->
+          <path d="M400 140 V360 H430" fill="none" stroke="var(--wire-vcc)" stroke-width="2.5"/>
+          <circle cx="400" cy="140" r="3.5" fill="var(--wire-vcc)"/>
+          <path d="M380 190 V390 H430" fill="none" stroke="var(--wire-3v3)" stroke-width="2.5"/>
+          <text x="352" y="290" fill="var(--wire-3v3)" font-size="9" text-anchor="end">3V3 rail is</text>
+          <text x="352" y="302" fill="var(--wire-3v3)" font-size="9" text-anchor="end">fed by the board</text>
+          <path d="M360 215 V420 H430" fill="none" stroke="var(--wire-gnd)" stroke-width="2.5"/>
+          <circle cx="360" cy="215" r="3.5" fill="var(--wire-gnd)"/>
+
+          <!-- DS18B20 -->
+          <rect x="70" y="440" width="190" height="62" rx="8" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+          <text x="165" y="464" fill="var(--text)" font-size="12" text-anchor="middle">DS18B20 probe</text>
+          <text x="165" y="481" fill="var(--faint)" font-size="9" text-anchor="middle">red→3V3 · black→GND</text>
+          <text x="165" y="494" fill="var(--faint)" font-size="9" text-anchor="middle">4.7k DATA↔3V3</text>
+          <line x1="260" y1="470" x2="430" y2="470" stroke="var(--wire-data)" stroke-width="2"/>
+          <text x="300" y="463" fill="var(--wire-data)" font-size="9">yellow DATA</text>
+
+          <!-- RGB chain -->
+          <rect x="150" y="512" width="110" height="46" rx="8" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+          <text x="205" y="532" fill="var(--text)" font-size="11" text-anchor="middle">RGB1 · battery</text>
+          <text x="205" y="548" fill="var(--faint)" font-size="9" text-anchor="middle">WS2812B</text>
+          <rect x="20" y="512" width="110" height="46" rx="8" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+          <text x="75" y="532" fill="var(--text)" font-size="11" text-anchor="middle">RGB2 · result</text>
+          <text x="75" y="548" fill="var(--faint)" font-size="9" text-anchor="middle">WS2812B</text>
+          <line x1="260" y1="520" x2="320" y2="520" stroke="var(--wire-data)" stroke-width="2"/>
+          <rect x="320" y="513" width="34" height="14" rx="2" fill="var(--surface-0)" stroke="var(--wire-data)"/>
+          <line x1="354" y1="520" x2="430" y2="520" stroke="var(--wire-data)" stroke-width="2"/>
+          <text x="337" y="508" fill="var(--faint)" font-size="9" text-anchor="middle">470Ω</text>
+          <line x1="150" y1="535" x2="130" y2="535" stroke="var(--wire-data)" stroke-width="2"/>
+          <text x="140" y="574" fill="var(--faint)" font-size="8" text-anchor="middle">DOUT→DIN</text>
+          <text x="140" y="586" fill="var(--faint)" font-size="8" text-anchor="middle">VCC 3V3 · GND</text>
+
+          <!-- Buttons -->
+          <rect x="150" y="600" width="140" height="110" rx="8" fill="var(--surface-0)" stroke="var(--wire-btn)"/>
+          <text x="220" y="620" fill="var(--wire-btn)" font-size="11" text-anchor="middle">Button module</text>
+          <text x="220" y="634" fill="var(--faint)" font-size="8" text-anchor="middle">VCC 3V3 · GND</text>
+          <text x="284" y="654" fill="var(--wire-btn)" font-size="9" text-anchor="end">POWER</text>
+          <path d="M290 650 H320 V570 H430" fill="none" stroke="var(--wire-btn)" stroke-width="1.8"/>
+          <text x="284" y="668" fill="var(--wire-btn)" font-size="9" text-anchor="end">TEMP</text>
+          <path d="M290 664 H335 V600 H430" fill="none" stroke="var(--wire-btn)" stroke-width="1.8"/>
+          <text x="284" y="682" fill="var(--wire-btn)" font-size="9" text-anchor="end">TDS</text>
+          <path d="M290 678 H350 V630 H430" fill="none" stroke="var(--wire-btn)" stroke-width="1.8"/>
+          <text x="284" y="696" fill="var(--wire-btn)" font-size="9" text-anchor="end">VOLT</text>
+          <path d="M290 692 H365 V660 H430" fill="none" stroke="var(--wire-btn)" stroke-width="1.8"/>
+          <text x="230" y="724" fill="var(--wire-btn)" font-size="9" text-anchor="end">PRESS</text>
+          <path d="M240 710 V730 H390 V690 H430" fill="none" stroke="var(--wire-btn)" stroke-width="1.8"/>
+          <text x="400" y="750" fill="var(--faint)" font-size="9" text-anchor="middle">all RTC GPIOs · POWER (P33) wakes from deep sleep</text>
+
+          <!-- ADS1115 -->
+          <rect x="820" y="300" width="200" height="215" rx="10" fill="var(--surface-1)" stroke="var(--border-strong)" stroke-width="1.5"/>
+          <text x="920" y="326" fill="var(--text)" font-size="14" text-anchor="middle" class="t-title" font-weight="700">ADS1115</text>
+          <text x="920" y="342" fill="var(--faint)" font-size="10" text-anchor="middle">16-bit ADC · I²C 0x48</text>
+          <g fill="var(--dim)" font-size="11">
+            <text x="830" y="364">SDA</text>
+            <text x="830" y="394">SCL</text>
+            <text x="830" y="424">A0 volt</text>
+            <text x="830" y="449">A1 TDS</text>
+            <text x="830" y="474">A2 press</text>
+            <text x="830" y="499">A3 batt</text>
+            <text x="1010" y="364" text-anchor="end">VDD</text>
+            <text x="1010" y="394" text-anchor="end">GND</text>
+            <text x="1010" y="424" text-anchor="end">ADDR</text>
+          </g>
+          <!-- ADS power -->
+          <path d="M1060 190 V360 H1020" fill="none" stroke="var(--wire-3v3)" stroke-width="2"/>
+          <circle cx="1060" cy="190" r="3.5" fill="var(--wire-3v3)"/>
+          <path d="M1080 215 V390 H1020" fill="none" stroke="var(--wire-gnd)" stroke-width="2"/>
+          <circle cx="1080" cy="215" r="3.5" fill="var(--wire-gnd)"/>
+          <path d="M1020 420 H1080 V390" fill="none" stroke="var(--wire-gnd)" stroke-width="2"/>
+          <circle cx="1080" cy="390" r="3.5" fill="var(--wire-gnd)"/>
+          <!-- I2C -->
+          <line x1="660" y1="360" x2="820" y2="360" stroke="var(--wire-i2c)" stroke-width="2"/>
+          <line x1="660" y1="390" x2="820" y2="390" stroke="var(--wire-i2c)" stroke-width="2"/>
+          <text x="740" y="353" fill="var(--wire-i2c)" font-size="9" text-anchor="middle">SDA</text>
+          <text x="740" y="405" fill="var(--wire-i2c)" font-size="9" text-anchor="middle">SCL</text>
+          <path d="M700 190 V360 M720 190 V390" fill="none" stroke="var(--faint)" stroke-width="1" stroke-dasharray="3 3"/>
+          <circle cx="700" cy="360" r="3" fill="var(--wire-i2c)"/>
+          <circle cx="720" cy="390" r="3" fill="var(--wire-i2c)"/>
+          <text x="728" y="250" fill="var(--faint)" font-size="9">2× 4.7k</text>
+          <text x="728" y="262" fill="var(--faint)" font-size="9">pull-ups to 3V3</text>
+
+          <!-- ZMPT101B -> divider -> A0 -->
+          <rect x="910" y="540" width="160" height="58" rx="8" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+          <text x="990" y="564" fill="var(--text)" font-size="12" text-anchor="middle">ZMPT101B</text>
+          <text x="990" y="582" fill="var(--faint)" font-size="9" text-anchor="middle">AC volt · VCC 5V</text>
+          <rect x="840" y="556" width="56" height="26" rx="4" fill="var(--surface-0)" stroke="var(--red)" stroke-dasharray="3 3"/>
+          <text x="868" y="573" fill="var(--red)" font-size="8" text-anchor="middle">10k/15k</text>
+          <line x1="910" y1="569" x2="896" y2="569" stroke="var(--wire-sig)" stroke-width="2"/>
+          <path d="M840 569 H800 V420 H820" fill="none" stroke="var(--wire-sig)" stroke-width="2"/>
+          <text x="868" y="550" fill="var(--red)" font-size="8" text-anchor="middle">added</text>
+
+          <!-- TDS -> A1 -->
+          <rect x="910" y="620" width="160" height="58" rx="8" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+          <text x="990" y="644" fill="var(--text)" font-size="12" text-anchor="middle">TDS module</text>
+          <text x="990" y="662" fill="var(--faint)" font-size="9" text-anchor="middle">analog · VCC 3V3</text>
+          <path d="M910 649 H780 V445 H820" fill="none" stroke="var(--wire-sig)" stroke-width="2"/>
+          <text x="850" y="642" fill="var(--wire-sig)" font-size="9" text-anchor="middle">A → A1</text>
+
+          <!-- Pressure -> divider -> A2 -->
+          <rect x="910" y="700" width="160" height="58" rx="8" fill="var(--surface-2)" stroke="var(--border-strong)"/>
+          <text x="990" y="724" fill="var(--text)" font-size="12" text-anchor="middle">Pressure 1.2 MPa</text>
+          <text x="990" y="742" fill="var(--faint)" font-size="9" text-anchor="middle">0.5–4.5V · VCC 5V</text>
+          <rect x="840" y="716" width="56" height="26" rx="4" fill="var(--surface-0)" stroke="var(--faint)" stroke-dasharray="3 3"/>
+          <text x="868" y="733" fill="var(--faint)" font-size="8" text-anchor="middle">10k/15k</text>
+          <line x1="910" y1="729" x2="896" y2="729" stroke="var(--wire-sig)" stroke-width="2"/>
+          <path d="M840 729 H760 V470 H820" fill="none" stroke="var(--wire-sig)" stroke-width="2"/>
+
+          <!-- Battery divider -> A3 -->
+          <rect x="910" y="780" width="160" height="58" rx="8" fill="var(--surface-0)" stroke="var(--faint)" stroke-dasharray="3 3"/>
+          <text x="990" y="804" fill="var(--text)" font-size="12" text-anchor="middle">Battery divider</text>
+          <text x="990" y="822" fill="var(--faint)" font-size="9" text-anchor="middle">15k top / 10k bottom +100nF</text>
+          <path d="M1110 140 V809 H1070" fill="none" stroke="var(--wire-vcc)" stroke-width="1.8" stroke-dasharray="5 3"/>
+          <circle cx="1110" cy="140" r="3.5" fill="var(--wire-vcc)"/>
+          <path d="M910 809 H740 V495 H820" fill="none" stroke="var(--wire-sig)" stroke-width="2"/>
+          <text x="850" y="802" fill="var(--wire-sig)" font-size="9" text-anchor="middle">tap → A3</text>
+        </svg>
+      </div>
+      <div class="legend">
+        <span><i class="lw" style="background:var(--wire-vcc)"></i>Battery / 5V</span>
+        <span><i class="lw" style="background:var(--wire-3v3)"></i>3V3</span>
+        <span><i class="lw" style="background:var(--wire-gnd)"></i>GND</span>
+        <span><i class="lw" style="background:var(--wire-sig)"></i>Analog signal</span>
+        <span><i class="lw" style="background:var(--wire-i2c)"></i>I²C</span>
+        <span><i class="lw" style="background:var(--wire-data)"></i>1-Wire / RGB data</span>
+        <span><i class="lw" style="background:var(--wire-btn)"></i>Button</span>
+      </div>
+      <div class="note">Power rails run across the top. The battery feeds the board's 5V pin, and the board's own AMS1117 makes the 3V3 rail that powers the ESP32, ADS1115, DS18B20, TDS, LEDs and buttons. The MT3608 makes 5V only for the ZMPT101B and the pressure sensor. Dots mark joints; crossings without a dot are not connected. Scroll sideways on mobile.</div>
+      <div class="flag"><b>Battery on the 5V pin.</b> Fresh cells give up to ~6.4V. The onboard AMS1117 is rated to 15V, so this is the PRD topology, but it's above the pin's 5V label. To stay within it, feed the 5V pin from the MT3608 output instead. Either way, switch the battery off while USB is plugged in.</div>
+      <div class="flag"><b>ZMPT101B divider (added, not in the PRD).</b> On a 5V supply its output idles at ~2.5V and can swing above 3.6V, which is past the ADS1115's absolute maximum when the ADC runs on 3.3V. A 10k/15k divider (like the pressure sensor's) keeps it under 3V.</div>
+      <div class="flag"><b>Sleep current.</b> The dev board's USB-serial chip, power LED and regulator draw milliamps in deep sleep, so the &lt;10 µA target can only be measured on the custom PCB.</div>
+    </div>
+  </div>
+
+  <!-- ============ TABLE ============ -->
+  <div class="view" id="table">
+    <div class="panel">
+      <div class="scroll" style="max-height:70vh;overflow-y:auto;">
+        <table>
+          <thead><tr><th>From</th><th>Pin</th><th>To</th><th>Pin</th><th>Wire</th><th>Notes</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="note">This table is the build reference: wire exactly this. "Board label" is what's printed on the back of the NodeMCU ESP-32S.</div>
+    </div>
+  </div>
+
+  <!-- ============ ENCLOSURE ============ -->
+  <div class="view encl" id="encl">
+    <div class="panel">
+      <div class="scroll">
+        <svg viewBox="0 0 700 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Circular enclosure layout">
+          <text x="350" y="28" fill="var(--accent)" font-size="15" text-anchor="middle" class="t-title" font-weight="700">TOP-DOWN · CIRCULAR HANDHELD</text>
+          <circle cx="350" cy="330" r="230" fill="var(--surface-1)" stroke="var(--border-strong)" stroke-width="2"/>
+          <circle cx="350" cy="330" r="120" fill="var(--surface-2)" stroke="var(--border-strong)" stroke-dasharray="4 3"/>
+          <text x="350" y="315" fill="var(--dim)" font-size="12" text-anchor="middle">PCB CORE</text>
+          <text x="350" y="333" fill="var(--faint)" font-size="10" text-anchor="middle">ESP32 · ADS1115</text>
+          <text x="350" y="349" fill="var(--faint)" font-size="10" text-anchor="middle">MT3608 · AMS1117</text>
+          <circle cx="350" cy="150" r="20" fill="var(--surface-0)" stroke="var(--green)" stroke-width="2"/>
+          <text x="350" y="155" fill="var(--green)" font-size="13" text-anchor="middle">⏻</text>
+          <text x="350" y="120" fill="var(--dim)" font-size="10" text-anchor="middle">Power</text>
+          <circle cx="300" cy="180" r="9" fill="var(--green)"/>
+          <circle cx="400" cy="180" r="9" fill="var(--amber)"/>
+          <text x="300" y="205" fill="var(--faint)" font-size="8" text-anchor="middle">RGB1 battery</text>
+          <text x="400" y="205" fill="var(--faint)" font-size="8" text-anchor="middle">RGB2 result</text>
+          <rect x="556" y="310" width="46" height="40" rx="5" fill="var(--surface-0)" stroke="var(--wire-sig)" stroke-width="2"/>
+          <text x="579" y="334" fill="var(--wire-sig)" font-size="9" text-anchor="middle">PRESS</text>
+          <text x="579" y="300" fill="var(--faint)" font-size="9" text-anchor="middle">G1/4" port</text>
+          <line x1="470" y1="330" x2="556" y2="330" stroke="var(--wire-sig)" stroke-width="2" stroke-dasharray="3 3"/>
+          <rect x="470" y="500" width="46" height="40" rx="5" fill="var(--surface-0)" stroke="var(--wire-sig)" stroke-width="2"/>
+          <text x="493" y="524" fill="var(--wire-sig)" font-size="9" text-anchor="middle">TDS</text>
+          <text x="493" y="560" fill="var(--faint)" font-size="9" text-anchor="middle">probe jack</text>
+          <line x1="420" y1="420" x2="493" y2="500" stroke="var(--wire-sig)" stroke-width="2" stroke-dasharray="3 3"/>
+          <rect x="184" y="500" width="46" height="40" rx="5" fill="var(--surface-0)" stroke="var(--wire-data)" stroke-width="2"/>
+          <text x="207" y="524" fill="var(--wire-data)" font-size="9" text-anchor="middle">TEMP</text>
+          <text x="207" y="560" fill="var(--faint)" font-size="9" text-anchor="middle">DS18B20 jack</text>
+          <line x1="280" y1="420" x2="207" y2="500" stroke="var(--wire-data)" stroke-width="2" stroke-dasharray="3 3"/>
+          <rect x="98" y="310" width="46" height="40" rx="5" fill="var(--surface-0)" stroke="var(--wire-vcc)" stroke-width="2"/>
+          <text x="121" y="334" fill="var(--wire-vcc)" font-size="8" text-anchor="middle">AC V</text>
+          <text x="121" y="300" fill="var(--faint)" font-size="9" text-anchor="middle">L / N leads</text>
+          <line x1="230" y1="330" x2="144" y2="330" stroke="var(--wire-vcc)" stroke-width="2" stroke-dasharray="3 3"/>
+          <path d="M 270 545 A 120 120 0 0 0 430 545 Z" fill="var(--surface-0)" stroke="var(--border-strong)"/>
+          <text x="350" y="540" fill="var(--faint)" font-size="10" text-anchor="middle">Battery hatch (4×AA)</text>
+          <text x="350" y="615" fill="var(--faint)" font-size="10" text-anchor="middle">Sensors plug into rim ports → routed to the PCB core</text>
+        </svg>
+      </div>
+      <div class="note">Concept only (PRD §3: no enclosure yet; bench prototype on perfboard). Round handheld with the PCB in the centre and sensor connectors around the rim. Power button and both status LEDs on the top face, battery hatch underneath.</div>
+    </div>
+  </div>
+
+  <div class="toolbar"><button class="tbtn" id="themeBtn">◐ Theme</button></div>
+</div>
+
+<script>
+(function(){
+  var rows=[
+    {g:"POWER (PRD §3)"},
+    {f:"4×AA pack",p:"+",t:"ON/OFF switch",tp:"—",w:"vcc",n:"Switch then feeds the BAT+ rail"},
+    {f:"BAT+ rail",p:"—",t:"ESP32 board",tp:"5V",w:"vcc",n:"Onboard AMS1117 makes 3V3. Battery off while USB is plugged in"},
+    {f:"BAT+ rail",p:"—",t:"MT3608",tp:"IN+",w:"vcc",n:""},
+    {f:"4×AA pack",p:"−",t:"GND rail",tp:"—",w:"gnd",n:"Also MT3608 IN− and OUT−"},
+    {f:"MT3608",p:"OUT+",t:"5V sensor rail",tp:"—",w:"vcc",n:"Trim to 5.0V BEFORE connecting sensors"},
+    {f:"ESP32 board",p:"3V3",t:"3V3 rail",tp:"—",w:"v33",n:"Powers ADS1115, DS18B20, TDS, LEDs, buttons"},
+    {f:"ESP32 board",p:"GND",t:"GND rail",tp:"—",w:"gnd",n:""},
+    {g:"TEMPERATURE — DS18B20 (1-Wire)"},
+    {f:"ESP32",p:"GPIO4 (P4)",t:"DS18B20",tp:"DATA (yellow)",w:"data",n:"4.7k pull-up DATA→3V3 (required)"},
+    {f:"3V3 rail",p:"—",t:"DS18B20",tp:"VDD (red)",w:"v33",n:""},
+    {f:"GND rail",p:"—",t:"DS18B20",tp:"GND (black)",w:"gnd",n:""},
+    {g:"ADC — ADS1115 (I²C 0x48)"},
+    {f:"ESP32",p:"GPIO21 (P21)",t:"ADS1115",tp:"SDA",w:"i2c",n:"4.7k pull-up to 3V3 (skip if the breakout has its own)"},
+    {f:"ESP32",p:"GPIO22 (P22)",t:"ADS1115",tp:"SCL",w:"i2c",n:"4.7k pull-up to 3V3 (skip if the breakout has its own)"},
+    {f:"3V3 rail",p:"—",t:"ADS1115",tp:"VDD",w:"v33",n:"Inputs must stay ≤ 3.6V"},
+    {f:"GND rail",p:"—",t:"ADS1115",tp:"GND & ADDR",w:"gnd",n:"ADDR→GND sets address 0x48"},
+    {g:"AC VOLTAGE — ZMPT101B"},
+    {f:"5V sensor rail",p:"—",t:"ZMPT101B",tp:"VCC",w:"vcc",n:""},
+    {f:"GND rail",p:"—",t:"ZMPT101B",tp:"GND",w:"gnd",n:""},
+    {f:"ZMPT101B",p:"OUT",t:"10k/15k divider",tp:"in",w:"sig",n:"Added: keeps the output under 3V"},
+    {f:"Divider tap",p:"—",t:"ADS1115",tp:"A0",w:"sig",n:"Trim the module pot so the output idles mid-scale at 0V AC"},
+    {g:"TDS — analog module"},
+    {f:"3V3 rail",p:"—",t:"TDS",tp:"+ (VCC)",w:"v33",n:""},
+    {f:"GND rail",p:"—",t:"TDS",tp:"− (GND)",w:"gnd",n:""},
+    {f:"TDS",p:"A",t:"ADS1115",tp:"A1",w:"sig",n:"Bench test: GPIO34 (P34) directly instead"},
+    {g:"PRESSURE — 1.2 MPa transducer"},
+    {f:"5V sensor rail",p:"—",t:"Pressure",tp:"VCC (red)",w:"vcc",n:""},
+    {f:"GND rail",p:"—",t:"Pressure",tp:"GND (black)",w:"gnd",n:""},
+    {f:"Pressure",p:"SIG",t:"10k/15k divider",tp:"in",w:"sig",n:"10k top, 15k bottom: 4.5V → 2.7V"},
+    {f:"Divider tap",p:"—",t:"ADS1115",tp:"A2",w:"sig",n:"+100nF tap→GND. Bench test: tap → GPIO35 (P35) instead"},
+    {g:"BATTERY MONITOR"},
+    {f:"BAT+ rail",p:"—",t:"15k/10k divider",tp:"in",w:"vcc",n:"15k top, 10k bottom: 6.4V → 2.56V"},
+    {f:"Divider tap",p:"—",t:"ADS1115",tp:"A3",w:"sig",n:"+100nF tap→GND. Firmware cutoff below 4.2V"},
+    {g:"STATUS RGB — WS2812B ×2 (chained)"},
+    {f:"ESP32",p:"GPIO16 (P16)",t:"RGB1 DIN",tp:"via 470Ω",w:"data",n:"470Ω in series on the data line"},
+    {f:"RGB1",p:"DOUT",t:"RGB2",tp:"DIN",w:"data",n:"One pin drives both"},
+    {f:"3V3 rail",p:"—",t:"RGB1 & RGB2",tp:"VCC",w:"v33",n:"Dimmer than at 5V, but data levels stay safe"},
+    {f:"GND rail",p:"—",t:"RGB1 & RGB2",tp:"GND",w:"gnd",n:""},
+    {g:"BUTTONS — button module (all RTC GPIOs)"},
+    {f:"ESP32",p:"GPIO33 (P33)",t:"POWER button",tp:"OUT",w:"btn",n:"Wakes from deep sleep (ext0)"},
+    {f:"ESP32",p:"GPIO32 (P32)",t:"TEMP button",tp:"OUT",w:"btn",n:""},
+    {f:"ESP32",p:"GPIO25 (P25)",t:"TDS button",tp:"OUT",w:"btn",n:""},
+    {f:"ESP32",p:"GPIO26 (P26)",t:"VOLT button",tp:"OUT",w:"btn",n:""},
+    {f:"ESP32",p:"GPIO27 (P27)",t:"PRESS button",tp:"OUT",w:"btn",n:""},
+    {f:"3V3 rail",p:"—",t:"Button module",tp:"VCC",w:"v33",n:""},
+    {f:"GND rail",p:"—",t:"Button module",tp:"GND",w:"gnd",n:""},
+  ];
+  var col={vcc:"var(--wire-vcc)",v33:"var(--wire-3v3)",gnd:"var(--wire-gnd)",sig:"var(--wire-sig)",i2c:"var(--wire-i2c)",data:"var(--wire-data)",btn:"var(--wire-btn)"};
+  var wname={vcc:"BAT/5V",v33:"3V3",gnd:"GND",sig:"Signal",i2c:"I²C",data:"Data",btn:"Button"};
+  var h="";
+  rows.forEach(function(r){
+    if(r.g){h+='<tr class="grp"><td colspan="6">'+r.g+'</td></tr>';return;}
+    h+='<tr><td>'+r.f+'</td><td class="mono">'+r.p+'</td><td>'+r.t+'</td><td class="mono">'+r.tp+'</td>'+
+       '<td class="mono"><span class="dot" style="background:'+col[r.w]+'"></span>'+wname[r.w]+'</td>'+
+       '<td style="color:var(--faint);font-size:0.74rem">'+(r.n||'')+'</td></tr>';
+  });
+  document.getElementById("tbody").innerHTML=h;
+
+  document.querySelectorAll(".tab").forEach(function(t){
+    t.addEventListener("click",function(){
+      document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active");});
+      document.querySelectorAll(".view").forEach(function(x){x.classList.remove("active");});
+      t.classList.add("active");
+      document.getElementById(t.dataset.v).classList.add("active");
+    });
+  });
+  document.getElementById("themeBtn").addEventListener("click",function(){
+    var cur=document.documentElement.getAttribute("data-theme");
+    var next=cur==="dark"?"light":cur==="light"?"dark":(matchMedia("(prefers-color-scheme: dark)").matches?"light":"dark");
+    document.documentElement.setAttribute("data-theme",next);
+  });
+})();
+</script>
+</body>
+</html>
