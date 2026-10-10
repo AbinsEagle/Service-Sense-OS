@@ -173,3 +173,7 @@ the result, and any problems. Toolchain setup: arduino-cli 1.5.1 with the esp32:
 **Note:** their calibration used raw `analogRead`; ours uses `analogReadMilliVolts` (factory-corrected), so expect a small difference. Check against a multimeter.
 
 **Version:** firmware bumped to 0.4.1.
+
+## 2026-10-10 — Pin map updated to the hardware team's board
+
+**Done:** Rewrote `docs/pinmap.md` to match `ssos_main` and the hardware team's sketch (buttons 27/14/12/26, LEDs 33/25/32, buzzer 22, DS18B20 21, pressure 15, TDS 13, ZMPT 36; no ADS1115). Fixed the ADC line and checklist in the README. `docs/pinmap.html` and `docs/wiring.html` still show the old bench map and are not redrawn.

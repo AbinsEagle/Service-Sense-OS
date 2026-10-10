@@ -40,7 +40,7 @@ The technician app is `app/web/` (React + Material 3). In Vercel, the project at
 
 ## Hardware (MVP, locked in the PRD)
 - MCU: ESP32-WROOM-32 class (dev board: NodeMCU ESP-32S V1.1, 38-pin, DevKitC-compatible pinout, 4MB flash)
-- ADC: ADS1115 16-bit I2C. A0 voltage, A1 TDS, A2 pressure, A3 battery
+- ADC: direct ESP32 ADC (no ADS1115). Voltage (ZMPT101B) GPIO 36, TDS GPIO 13, pressure GPIO 15
 - Sensors: DS18B20 (1-Wire), analog TDS, ZMPT101B, 0.5–4.5V pressure transducer (0–1.2 MPa)
 - Power: 4× AA → 3.3V LDO (logic) + MT3608 boost to 5V (ZMPT101B, pressure)
 - UI (bench prototype): 4-button tactile module and a traffic-light LED module (see docs/design-decisions.md). Final design: POWER button + 4 sensor buttons, 2× WS2812B LEDs
@@ -63,11 +63,10 @@ Work proceeds track by track, in this order.
 
 **1. Hardware**
 - [x] Toolchain set up; blink test flashed and verified on the dev board
-- [x] Pin map + wiring diagram in `docs/` (`pinmap.md`, `pinmap.html`, `wiring.html`)
+- [x] Pin map in `docs/pinmap.md` (hardware team's board, 2026-10-10); `pinmap.html` and `wiring.html` still show the old bench map and need redrawing
 - [ ] Power budget review against the <10 µA sleep target
 - [ ] Bench build on perfboard, each sensor verified individually
   - [x] DS18B20 temperature (reference thermometer check pending)
-  - [ ] ADS1115 ADC
   - [x] TDS (K_VALUE calibration pending)
   - [ ] ZMPT101B voltage
   - [ ] Pressure transducer
