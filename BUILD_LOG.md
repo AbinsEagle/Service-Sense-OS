@@ -163,3 +163,13 @@ the result, and any problems. Toolchain setup: arduino-cli 1.5.1 with the esp32:
 **Done:** Copied the verified bench firmware (TEMP + TDS, bench pins, BLE) to `firmware/v00/ssos_v00/` with version string 0.0.0 and a README. Current firmware stays in `firmware/ssos_main`.
 
 **Tested:** compiles (85% flash). Not re-flashed; code is identical to `temp_tds_ble` apart from the version string.
+
+## 2026-10-10 — Hardware team's updated sketch; ZMPT calibration adopted
+
+**Done:** Compared the hardware team's updated sketch with `ssos_main`. Pins are identical. Their only functional change is the AC voltage via the ZMPT101B library (sensitivity 500, readings under 10 V shown as 0); they calibrated it against mains. The library computes volts = RMS volts at the pin x sensitivity (checked in ZMPT101B 1.0.1 source), so this equals our `ZMPT_CALIBRATION`. Set `ZMPT_CALIBRATION` to 500 and `VOLT_MIN_RMS_MV` to 20 (= 10 V) in `firmware/ssos_main`. We keep our own whole-cycle RMS (settle, clipping fault) rather than the library.
+
+**Tested:** compiles (85% flash). Not flashed.
+
+**Note:** their calibration used raw `analogRead`; ours uses `analogReadMilliVolts` (factory-corrected), so expect a small difference. Check against a multimeter.
+
+**Version:** firmware bumped to 0.4.1.

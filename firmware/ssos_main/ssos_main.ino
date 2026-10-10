@@ -19,8 +19,8 @@
 // ASSUMPTIONS TO CONFIRM WITH THE HARDWARE TEAM (see the constants below):
 //   - Pressure transducer (0.5-4.5 V = 0-1.2 MPa) reaches GPIO 15 through a 10k/15k divider.
 //   - TDS and pressure go straight to the ESP32 ADC (no ADS1115 on this board).
-//   - ZMPT101B is NOT calibrated yet (ZMPT_CALIBRATION = 1.0): the VOLT value is the raw RMS
-//     at the pin and is marked "cal":false in the message until the constant is set.
+//   - ZMPT101B uses the hardware team's calibration (ZMPT_CALIBRATION = 500, their library
+//     sensitivity: volts = RMS volts at the pin x 500). Re-check against a multimeter.
 //   - Mains is 50 or 60 Hz (a 100 ms window holds 5 or 6 whole cycles either way).
 //   - Buzzer is an active buzzer (on when the pin is HIGH); LEDs are active-high.
 // All thresholds are first guesses, to be tuned on real traces.
@@ -32,7 +32,7 @@
 #include <BLE2902.h>
 #include <math.h>
 
-#define FW_VERSION "0.4.0"
+#define FW_VERSION "0.4.1"
 #define BLE_SERVICE_UUID "6f1b0001-8c3a-4d7e-9a52-0b1d5c7e4a10"
 #define BLE_READING_UUID "6f1b0002-8c3a-4d7e-9a52-0b1d5c7e4a10"
 #define BLE_CHUNK 20           // bytes per notification: fits the default BLE packet size everywhere
@@ -93,11 +93,11 @@
 #define PRESS_TIMEOUT_MS 20000
 
 // Voltage (ZMPT101B)
-#define ZMPT_CALIBRATION 1.0f        // volts of mains per volt RMS at the pin: SET AFTER CALIBRATION
+#define ZMPT_CALIBRATION 500.0f      // volts of mains per volt RMS at the pin; hardware team calibrated against mains (their ZMPT101B sensitivity = 500)
 #define VOLT_WINDOW_SAMPLES 500      // 500 x 200 us = 100 ms = whole mains cycles at 50 and 60 Hz
 #define VOLT_SAMPLE_US 200
 #define VOLT_WINDOWS 40              // 40 x 100 ms = 4 s
-#define VOLT_MIN_RMS_MV 5            // below this no AC is seen: sensor/mains missing
+#define VOLT_MIN_RMS_MV 20           // below this no AC is seen (= 10 V at the calibrated gain, same as the hardware team's cutoff)
 #define VOLT_CLIP_LOW_MV 40          // samples this close to the rails = clipping = fault
 #define VOLT_CLIP_HIGH_MV 3100
 #define VOLT_STABLE_FRAC 0.05f       // spread (max-min) within 5% of the median = settled
